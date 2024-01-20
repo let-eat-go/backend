@@ -32,6 +32,9 @@ subprojects {
     dependencies {
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
+
+        implementation project(':leteatgo-global')
+
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
     }
 
@@ -58,6 +61,7 @@ project(':leteatgo-external') {
 project(':leteatgo-api') {
     dependencies {
         implementation project(':leteatgo-domain')
+        implementation project(':leteatgo-external')
     }
 }
 
