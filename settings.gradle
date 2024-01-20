@@ -1,0 +1,9 @@
+rootProject.name = 'leteatgo'
+include 'leteatgo-domain'
+include 'leteatgo-api'
+include 'leteatgo-notification'
+include 'leteatgo-chat'
+include 'leteatgo-batch'
+include 'leteatgo-global'
+include 'leteatgo-external'
+
