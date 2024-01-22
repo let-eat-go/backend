@@ -1,0 +1,72 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "restdocs-swagger Test API Documentation",
+    "description" : "Spring REST Docs with SwaggerUI",
+    "version" : "0.0.1"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:9090"
+  } ],
+  "tags" : [ ],
+  "paths" : {
+    "/test" : {
+      "post" : {
+        "tags" : [ "test" ],
+        "operationId" : "test post",
+        "requestBody" : {
+          "content" : {
+            "application/json;charset=UTF-8" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/test1038016720"
+              },
+              "examples" : {
+                "test post" : {
+                  "value" : "{\"name\":\"kim\",\"age\":20}"
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/test486549215"
+                },
+                "examples" : {
+                  "test post" : {
+                    "value" : "{\"code\":\"success\",\"name\":\"kim\",\"age\":20}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "test1038016720" : {
+        "required" : [ "age", "name" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "이름"
+          },
+          "age" : {
+            "type" : "number",
+            "description" : "나이"
+          }
+        }
+      },
+      "test486549215" : {
+        "type" : "object"
+      }
+    }
+  }
+}

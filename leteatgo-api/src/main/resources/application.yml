@@ -4,3 +4,22 @@ server:
 spring:
   profiles:
     active: local
+
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    url: /docs/leteatgo-api.json
+    path: /docs/swagger
+
+logging:
+  level:
+    com.leteatgo: info
+  file:
+    name: leteatgo-api/logs/api.log
+    path: leteatgo-api/logs
+  logback:
+    rollingpolicy:
+      max-history: 10
+      max-file-size: 10MB
+      file-name-pattern: ${LOG_FILE}.%d{yyyy-MM-dd}.%i.log
