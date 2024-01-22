@@ -1,5 +1,5 @@
 ---
-name: bakclog template
+name: backlog template
 about: 프로덕트 백로그를 등록합니다.
 title: ''
 labels: ''
