@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!--    Constants     -->
+  <include resource="appenders/async-console-appender.xml"/>
+
+  <property name="FILE_LOG_PATTERN"
+    value="%d{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul} | ${LOG_LEVEL_PATTERN:-%5p} | %thread |  %X{traceId} | [%logger{0}:%line] - %message %n"/>
+
+  <property name="CONSOLE_LOG_PATTERN"
+    value="%highlight(%-5level|) %d{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul} %cyan([%thread]) %magenta([%logger{0}:%line]) - %message %n"/>
+
+  <!-- Console   -->
+  <springProfile name="local">
+    <root level="INFO">
+      <appender-ref ref="ASYNC_CONSOLE_APPENDER"/>
+    </root>
+  </springProfile>
+
+  <!--    Profiles    -->
+  <springProfile name="test">
+    <root level="INFO">
+      <appender-ref ref="ASYNC_CONSOLE_APPENDER"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="dev">
+    <include resource="appenders/file-appender.xml"/>
+
+    <property name="FILE_PATH"
+      value="${user.home}/logs/dev"/>
+
+    <root level="INFO">
+      <appender-ref ref="ASYNC_CONSOLE_APPENDER"/>
+      <appender-ref ref="FILE_APPENDER"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="prod">
+    <include resource="appenders/file-appender.xml"/>
+
+    <property name="FILE_PATH"
+      value="${user.home}/logs/prod"/>
+
+    <root level="INFO">
+      <appender-ref ref="ASYNC_CONSOLE_APPENDER"/>
+      <appender-ref ref="FILE_APPENDER"/>
+    </root>
+  </springProfile>
+
+  <timestamp datePattern="yyyy-MM-dd"
+    key="DATE_FORMAT"/>
+</configuration>
