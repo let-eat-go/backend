@@ -1,0 +1,10 @@
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    url: /docs/leteatgo-api.yaml
+    path: /docs/swagger
+
+external:
+  kakao:
+    key: ${KAKAO_KEY}
