@@ -19,7 +19,7 @@ public interface KakaoApiClient extends SearchPlaceClient {
             @RequestParam("page") Integer page,
             @RequestParam("x") Double longitude,
             @RequestParam("y") Double latitude,
-            @RequestParam(value = "radius", defaultValue = "1000", required = false) Integer radius,
-            @RequestParam(value = "sort", defaultValue = "accuracy", required = false) String sort
+            @RequestParam(value = "radius", required = false) Integer radius,
+            @RequestParam(value = "sort", required = false) String sort
     );
 }
