@@ -1,5 +1,6 @@
-package com.leteatgo.domain.tastyRestaurant.entity;
+package com.leteatgo.domain.tastyrestaurant.entity;
 
+import com.leteatgo.global.entity.BaseEntity;
 import com.leteatgo.global.type.RestaurantCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -12,11 +13,10 @@ import lombok.NoArgsConstructor;
 @Table(
         name = "tasty_restaurant",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_tasty_restaurant_kakao_id", columnNames = {"kakao_id"}
-                )
+                @UniqueConstraint(name = "uk_tasty_restaurant_kakao_id", columnNames = {"kakao_id"})
         }
 )
-public class TastyRestaurant {
+public class TastyRestaurant extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,5 +52,4 @@ public class TastyRestaurant {
 
     @Column(name = "number_of_uses", nullable = false)
     private Integer numberOfUses;
-    
 }
