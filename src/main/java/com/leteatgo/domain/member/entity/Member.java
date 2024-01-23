@@ -3,6 +3,7 @@ package com.leteatgo.domain.member.entity;
 import com.leteatgo.domain.member.type.LoginType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,7 +22,8 @@ import java.time.LocalDateTime;
 public class Member {
 
     public static final String DEFAULT_INTRODUCE = "자기소개를 작성해주세요";
-    public static final String DEFAULT_PROFILE_IMAGE = "";
+    public static final String DEFAULT_PROFILE_IMAGE = "default_profile_image.png";
+    public static final Double DEFAULT_MANNER_TEMPERATURE = 36.5;
 
     @Id
     @Column(name = "id")
@@ -56,4 +58,17 @@ public class Member {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Builder
+    protected Member(String email, String nickname, String password, String phoneNumber,
+            LoginType loginType
+    ) {
+        this.email = email;
+        this.nickname = nickname;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.profileImage = DEFAULT_PROFILE_IMAGE;
+        this.introduce = DEFAULT_INTRODUCE;
+        this.mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
+        this.loginType = loginType;
+    }
 }
