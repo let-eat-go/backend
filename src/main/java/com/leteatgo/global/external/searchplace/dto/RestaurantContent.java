@@ -20,7 +20,7 @@ public record RestaurantContent(
         return RestaurantContent.builder()
                 .id(document.kakaoId())
                 .name(document.name())
-                .category(document.category())
+                .category(document.category().split(">")[1].trim())
                 .phoneNumber(document.phoneNumber())
                 .roadAddress(document.roadAddress())
                 .landAddress(document.landAddress())
