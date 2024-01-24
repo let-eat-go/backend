@@ -5,6 +5,8 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static com.epages.restdocs.apispec.Schema.schema;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -16,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
+import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse.Keywords;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse.Content;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse.Pagination;
@@ -41,6 +45,9 @@ class TastyRestaurantControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    static final String URI = "/api/tasty-restaurants";
+    static final String TAG = "TastyRestaurants";
 
     @Test
     @DisplayName("맛집 검색")
@@ -71,7 +78,7 @@ class TastyRestaurantControllerTest {
 
         // when
         // then
-        mockMvc.perform(get("/api/tasty-restaurants/search")
+        mockMvc.perform(get(URI + "/search")
                         .param("keyword", "감자탕")
                         .param("page", "1")
                         .param("longitude", String.valueOf(longitude))
@@ -85,7 +92,7 @@ class TastyRestaurantControllerTest {
                         preprocessResponse(prettyPrint()),
                         resource(
                                 ResourceSnippetParameters.builder()
-                                        .tag("TastyRestaurants")
+                                        .tag(TAG)
                                         .summary("맛집 검색")
                                         .description("맛집을 검색한다.")
                                         .requestSchema(null)
@@ -113,5 +120,35 @@ class TastyRestaurantControllerTest {
                                         )
                                         .build()
                         )));
+    }
+
+    @Test
+    @DisplayName("인기 검색어")
+    void popularKeywords() throws Exception {
+        // given
+        List<Keywords> keywords = List.of(new Keywords("돼지국밥", 10),
+                new Keywords("안심", 5));
+
+        given(tastyRestaurantService.getKeywordRankingTop5())
+                .willReturn(new PopularKeywordsResponse(keywords));
+
+        // when
+        // then
+        mockMvc.perform(get(URI + "/popular"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("인기 검색어",
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(TAG)
+                                        .summary("인기 검색어 목록 조회")
+                                        .responseFields(
+                                                fieldWithPath("contents[].keyword").description("키워드"),
+                                                fieldWithPath("contents[].score").description("검색한 횟수")
+                                        )
+                                        .build()
+                        )));
+
+        verify(tastyRestaurantService, times(1)).getKeywordRankingTop5();
     }
 }
