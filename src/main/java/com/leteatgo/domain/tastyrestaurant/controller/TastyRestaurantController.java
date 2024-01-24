@@ -1,6 +1,7 @@
 package com.leteatgo.domain.tastyrestaurant.controller;
 
 import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantsRequest;
+import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
 import com.leteatgo.domain.tastyrestaurant.service.TastyRestaurantService;
 import jakarta.validation.Valid;
@@ -24,7 +25,7 @@ public class TastyRestaurantController {
     }
 
     @GetMapping("/popular")
-    public ResponseEntity<?> popularSearchKeywords() {
-        return null;
+    public ResponseEntity<PopularKeywordsResponse> popularKeywords() {
+        return ResponseEntity.ok(tastyRestaurantService.getKeywordRankingTop5());
     }
 }
