@@ -1,17 +1,20 @@
 package com.leteatgo.domain.tastyrestaurant.controller;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.epages.restdocs.apispec.Schema.schema;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantResponse.Content;
@@ -80,13 +83,35 @@ class TastyRestaurantControllerTest {
                 .andDo(document("맛집 검색",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
-                        queryParameters(
-                                parameterWithName("keyword").description("키워드"),
-                                parameterWithName("page").description("페이지").optional(),
-                                parameterWithName("longitude").description("경도(x)").optional(),
-                                parameterWithName("latitude").description("위도(y)").optional(),
-                                parameterWithName("radius").description("반경").optional(),
-                                parameterWithName("sort").description("정렬 방법").optional()
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag("TastyRestaurants")
+                                        .summary("맛집 검색")
+                                        .description("맛집을 검색한다.")
+                                        .requestSchema(null)
+                                        .responseSchema(schema("SearchRestaurantResponse"))
+                                        .queryParameters(
+                                                parameterWithName("keyword").description("키워드"),
+                                                parameterWithName("page").description("페이지").optional(),
+                                                parameterWithName("longitude").description("경도(x)").optional(),
+                                                parameterWithName("latitude").description("위도(y)").optional(),
+                                                parameterWithName("radius").description("반경").optional(),
+                                                parameterWithName("sort").description("정렬").optional()
+                                        )
+                                        .responseFields(
+                                                fieldWithPath("contents[].name").description("식당 이름"),
+                                                fieldWithPath("contents[].category").description("카테고리"),
+                                                fieldWithPath("contents[].phoneNumber").description("전화번호"),
+                                                fieldWithPath("contents[].roadAddress").description("도로명 주소"),
+                                                fieldWithPath("contents[].landAddress").description("지번 주소"),
+                                                fieldWithPath("contents[].latitude").description("경도"),
+                                                fieldWithPath("contents[].longitude").description("위도"),
+                                                fieldWithPath("contents[].restaurantUrl").description("식당 url"),
+                                                fieldWithPath("pagination.currentPage").description("현재 페이지"),
+                                                fieldWithPath("pagination.hasMore").description("다음 페이지 여부"),
+                                                fieldWithPath("pagination.totalCount").description("전체 컨텐츠 개수")
+                                        )
+                                        .build()
                         )));
     }
 }
