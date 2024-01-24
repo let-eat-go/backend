@@ -17,10 +17,13 @@ public record RestaurantContent(
 ) {
 
     public static RestaurantContent from(KakaoSearchPlaceResponse.Document document) {
+        String[] categories = document.category().split(">");
+        String category = categories.length > 1 ? categories[1].trim() : categories[0].trim();
+
         return RestaurantContent.builder()
                 .id(document.kakaoId())
                 .name(document.name())
-                .category(document.category().split(">")[1].trim())
+                .category(category)
                 .phoneNumber(document.phoneNumber())
                 .roadAddress(document.roadAddress())
                 .landAddress(document.landAddress())

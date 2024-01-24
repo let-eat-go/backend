@@ -4,8 +4,10 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import org.springframework.util.ObjectUtils;
 
+@Builder
 public record SearchRestaurantRequest(
         @NotBlank
         String keyword,

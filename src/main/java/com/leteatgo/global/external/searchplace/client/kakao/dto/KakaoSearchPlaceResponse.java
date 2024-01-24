@@ -5,6 +5,7 @@ import com.leteatgo.global.external.searchplace.dto.RestaurantContent;
 import com.leteatgo.global.external.searchplace.dto.RestaurantMeta;
 import com.leteatgo.global.external.searchplace.dto.SearchPlaceResponse;
 import java.util.List;
+import lombok.Builder;
 
 public record KakaoSearchPlaceResponse(List<Document> documents,
                                        Meta meta) implements SearchPlaceResponse {
@@ -24,6 +25,7 @@ public record KakaoSearchPlaceResponse(List<Document> documents,
         return new RestaurantMeta(meta.hasNext(), meta.totalCount());
     }
 
+    @Builder
     public record Document(
             @JsonProperty("id")
             Long kakaoId,
