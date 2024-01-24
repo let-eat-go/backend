@@ -26,6 +26,12 @@ public class TastyRestaurantController {
 
     @GetMapping("/popular")
     public ResponseEntity<PopularKeywordsResponse> popularKeywords() {
-        return ResponseEntity.ok(tastyRestaurantService.getKeywordRankingTop5());
+        return ResponseEntity.ok(tastyRestaurantService.getKeywordRanking());
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<?> test() {
+        tastyRestaurantService.test();
+        return ResponseEntity.ok().build();
     }
 }

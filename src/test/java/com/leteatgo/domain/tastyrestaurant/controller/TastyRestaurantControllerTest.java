@@ -129,7 +129,7 @@ class TastyRestaurantControllerTest {
         List<Keywords> keywords = List.of(new Keywords("돼지국밥", 10),
                 new Keywords("안심", 5));
 
-        given(tastyRestaurantService.getKeywordRankingTop5())
+        given(tastyRestaurantService.getKeywordRanking())
                 .willReturn(new PopularKeywordsResponse(keywords));
 
         // when
@@ -149,6 +149,6 @@ class TastyRestaurantControllerTest {
                                         .build()
                         )));
 
-        verify(tastyRestaurantService, times(1)).getKeywordRankingTop5();
+        verify(tastyRestaurantService, times(1)).getKeywordRanking();
     }
 }

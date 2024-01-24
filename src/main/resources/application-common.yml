@@ -8,3 +8,6 @@ springdoc:
 external:
   kakao:
     key: ${KAKAO_KEY}
+
+scheduler:
+  keyword-ranking: 0 0 0 * * *
