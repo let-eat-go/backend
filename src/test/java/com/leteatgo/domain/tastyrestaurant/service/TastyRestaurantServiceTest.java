@@ -38,8 +38,6 @@ class TastyRestaurantServiceTest {
     @InjectMocks
     TastyRestaurantService tastyRestaurantService;
 
-    String rankingKey = "ranking:keyword";
-
     @Nested
     @DisplayName("맛집 검색 메서드")
     class SearchRestaurantsMethod {
