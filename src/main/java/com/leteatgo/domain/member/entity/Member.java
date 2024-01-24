@@ -1,6 +1,7 @@
 package com.leteatgo.domain.member.entity;
 
 import com.leteatgo.domain.member.type.LoginType;
+import com.leteatgo.domain.member.type.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -55,12 +56,16 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Builder
     protected Member(String email, String nickname, String password, String phoneNumber,
-            LoginType loginType
+            LoginType loginType, UserRole role
     ) {
         this.email = email;
         this.nickname = nickname;
@@ -70,5 +75,6 @@ public class Member {
         this.introduce = DEFAULT_INTRODUCE;
         this.mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
         this.loginType = loginType;
+        this.role = role;
     }
 }
