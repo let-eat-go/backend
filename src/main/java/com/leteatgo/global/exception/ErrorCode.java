@@ -24,7 +24,7 @@ public enum ErrorCode {
     ALREADY_EXIST_NICKNAME(BAD_REQUEST, "이미 존재하는 닉네임입니다."),
     WRONG_PASSWORD(BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     WRONG_AUTH_CODE(BAD_REQUEST, "인증번호가 일치하지 않습니다."),
-    SMS_SEND_ERROR(BAD_REQUEST, "문자 발송에 실패했습니다."),
+    SMS_SEND_ERROR(INTERNAL_SERVER_ERROR, "문자 발송에 실패했습니다."),
     WRONG_PHONE_NUMBER(BAD_REQUEST, "올바르지 않은 핸드폰 번호입니다."),
     ALREADY_VERIFIED(BAD_REQUEST, "이미 인증된 핸드폰 번호입니다."),
     PHONE_NUMBER_NOT_VERIFIED(UNAUTHORIZED, "핸드폰 번호 인증이 완료되지 않았습니다."),

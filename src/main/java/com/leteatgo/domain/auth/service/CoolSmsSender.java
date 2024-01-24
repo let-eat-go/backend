@@ -41,7 +41,7 @@ public class CoolSmsSender implements SmsSender {
 
     /* [문자 발송] 인증번호 생성 후 문자 발송 */
     @Override
-    public SingleMessageSentResponse sendSms(SmsSendRequest request) {
+    public void sendSms(SmsSendRequest request) {
         try {
             String authCode = generateAuthCode();
             redisSmsRepository.deleteById(request.phoneNumber());
@@ -54,7 +54,7 @@ public class CoolSmsSender implements SmsSender {
             message.setTo(request.phoneNumber());
             message.setFrom(fromNumber);
             message.setText(text);
-            return defaultMessageService.sendOne(new SingleMessageSendingRequest(message));
+            defaultMessageService.sendOne(new SingleMessageSendingRequest(message));
         } catch (Exception e) {
             log.error("SMS 전송 중 에러 발생", e);
             throw new AuthException(SMS_SEND_ERROR);

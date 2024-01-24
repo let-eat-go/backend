@@ -52,9 +52,9 @@ public class AuthService {
 
         String password = passwordEncoder.encode(request.password());
         Member member = SignUpRequest.toEntity(request, password, LOCAL);
-        memberRepository.save(member);
+        Member savedMember = memberRepository.save(member);
 
-        return new SignUpResponse(member.getId());
+        return new SignUpResponse(savedMember.getId());
     }
 
     private void validateDuplicateNickName(String nickname) {
