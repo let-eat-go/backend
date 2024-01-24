@@ -7,7 +7,7 @@ import static org.mockito.BDDMockito.given;
 import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantsRequest;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
-import com.leteatgo.global.external.searchplace.client.SearchRestaurantClient;
+import com.leteatgo.global.external.searchplace.client.RestaurantSearcher;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse.Document;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse.Meta;
@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TastyRestaurantServiceTest {
 
     @Mock
-    SearchRestaurantClient searchRestaurantClient;
+    RestaurantSearcher searchRestaurantClient;
 
     @Mock
     TastyRestaurantRepository tastyRestaurantRepository;
@@ -54,7 +54,8 @@ class TastyRestaurantServiceTest {
         @DisplayName("성공 - 키워드 검색")
         void searchRestaurants() {
             // given
-            given(searchRestaurantClient.searchPlace(any(), any()))
+            given(searchRestaurantClient.searchRestaurants(any(), any(),
+                    any(), any(), any(), any()))
                     .willReturn(new KakaoRestaurantsResponse(documents, meta));
 
             // when
