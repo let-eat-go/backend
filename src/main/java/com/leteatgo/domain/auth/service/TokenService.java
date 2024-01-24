@@ -30,4 +30,9 @@ public class TokenService {
         token.updateAccessToken(accessToken);
         redisTokenRepository.save(token);
     }
+
+    public void deleteToken(Long memberId) {
+        redisTokenRepository.deleteById(memberId.toString());
+    }
+
 }

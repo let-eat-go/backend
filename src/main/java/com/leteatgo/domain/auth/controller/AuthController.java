@@ -11,12 +11,17 @@ import com.leteatgo.domain.auth.dto.request.SmsVerifyRequest;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.service.AuthService;
 import com.leteatgo.domain.auth.service.SmsSender;
+import com.leteatgo.global.security.CustomUserDetails;
+import com.leteatgo.global.security.annotation.RoleUser;
 import com.leteatgo.global.util.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,6 +60,17 @@ public class AuthController {
     }
 
     // 로그아웃
+    @DeleteMapping("/signout")
+    @RoleUser
+    public ResponseEntity<Void> signOut(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        authService.signOut(userDetails);
+        CookieUtil.deleteCookie(request, response, COOKIE_NAME);
+        return ResponseEntity.ok().build();
+    }
 
     // 이메일 중복검사
     @PostMapping("/check-email")

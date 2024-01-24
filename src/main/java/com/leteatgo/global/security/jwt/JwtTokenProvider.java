@@ -116,7 +116,6 @@ public class JwtTokenProvider {
         }
 
         Claims claims = parseClaims(token);
-        log.info("claims : {}", claims);
         return claims.getExpiration().after(new Date());
     }
 

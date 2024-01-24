@@ -33,7 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String[] WHITELIST = {
             "/docs/**", // swagger
             "/v3/api-docs/**", // swagger
-            "/api/auth/**",
+            "/api/auth/signup", // 회원가입
+            "/api/auth/signin", // 로그인
+            "/api/auth/email-check", // 이메일 중복 체크
+            "/api/auth/send-sms", // 인증번호 발송
+            "/api/auth/verify-sms", // 인증번호 확인
     };
 
     private final JwtTokenProvider jwtTokenProvider;

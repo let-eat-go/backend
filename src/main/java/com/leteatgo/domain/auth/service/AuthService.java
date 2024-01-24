@@ -38,7 +38,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final RedisSmsRepository redisSmsRepository;
     private final RedisTokenRepository redisTokenRepository;
-
+    private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailService customUserDetailService;
@@ -127,6 +127,11 @@ public class AuthService {
         if (!passwordEncoder.matches(password, encodedPassword)) {
             throw new AuthException(WRONG_PASSWORD);
         }
+    }
+
+    /* [로그아웃] 레디스에 저장된 토큰 삭제 */
+    public void signOut(CustomUserDetails userDetails) {
+        tokenService.deleteToken(userDetails.getId());
     }
 
 }
