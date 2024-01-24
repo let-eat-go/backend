@@ -76,11 +76,11 @@ public class GlobalExceptionHandler {
     }
 
     // 기타 에러
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(HttpServletRequest request, Exception e) {
-        logError(request, e);
-        return ErrorResponse.of(INTERNAL_ERROR, e.getMessage());
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleException(HttpServletRequest request, Exception e) {
+//        logError(request, e);
+//        return ErrorResponse.of(INTERNAL_ERROR, e.getMessage());
+//    }
 
     private void logError(HttpServletRequest request, Exception e) {
         String requestUri = request.getRequestURI();
