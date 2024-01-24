@@ -1,6 +1,6 @@
 package com.leteatgo.global.external.searchplace.dto;
 
-import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoSearchPlaceResponse;
+import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse;
 import lombok.Builder;
 
 @Builder
@@ -16,7 +16,7 @@ public record RestaurantContent(
         String restaurantUrl
 ) {
 
-    public static RestaurantContent from(KakaoSearchPlaceResponse.Document document) {
+    public static RestaurantContent from(KakaoRestaurantsResponse.Document document) {
         String[] categories = document.category().split(">");
         String category = categories.length > 1 ? categories[1].trim() : categories[0].trim();
 

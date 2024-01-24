@@ -16,9 +16,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantResponse;
-import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantResponse.Content;
-import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantResponse.Pagination;
+import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
+import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse.Content;
+import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse.Pagination;
 import com.leteatgo.domain.tastyrestaurant.service.TastyRestaurantService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +67,7 @@ class TastyRestaurantControllerTest {
                 .build();
 
         given(tastyRestaurantService.searchRestaurants(any()))
-                .willReturn(new SearchRestaurantResponse(contents, pagination));
+                .willReturn(new SearchRestaurantsResponse(contents, pagination));
 
         // when
         // then

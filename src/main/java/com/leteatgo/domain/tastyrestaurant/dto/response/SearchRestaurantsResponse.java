@@ -1,18 +1,18 @@
 package com.leteatgo.domain.tastyrestaurant.dto.response;
 
 import com.leteatgo.global.external.searchplace.dto.RestaurantContent;
-import com.leteatgo.global.external.searchplace.dto.SearchPlaceResponse;
+import com.leteatgo.global.external.searchplace.dto.RestaurantsResponse;
 import java.util.List;
 import lombok.Builder;
 
-public record SearchRestaurantResponse(
+public record SearchRestaurantsResponse(
         List<Content> contents,
         Pagination pagination
 ) {
 
-    public static SearchRestaurantResponse from(SearchPlaceResponse response,
+    public static SearchRestaurantsResponse from(RestaurantsResponse response,
             Integer currentPage) {
-        return new SearchRestaurantResponse(
+        return new SearchRestaurantsResponse(
                 response.getContents().stream()
                         .map(Content::from)
                         .toList(),

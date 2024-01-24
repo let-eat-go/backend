@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantRequest;
-import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantResponse;
+import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantsRequest;
+import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
-import com.leteatgo.global.external.searchplace.client.SearchPlaceClient;
-import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoSearchPlaceResponse;
-import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoSearchPlaceResponse.Document;
-import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoSearchPlaceResponse.Meta;
+import com.leteatgo.global.external.searchplace.client.SearchRestaurantClient;
+import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse;
+import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse.Document;
+import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse.Meta;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TastyRestaurantServiceTest {
 
     @Mock
-    SearchPlaceClient searchPlaceClient;
+    SearchRestaurantClient searchRestaurantClient;
 
     @Mock
     TastyRestaurantRepository tastyRestaurantRepository;
@@ -54,15 +54,15 @@ class TastyRestaurantServiceTest {
         @DisplayName("성공 - 키워드 검색")
         void searchRestaurants() {
             // given
-            given(searchPlaceClient.searchPlace(any(), any()))
-                    .willReturn(new KakaoSearchPlaceResponse(documents, meta));
+            given(searchRestaurantClient.searchPlace(any(), any()))
+                    .willReturn(new KakaoRestaurantsResponse(documents, meta));
 
             // when
-            SearchRestaurantRequest request = SearchRestaurantRequest.builder()
+            SearchRestaurantsRequest request = SearchRestaurantsRequest.builder()
                     .keyword("감자탕")
                     .build();
 
-            SearchRestaurantResponse response = tastyRestaurantService.searchRestaurants(
+            SearchRestaurantsResponse response = tastyRestaurantService.searchRestaurants(
                     request);
 
             // then
@@ -74,18 +74,18 @@ class TastyRestaurantServiceTest {
         @DisplayName("성공 - 위치 기반 검색")
         void searchRestaurantsWithDistance() {
             // given
-            given(searchPlaceClient.searchPlaceWithDistance(any(), any(),
+            given(searchRestaurantClient.searchRestaurants(any(), any(),
                     any(), any(), any(), any()))
-                    .willReturn(new KakaoSearchPlaceResponse(documents, meta));
+                    .willReturn(new KakaoRestaurantsResponse(documents, meta));
 
             // when
-            SearchRestaurantRequest request = SearchRestaurantRequest.builder()
+            SearchRestaurantsRequest request = SearchRestaurantsRequest.builder()
                     .keyword("감자탕")
                     .latitude(127.06283)
                     .longitude(37.51432)
                     .build();
 
-            SearchRestaurantResponse response = tastyRestaurantService.searchRestaurants(
+            SearchRestaurantsResponse response = tastyRestaurantService.searchRestaurants(
                     request);
 
             // then

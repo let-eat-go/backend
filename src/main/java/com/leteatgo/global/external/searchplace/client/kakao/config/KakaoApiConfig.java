@@ -6,6 +6,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.leteatgo.global.external.searchplace.client.kakao.client.KakaoApiClient;
 import com.leteatgo.global.external.searchplace.client.kakao.exception.KakaoApiException;
+import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,8 +40,9 @@ public class KakaoApiConfig {
                         })
                 .defaultStatusHandler(HttpStatusCode::isError,
                         ((request, response) -> {
-                            throw new KakaoApiException(INTERNAL_ERROR,
-                                    "kakao API server error is occurred.");
+                            String body = new String(response.getBody().readAllBytes(),
+                                    StandardCharsets.UTF_8);
+                            throw new KakaoApiException(INTERNAL_ERROR, body);
                         }))
                 .build();
 

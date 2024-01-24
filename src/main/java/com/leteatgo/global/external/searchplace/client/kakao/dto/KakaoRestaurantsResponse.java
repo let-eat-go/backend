@@ -3,12 +3,12 @@ package com.leteatgo.global.external.searchplace.client.kakao.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.leteatgo.global.external.searchplace.dto.RestaurantContent;
 import com.leteatgo.global.external.searchplace.dto.RestaurantMeta;
-import com.leteatgo.global.external.searchplace.dto.SearchPlaceResponse;
+import com.leteatgo.global.external.searchplace.dto.RestaurantsResponse;
 import java.util.List;
 import lombok.Builder;
 
-public record KakaoSearchPlaceResponse(List<Document> documents,
-                                       Meta meta) implements SearchPlaceResponse {
+public record KakaoRestaurantsResponse(List<Document> documents,
+                                       Meta meta) implements RestaurantsResponse {
 
     @Override
     public List<RestaurantContent> getContents() {

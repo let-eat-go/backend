@@ -8,7 +8,7 @@ import lombok.Builder;
 import org.springframework.util.ObjectUtils;
 
 @Builder
-public record SearchRestaurantRequest(
+public record SearchRestaurantsRequest(
         @NotBlank
         String keyword,
 
@@ -29,7 +29,7 @@ public record SearchRestaurantRequest(
         String sort
 ) {
 
-    public SearchRestaurantRequest {
+    public SearchRestaurantsRequest {
         if (ObjectUtils.isEmpty(page)) {
             page = 1;
         }
