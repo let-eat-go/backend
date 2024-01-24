@@ -1,12 +1,18 @@
 package com.leteatgo.domain.auth.controller;
 
+import static com.leteatgo.global.util.CookieUtil.COOKIE_MAX_AGE;
+import static com.leteatgo.global.util.CookieUtil.COOKIE_NAME;
+
 import com.leteatgo.domain.auth.dto.request.EmailCheckRequest;
+import com.leteatgo.domain.auth.dto.request.SignInRequest;
 import com.leteatgo.domain.auth.dto.request.SignUpRequest;
 import com.leteatgo.domain.auth.dto.request.SmsSendRequest;
 import com.leteatgo.domain.auth.dto.request.SmsVerifyRequest;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.service.AuthService;
 import com.leteatgo.domain.auth.service.SmsSender;
+import com.leteatgo.global.util.CookieUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +44,15 @@ public class AuthController {
     }
 
     // 로그인 (로컬)
+    @PostMapping("/signin")
+    public ResponseEntity<String> signIn(
+            HttpServletResponse response,
+            @RequestBody @Valid SignInRequest request
+    ) {
+        String token = authService.signIn(request);
+        CookieUtil.addCookie(response, COOKIE_NAME, token, COOKIE_MAX_AGE);
+        return ResponseEntity.ok().body(token);
+    }
 
     // 로그아웃
 

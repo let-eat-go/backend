@@ -1,8 +1,10 @@
 package com.leteatgo.global.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +27,17 @@ public enum ErrorCode {
     SMS_SEND_ERROR(BAD_REQUEST, "문자 발송에 실패했습니다."),
     WRONG_PHONE_NUMBER(BAD_REQUEST, "올바르지 않은 핸드폰 번호입니다."),
     ALREADY_VERIFIED(BAD_REQUEST, "이미 인증된 핸드폰 번호입니다."),
-    PHONE_NUMBER_NOT_VERIFIED(BAD_REQUEST, "핸드폰 번호 인증이 완료되지 않았습니다."),
-    ALREADY_EXIST_PHONE_NUMBER(BAD_REQUEST, "이미 존재하는 핸드폰 번호입니다.");
+    PHONE_NUMBER_NOT_VERIFIED(UNAUTHORIZED, "핸드폰 번호 인증이 완료되지 않았습니다."),
+    ALREADY_EXIST_PHONE_NUMBER(BAD_REQUEST, "이미 존재하는 핸드폰 번호입니다."),
+    ACCESS_DENIED(FORBIDDEN, "접근이 거부되었습니다."),
+
+    // token
+    INVALID_TOKEN(BAD_REQUEST, "올바르지 않은 토큰입니다."),
+    EXPIRED_TOKEN(UNAUTHORIZED, "만료된 토큰입니다."),
+    EMPTY_TOKEN(BAD_REQUEST, "토큰이 존재하지 않습니다."),
+
+    // member
+    NOT_FOUND_MEMBER(BAD_REQUEST, "존재하지 않는 회원입니다.");
 
     private final HttpStatus httpStatus;
     private final String errorMessage;
