@@ -32,7 +32,6 @@ import com.leteatgo.domain.member.repository.MemberRepository;
 import com.leteatgo.domain.member.type.LoginType;
 import com.leteatgo.domain.member.type.MemberRole;
 import com.leteatgo.global.security.CustomUserDetailService;
-import com.leteatgo.global.security.CustomUserDetails;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +42,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -69,6 +69,9 @@ class AuthServiceTest {
 
     @Mock
     CustomUserDetailService customUserDetailService;
+
+    @Mock
+    UserDetails userDetails;
 
     @InjectMocks
     AuthService authService;
@@ -172,9 +175,9 @@ class AuthServiceTest {
         @DisplayName("로그인 성공하면 토큰을 반환한다.")
         void signIn() {
             // given
-            CustomUserDetails userDetails = new CustomUserDetails(mockMember);
-            given(customUserDetailService.loadUserByUsername(anyString())).willReturn(
-                    userDetails);
+            given(customUserDetailService.loadUserByUsername(anyString())).willReturn(userDetails);
+            given(userDetails.getUsername()).willReturn("1");
+            given(userDetails.getPassword()).willReturn("encodedPassword");
             given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
             given(jwtTokenProvider.createAccessToken(any(Authentication.class))).willReturn(
                     "accessToken");
@@ -193,9 +196,9 @@ class AuthServiceTest {
         @DisplayName("비밀번호가 일치하지 않으면 예외를 발생시킨다.")
         void signInWithWrongPassword() {
             // given
-            CustomUserDetails userDetails = new CustomUserDetails(mockMember);
             given(customUserDetailService.loadUserByUsername(anyString())).willReturn(
                     userDetails);
+            given(userDetails.getPassword()).willReturn("encodedPassword");
             given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
 
             // when
@@ -305,6 +308,18 @@ class AuthServiceTest {
         }
     }
 
+    @Test
+    @DisplayName("signOut 메서드는 성공하면 토큰을 삭제한다.")
+    void logout() {
+        // given
+        given(userDetails.getUsername()).willReturn("1");
+
+        // when
+        authService.signOut(userDetails);
+
+        // then
+        verify(tokenService, times(1)).deleteToken(Long.valueOf(userDetails.getUsername()));
+    }
 
     private Member createTestMember(Long id, String email, String nickname, String password,
             String phoneNumber, LoginType loginType, MemberRole role) {
@@ -321,20 +336,5 @@ class AuthServiceTest {
 
         return member;
     }
-
-    @Test
-    @DisplayName("signOut 메서드는 성공하면 토큰을 삭제한다.")
-    void logout() {
-        // given
-        Member mockMember = createTestMember(1L, "test@naver.com", "testnick", "1!qweqwe",
-                "01012345678", LoginType.LOCAL, MemberRole.ROLE_USER);
-        CustomUserDetails userDetails = new CustomUserDetails(mockMember);
-
-        // when
-        authService.signOut(userDetails);
-
-        // then
-        verify(tokenService, times(1)).deleteToken(userDetails.getId());
-    }
-
+    
 }

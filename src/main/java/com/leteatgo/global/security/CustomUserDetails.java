@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+// TODO : 나중에 OAuth용으로 수정
 @AllArgsConstructor
 @Getter
 public class CustomUserDetails implements UserDetails {

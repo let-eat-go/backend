@@ -21,11 +21,11 @@ import com.leteatgo.domain.auth.repository.RedisTokenRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.repository.MemberRepository;
 import com.leteatgo.global.security.CustomUserDetailService;
-import com.leteatgo.global.security.CustomUserDetails;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,24 +92,28 @@ public class AuthService {
 
     /* [로그인] 성공하면 토큰 발급 */
     public String signIn(SignInRequest request) {
-        CustomUserDetails userDetails = getUserDetails(request.email());
+        UserDetails userDetails = getUserDetails(request.email());
         checkPassword(request.password(), userDetails.getPassword());
         Authentication authentication = createAuthentication(userDetails);
 
         String accessToken = jwtTokenProvider.createAccessToken(authentication);
         String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
 
-        RedisToken token = new RedisToken(userDetails.getId(), refreshToken, accessToken);
+        RedisToken token = new RedisToken(
+                Long.valueOf(userDetails.getUsername()),
+                accessToken,
+                refreshToken
+        );
         redisTokenRepository.save(token);
 
         return accessToken;
     }
 
-    private CustomUserDetails getUserDetails(String email) {
+    private UserDetails getUserDetails(String email) {
         return customUserDetailService.loadUserByUsername(email);
     }
 
-    private Authentication createAuthentication(CustomUserDetails userDetails) {
+    private Authentication createAuthentication(UserDetails userDetails) {
         return new UsernamePasswordAuthenticationToken(
                 userDetails,
                 userDetails.getPassword(),
@@ -124,8 +128,8 @@ public class AuthService {
     }
 
     /* [로그아웃] 레디스에 저장된 토큰 삭제 */
-    public void signOut(CustomUserDetails userDetails) {
-        tokenService.deleteToken(userDetails.getId());
+    public void signOut(UserDetails userDetails) {
+        tokenService.deleteToken(Long.valueOf(userDetails.getUsername()));
     }
 
 }

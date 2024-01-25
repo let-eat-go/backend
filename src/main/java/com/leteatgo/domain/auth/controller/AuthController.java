@@ -11,7 +11,6 @@ import com.leteatgo.domain.auth.dto.request.SmsVerifyRequest;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.service.AuthService;
 import com.leteatgo.domain.auth.service.SmsSender;
-import com.leteatgo.global.security.CustomUserDetails;
 import com.leteatgo.global.security.annotation.RoleUser;
 import com.leteatgo.global.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,9 +18,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -66,7 +65,7 @@ public class AuthController {
     public ResponseEntity<Void> signOut(
             HttpServletRequest request,
             HttpServletResponse response,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
         authService.signOut(userDetails);
         CookieUtil.deleteCookie(request, response, COOKIE_NAME);

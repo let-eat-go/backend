@@ -8,15 +8,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.leteatgo.domain.auth.entity.RedisToken;
 import com.leteatgo.domain.auth.exception.TokenException;
 import com.leteatgo.domain.auth.service.TokenService;
-import com.leteatgo.global.security.CustomUserDetailService;
-import com.leteatgo.global.security.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.time.Duration;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -44,18 +41,15 @@ public class JwtTokenProvider {
     private final SecretKey key;
     private final String issuer;
     private final TokenService tokenService;
-    private final CustomUserDetailService customUserDetailsService;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String key,
             @Value("${jwt.issuer}") String issuer,
-            TokenService tokenService,
-            CustomUserDetailService customUserDetailsService
+            TokenService tokenService
     ) {
         this.key = Keys.hmacShaKeyFor(key.getBytes(UTF_8));
         this.issuer = issuer;
         this.tokenService = tokenService;
-        this.customUserDetailsService = customUserDetailsService;
     }
 
     public String createAccessToken(Authentication authentication) {
@@ -87,11 +81,15 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
-        CustomUserDetails userDetails = customUserDetailsService.loadUserById(
-                Long.valueOf(claims.getSubject()));
-        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+        List<SimpleGrantedAuthority> authorities = getAuthorities(claims);
+        User userDetails = new User(claims.getSubject(), "", authorities);
 
         return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
+    }
+
+    private List<SimpleGrantedAuthority> getAuthorities(Claims claims) {
+        return Collections.singletonList(
+                new SimpleGrantedAuthority(claims.get(KEY_ROLE).toString()));
     }
 
     public String reissueAccessToken(String accessToken) {
