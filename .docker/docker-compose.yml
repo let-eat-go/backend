@@ -2,7 +2,7 @@ version: '3.7'
 name: leteatgo
 
 services:
-  matgo-redis:
+  leteatgo-redis:
     image: redis:alpine
     container_name: leteatgo-redis
     environment:

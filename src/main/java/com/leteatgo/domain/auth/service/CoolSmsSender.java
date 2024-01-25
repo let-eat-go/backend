@@ -6,6 +6,7 @@ import com.leteatgo.domain.auth.dto.request.SmsSendRequest;
 import com.leteatgo.domain.auth.entity.RedisSms;
 import com.leteatgo.domain.auth.exception.AuthException;
 import com.leteatgo.domain.auth.repository.RedisSmsRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
@@ -19,25 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 @Slf4j
 public class CoolSmsSender implements SmsSender {
 
     private final RedisSmsRepository redisSmsRepository;
     private final DefaultMessageService defaultMessageService;
-    private final String fromNumber;
 
-    public CoolSmsSender(
-            RedisSmsRepository redisSmsRepository,
-            @Value("${coolsms.key}") String apiKey,
-            @Value("${coolsms.secret}") String apiSecret,
-            @Value("${coolsms.from}") String fromNumber
-    ) {
-        this.redisSmsRepository = redisSmsRepository;
-        this.defaultMessageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret,
-                "https://api.coolsms.co.kr");
-        this.fromNumber = fromNumber;
-    }
-
+    @Value("${coolsms.from}")
+    private String fromNumber;
 
     /* [문자 발송] 인증번호 생성 후 문자 발송 */
     @Override

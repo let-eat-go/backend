@@ -18,6 +18,7 @@ public class TokenService {
 
     private final RedisTokenRepository redisTokenRepository;
 
+    @Transactional(readOnly = true)
     public RedisToken getTokenByAccessToken(String accessToken) {
         if (!StringUtils.hasText(accessToken)) {
             throw new TokenException(EMPTY_TOKEN);

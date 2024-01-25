@@ -1,9 +1,9 @@
 package com.leteatgo.domain.auth.service;
 
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_EMAIL;
-import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_NICKNAME;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_PHONE_NUMBER;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_VERIFIED;
+import static com.leteatgo.global.exception.ErrorCode.EXPIRED_AUTH_CODE;
 import static com.leteatgo.global.exception.ErrorCode.PHONE_NUMBER_NOT_VERIFIED;
 import static com.leteatgo.global.exception.ErrorCode.WRONG_AUTH_CODE;
 import static com.leteatgo.global.exception.ErrorCode.WRONG_PASSWORD;
@@ -30,7 +30,7 @@ import com.leteatgo.domain.auth.repository.RedisTokenRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.repository.MemberRepository;
 import com.leteatgo.domain.member.type.LoginType;
-import com.leteatgo.domain.member.type.UserRole;
+import com.leteatgo.domain.member.type.MemberRole;
 import com.leteatgo.global.security.CustomUserDetailService;
 import com.leteatgo.global.security.CustomUserDetails;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
@@ -81,13 +81,12 @@ class AuthServiceTest {
                 "1!qweqwe", "01012345678");
         RedisSms redisSms = new RedisSms("01012345678", "123456");
         Member mockMember = createTestMember(1L, "test@naver.com", "testnick", "1!qweqwe",
-                "01012345678", LoginType.LOCAL, UserRole.ROLE_USER);
+                "01012345678", LoginType.LOCAL, MemberRole.ROLE_USER);
 
         @Test
         @DisplayName("회원가입 성공하면 생성된 회원의 id를 반환한다.")
         void signUp() {
             // given
-            given(memberRepository.existsByNickname(anyString())).willReturn(false);
             given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
             given(memberRepository.existsByPhoneNumber(anyString())).willReturn(false);
             given(redisSmsRepository.findById(anyString())).willReturn(
@@ -101,19 +100,6 @@ class AuthServiceTest {
 
             // then
             assertThat(response.id()).isNotNull();
-        }
-
-        @Test
-        @DisplayName("닉네임이 이미 존재하면 예외를 발생시킨다.")
-        void signUpWithDuplicatedNickname() {
-            // given
-            given(memberRepository.existsByNickname(anyString())).willReturn(true);
-
-            // when
-            // then
-            assertThatThrownBy(() -> authService.signUp(request))
-                    .isInstanceOf(AuthException.class)
-                    .hasMessageContaining(ALREADY_EXIST_NICKNAME.getErrorMessage());
         }
 
         @Test
@@ -134,7 +120,6 @@ class AuthServiceTest {
         @DisplayName("이미 존재하는 핸드폰 번호이면 예외를 발생시킨다.")
         void signUpWithDuplicatedPhoneNumber() {
             // given
-            given(memberRepository.existsByNickname(anyString())).willReturn(false);
             given(memberRepository.existsByPhoneNumber(anyString())).willReturn(true);
 
             // when
@@ -148,7 +133,6 @@ class AuthServiceTest {
         @DisplayName("redisSmsRepository에서 핸드폰 번호를 찾을 수 없으면 예외를 발생시킨다.")
         void signUpWithWrongPhoneNumber() {
             // given
-            given(memberRepository.existsByNickname(anyString())).willReturn(false);
             given(memberRepository.existsByPhoneNumber(anyString())).willReturn(false);
             given(redisSmsRepository.findById(anyString())).willReturn(Optional.empty());
 
@@ -163,7 +147,6 @@ class AuthServiceTest {
         @DisplayName("핸드폰 인증이 되지 않았으면 예외를 발생시킨다.")
         void signUpWithNotVerifiedPhoneNumber() {
             // given
-            given(memberRepository.existsByNickname(anyString())).willReturn(false);
             given(memberRepository.existsByPhoneNumber(anyString())).willReturn(false);
             given(redisSmsRepository.findById(anyString())).willReturn(
                     Optional.ofNullable(redisSms));
@@ -182,7 +165,7 @@ class AuthServiceTest {
 
         SignInRequest request = new SignInRequest("test@naver.com", "1!qweqwe");
         Member mockMember = createTestMember(1L, "test@naver.com", "testnick", "1!qweqwe",
-                "01012345678", LoginType.LOCAL, UserRole.ROLE_USER);
+                "01012345678", LoginType.LOCAL, MemberRole.ROLE_USER);
         RedisToken token = new RedisToken(1L, "refreshToken", "accessToken");
 
         @Test
@@ -318,13 +301,13 @@ class AuthServiceTest {
             // then
             assertThatThrownBy(() -> authService.verifySmsAuthCode(request))
                     .isInstanceOf(AuthException.class)
-                    .hasMessageContaining(WRONG_PHONE_NUMBER.getErrorMessage());
+                    .hasMessageContaining(EXPIRED_AUTH_CODE.getErrorMessage());
         }
     }
 
 
     private Member createTestMember(Long id, String email, String nickname, String password,
-            String phoneNumber, LoginType loginType, UserRole role) {
+            String phoneNumber, LoginType loginType, MemberRole role) {
         Member member = Member.builder()
                 .email(email)
                 .nickname(nickname)
@@ -344,7 +327,7 @@ class AuthServiceTest {
     void logout() {
         // given
         Member mockMember = createTestMember(1L, "test@naver.com", "testnick", "1!qweqwe",
-                "01012345678", LoginType.LOCAL, UserRole.ROLE_USER);
+                "01012345678", LoginType.LOCAL, MemberRole.ROLE_USER);
         CustomUserDetails userDetails = new CustomUserDetails(mockMember);
 
         // when

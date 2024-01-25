@@ -1,6 +1,6 @@
 package com.leteatgo.domain.member.type;
 
-public enum UserRole {
+public enum MemberRole {
     ROLE_ADMIN, ROLE_USER
 
 }

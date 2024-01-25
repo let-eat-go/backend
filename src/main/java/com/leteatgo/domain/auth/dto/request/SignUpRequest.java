@@ -1,6 +1,6 @@
 package com.leteatgo.domain.auth.dto.request;
 
-import static com.leteatgo.domain.member.type.UserRole.ROLE_USER;
+import static com.leteatgo.domain.member.type.MemberRole.ROLE_USER;
 import static com.leteatgo.global.util.DtoValidator.EMAIL_MESSAGE;
 import static com.leteatgo.global.util.DtoValidator.EMPTY_MESSAGE;
 import static com.leteatgo.global.util.DtoValidator.NICKNAME_FORMAT;

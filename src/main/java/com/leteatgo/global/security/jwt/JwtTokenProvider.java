@@ -16,6 +16,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -85,16 +87,11 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
-        List<SimpleGrantedAuthority> authorities = getAuthorities(claims);
-
         CustomUserDetails userDetails = customUserDetailsService.loadUserById(
                 Long.valueOf(claims.getSubject()));
-        return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
-    }
+        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
 
-    private List<SimpleGrantedAuthority> getAuthorities(Claims claims) {
-        return Collections.singletonList(
-                new SimpleGrantedAuthority(claims.get(KEY_ROLE).toString()));
+        return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
     }
 
     public String reissueAccessToken(String accessToken) {

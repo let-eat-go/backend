@@ -2,8 +2,8 @@ package com.leteatgo.domain.auth.service;
 
 import static com.leteatgo.domain.member.type.LoginType.LOCAL;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_EMAIL;
-import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_NICKNAME;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_PHONE_NUMBER;
+import static com.leteatgo.global.exception.ErrorCode.EXPIRED_AUTH_CODE;
 import static com.leteatgo.global.exception.ErrorCode.PHONE_NUMBER_NOT_VERIFIED;
 import static com.leteatgo.global.exception.ErrorCode.WRONG_PASSWORD;
 import static com.leteatgo.global.exception.ErrorCode.WRONG_PHONE_NUMBER;
@@ -44,9 +44,8 @@ public class AuthService {
     private final CustomUserDetailService customUserDetailService;
 
 
-    /* [회원가입] 닉네임 중복검사, 비밀번호 일치 검사, 핸드폰 인증 검사 후 회원가입 */
+    /* [회원가입] 비밀번호 일치 검사, 핸드폰 인증 검사 후 회원가입 */
     public SignUpResponse signUp(SignUpRequest request) {
-        validateDuplicateNickName(request.nickname());
         validatePasswordMatch(request.password(), request.passwordCheck());
         validatePhoneNumberVerified(request.phoneNumber());
 
@@ -55,12 +54,6 @@ public class AuthService {
         Member savedMember = memberRepository.save(member);
 
         return new SignUpResponse(savedMember.getId());
-    }
-
-    private void validateDuplicateNickName(String nickname) {
-        if (memberRepository.existsByNickname(nickname)) {
-            throw new AuthException(ALREADY_EXIST_NICKNAME);
-        }
     }
 
     private void validatePasswordMatch(String password, String passwordCheck) {
@@ -81,6 +74,7 @@ public class AuthService {
     }
 
     /* [이메일 중복검사] 이미 존재하는 이메일이면 예외 발생 */
+    @Transactional(readOnly = true)
     public void checkEmail(EmailCheckRequest request) {
         if (memberRepository.existsByEmail(request.email())) {
             throw new AuthException(ALREADY_EXIST_EMAIL);
@@ -90,7 +84,7 @@ public class AuthService {
     /* [핸드폰 인증번호 검증] 인증번호가 일치하지 않으면 예외 발생 */
     public void verifySmsAuthCode(SmsVerifyRequest request) {
         RedisSms redisSms = redisSmsRepository.findById(request.phoneNumber())
-                .orElseThrow(() -> new AuthException(WRONG_PHONE_NUMBER));
+                .orElseThrow(() -> new AuthException(EXPIRED_AUTH_CODE));
         redisSms.validateAuthCode(request.authCode());
         redisSms.verify();
         redisSmsRepository.save(redisSms);
