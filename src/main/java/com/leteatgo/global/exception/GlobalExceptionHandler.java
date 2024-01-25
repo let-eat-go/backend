@@ -1,6 +1,5 @@
 package com.leteatgo.global.exception;
 
-import static com.leteatgo.global.exception.ErrorCode.INTERNAL_ERROR;
 import static com.leteatgo.global.exception.ErrorCode.INVALID_REQUEST;
 
 import com.leteatgo.global.exception.dto.ErrorResponse;
@@ -20,12 +19,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private static final String INVALID_DTO_FIELD_ERROR_MESSAGE_FORMAT = "%s 필드는 %s (전달된 값: %s)";
+    private static final String INVALID_DTO_FIELD_ERROR_MESSAGE_FORMAT = "%s 필드의 %s (전달된 값: %s)";
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(HttpServletRequest request,
             CustomException e) {
-        logError(request);
+        logError(request, e);
         return ErrorResponse.of(e.getErrorCode(), e.getMessage());
     }
 
@@ -75,17 +74,10 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(INVALID_REQUEST, e.getMessage());
     }
 
-    // 기타 에러
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(HttpServletRequest request, Exception e) {
-        logError(request);
-        return ErrorResponse.of(INTERNAL_ERROR, e.getMessage());
-    }
-
-    private void logError(HttpServletRequest request) {
+    private void logError(HttpServletRequest request, Exception e) {
         String requestUri = request.getRequestURI();
         String requestMethod = request.getMethod();
 
-        log.error("[{}] {}", requestMethod, requestUri);
+        log.error("[{}] {} | {}", requestMethod, requestUri, e.getMessage());
     }
 }

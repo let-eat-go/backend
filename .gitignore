@@ -42,3 +42,6 @@ out/
 
 ### querydsl ###
 /src/main/generated/
+
+### docker ###
+**/redis-data

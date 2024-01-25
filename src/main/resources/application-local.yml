@@ -24,10 +24,7 @@ spring:
         show_sql: true
     defer-datasource-initialization: true
 
-
-springdoc:
-  default-consumes-media-type: application/json;charset=UTF-8
-  default-produces-media-type: application/json;charset=UTF-8
-  swagger-ui:
-    url: /docs/leteatgo-api.yaml
-    path: /docs/swagger
+  data:
+    redis:
+      port: 6379
+      host: localhost
