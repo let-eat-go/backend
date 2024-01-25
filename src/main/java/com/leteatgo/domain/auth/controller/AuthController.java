@@ -82,22 +82,22 @@ public class AuthController {
     }
 
     // 핸드폰 인증번호 발송 (로컬 테스트용)
-//    @PostMapping("/send-sms")
-//    public ResponseEntity<String> sendSms(
-//            @RequestBody @Valid SmsSendRequest request
-//    ) {
-//        String authCode = smsSender.sendSmsTest(request);
-//        return ResponseEntity.ok().body(authCode);
-//    }
-
-    // 핸드폰 인증번호 발송 (서비스 운영용)
     @PostMapping("/send-sms")
-    public ResponseEntity<Void> sendSms(
+    public ResponseEntity<String> sendSms(
             @RequestBody @Valid SmsSendRequest request
     ) {
-        smsSender.sendSms(request);
-        return ResponseEntity.ok().build();
+        String authCode = smsSender.sendSmsTest(request);
+        return ResponseEntity.ok().body(authCode);
     }
+
+    // 핸드폰 인증번호 발송 (서비스 운영용)
+//    @PostMapping("/send-sms")
+//    public ResponseEntity<Void> sendSms(
+//            @RequestBody @Valid SmsSendRequest request
+//    ) {
+//        smsSender.sendSms(request);
+//        return ResponseEntity.ok().build();
+//    }
 
     // 핸드폰 인증번호 확인
     @PutMapping("/verify-sms")

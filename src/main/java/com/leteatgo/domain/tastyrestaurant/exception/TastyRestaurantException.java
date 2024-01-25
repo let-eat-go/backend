@@ -1,4 +1,4 @@
-package com.leteatgo.domain.tastyRestaurant.exception;
+package com.leteatgo.domain.tastyrestaurant.exception;
 
 import com.leteatgo.global.exception.CustomException;
 import com.leteatgo.global.exception.ErrorCode;

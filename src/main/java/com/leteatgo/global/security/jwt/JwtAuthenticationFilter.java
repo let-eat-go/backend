@@ -38,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/check-email", // 이메일 중복 체크
             "/api/auth/send-sms", // 인증번호 발송
             "/api/auth/verify-sms", // 인증번호 확인
+            "/api/tasty-restaurants/search", // 맛집 검색
     };
 
     private final JwtTokenProvider jwtTokenProvider;

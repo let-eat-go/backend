@@ -1,0 +1,22 @@
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    url: /docs/leteatgo-api.yaml
+    path: /docs/swagger
+
+external:
+  kakao:
+    key: ${KAKAO_KEY}
+
+scheduler:
+  keyword-ranking: 0 0 0 * * *
+
+coolsms:
+  key: ${COOLSMS_API_KEY}
+  secret: ${COOLSMS_API_SECRET}
+  from: ${COOLSMS_FROM}
+
+jwt:
+  secret: ${JWT_SECRET}
+  issuer: leteatgo

@@ -1,7 +1,7 @@
 package com.leteatgo.domain.meeting.entity;
 
 import com.leteatgo.domain.member.entity.Member;
-import com.leteatgo.domain.tastyRestaurant.entity.TastyRestaurant;
+import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.global.entity.BaseEntity;
 import com.leteatgo.global.type.*;
 import jakarta.persistence.*;

@@ -1,6 +1,5 @@
 package com.leteatgo.global.exception;
 
-import static com.leteatgo.global.exception.ErrorCode.INTERNAL_ERROR;
 import static com.leteatgo.global.exception.ErrorCode.INVALID_REQUEST;
 
 import com.leteatgo.global.exception.dto.ErrorResponse;
@@ -74,13 +73,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleViolationException(ConstraintViolationException e) {
         return ErrorResponse.of(INVALID_REQUEST, e.getMessage());
     }
-
-    // 기타 에러
-//    @ExceptionHandler(Exception.class)
-//    public ResponseEntity<ErrorResponse> handleException(HttpServletRequest request, Exception e) {
-//        logError(request, e);
-//        return ErrorResponse.of(INTERNAL_ERROR, e.getMessage());
-//    }
 
     private void logError(HttpServletRequest request, Exception e) {
         String requestUri = request.getRequestURI();
