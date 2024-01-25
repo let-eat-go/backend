@@ -54,8 +54,7 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         // 모두 허용
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/tasty-restaurants/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/tasty-restaurants").permitAll()
                         // User 권한만 허용
                         .requestMatchers("/api/auth/signout").hasRole("USER")
                         // 그 외 요청은 인증 필요

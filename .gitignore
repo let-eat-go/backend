@@ -45,3 +45,6 @@ out/
 
 ### docker ###
 **/redis-data
+
+### http private env ###
+/src/test/java/com/leteatgo/http/http-client.private.env.json

@@ -31,14 +31,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-@AutoConfigureMockMvc(addFilters = false)
 @AutoConfigureRestDocs
 @WebMvcTest(
         controllers = TastyRestaurantController.class,
@@ -66,6 +65,7 @@ class TastyRestaurantControllerTest {
 
     @Test
     @DisplayName("맛집 검색")
+    @WithMockUser(username = "mockUser", roles = "USER")
     void searchRestaurants() throws Exception {
         // given
         Double longitude = 127.06283102249932;
@@ -156,6 +156,7 @@ class TastyRestaurantControllerTest {
 
     @Test
     @DisplayName("인기 검색어")
+    @WithMockUser(username = "do", roles = "USER")
     void popularKeywords() throws Exception {
         // given
         List<Keywords> keywords = List.of(new Keywords("돼지국밥", 10),
