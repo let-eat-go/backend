@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final MemberRepository memberRepository;
@@ -45,6 +45,7 @@ public class AuthService {
 
 
     /* [회원가입] 비밀번호 일치 검사, 핸드폰 인증 검사 후 회원가입 */
+    @Transactional
     public SignUpResponse signUp(SignUpRequest request) {
         validatePasswordMatch(request.password(), request.passwordCheck());
         validatePhoneNumberVerified(request.phoneNumber());
@@ -74,7 +75,6 @@ public class AuthService {
     }
 
     /* [이메일 중복검사] 이미 존재하는 이메일이면 예외 발생 */
-    @Transactional(readOnly = true)
     public void checkEmail(EmailCheckRequest request) {
         if (memberRepository.existsByEmail(request.email())) {
             throw new AuthException(ALREADY_EXIST_EMAIL);
@@ -91,6 +91,7 @@ public class AuthService {
     }
 
     /* [로그인] 성공하면 토큰 발급 */
+    @Transactional
     public String signIn(SignInRequest request) {
         UserDetails userDetails = getUserDetails(request.email());
         checkPassword(request.password(), userDetails.getPassword());
@@ -128,6 +129,7 @@ public class AuthService {
     }
 
     /* [로그아웃] 레디스에 저장된 토큰 삭제 */
+    @Transactional
     public void signOut(UserDetails userDetails) {
         tokenService.deleteToken(Long.valueOf(userDetails.getUsername()));
     }

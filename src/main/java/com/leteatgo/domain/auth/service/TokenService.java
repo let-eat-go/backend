@@ -13,12 +13,11 @@ import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 public class TokenService {
 
     private final RedisTokenRepository redisTokenRepository;
 
-    @Transactional(readOnly = true)
     public RedisToken getTokenByAccessToken(String accessToken) {
         if (!StringUtils.hasText(accessToken)) {
             throw new TokenException(EMPTY_TOKEN);
@@ -27,11 +26,13 @@ public class TokenService {
                 .orElseThrow(() -> new TokenException(EXPIRED_TOKEN));
     }
 
+    @Transactional
     public void updateToken(RedisToken token, String accessToken) {
         token.updateAccessToken(accessToken);
         redisTokenRepository.save(token);
     }
 
+    @Transactional
     public void deleteToken(Long memberId) {
         redisTokenRepository.deleteById(memberId.toString());
     }
