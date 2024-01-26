@@ -21,6 +21,7 @@ import com.leteatgo.domain.auth.dto.request.EmailCheckRequest;
 import com.leteatgo.domain.auth.dto.request.SignInRequest;
 import com.leteatgo.domain.auth.dto.request.SignUpRequest;
 import com.leteatgo.domain.auth.dto.request.SmsVerifyRequest;
+import com.leteatgo.domain.auth.dto.response.SignInResponse;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.entity.RedisSms;
 import com.leteatgo.domain.auth.entity.RedisToken;
@@ -186,10 +187,10 @@ class AuthServiceTest {
             given(redisTokenRepository.save(any())).willReturn(token);
 
             // when
-            String token = authService.signIn(request);
+            SignInResponse response = authService.signIn(request);
 
             // then
-            assertThat(token).isNotNull();
+            assertThat(response.accessToken()).isNotNull();
         }
 
         @Test
@@ -336,5 +337,5 @@ class AuthServiceTest {
 
         return member;
     }
-    
+
 }

@@ -31,6 +31,7 @@ public enum ErrorCode {
     PHONE_NUMBER_NOT_VERIFIED(UNAUTHORIZED, "핸드폰 번호 인증이 완료되지 않았습니다."),
     ALREADY_EXIST_PHONE_NUMBER(BAD_REQUEST, "이미 존재하는 핸드폰 번호입니다."),
     ACCESS_DENIED(FORBIDDEN, "접근이 거부되었습니다."),
+    ILLEGAL_PROVIDER(BAD_REQUEST, "지원하지 않는 OAuth2 공급자입니다."),
 
     // token
     INVALID_TOKEN(BAD_REQUEST, "올바르지 않은 토큰입니다."),

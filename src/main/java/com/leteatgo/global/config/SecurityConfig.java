@@ -3,6 +3,9 @@ package com.leteatgo.global.config;
 import com.leteatgo.global.security.handler.CustomAccessDeniedHandler;
 import com.leteatgo.global.security.handler.CustomAuthenticationEntryPoint;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
+import com.leteatgo.global.security.oauth.handler.CustomOAuth2FailureHandler;
+import com.leteatgo.global.security.oauth.handler.CustomOAuth2SuccessHandler;
+import com.leteatgo.global.security.oauth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +29,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
 
     @Bean
@@ -58,8 +64,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/tasty-restaurants/**").permitAll()
                         // User 권한만 허용
                         .requestMatchers("/api/auth/signout").hasRole("USER")
+                        .requestMatchers("/api/auth/oauth/success").hasRole("USER")
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated())
+                .oauth2Login(oauth ->
+                        oauth.userInfoEndpoint(userInfo ->
+                                        userInfo.userService(customOAuth2UserService))
+                                .successHandler(customOAuth2SuccessHandler)
+                                .failureHandler(customOAuth2FailureHandler)
+                )
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class)
                 .build();

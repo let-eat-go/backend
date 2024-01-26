@@ -31,6 +31,7 @@ import com.leteatgo.domain.auth.dto.request.SignInRequest;
 import com.leteatgo.domain.auth.dto.request.SignUpRequest;
 import com.leteatgo.domain.auth.dto.request.SmsSendRequest;
 import com.leteatgo.domain.auth.dto.request.SmsVerifyRequest;
+import com.leteatgo.domain.auth.dto.response.SignInResponse;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.exception.AuthException;
 import com.leteatgo.domain.auth.service.AuthService;
@@ -378,8 +379,9 @@ class AuthControllerTest {
         @DisplayName("[성공] 로컬 로그인에 성공하면 토큰을 발급하고 쿠키에 저장")
         void signIn() throws Exception {
             // given
+            SignInResponse response = new SignInResponse(token);
             // when
-            doReturn(token).when(authService).signIn(request);
+            doReturn(response).when(authService).signIn(request);
             // then
             mockMvc.perform(post("/api/auth/signin")
                             .with(csrf())
