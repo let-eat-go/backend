@@ -1,9 +1,11 @@
 ### search restaurants
 GET {{host}}/api/tasty-restaurants/search?keyword=낙지
-Cookie: name=access_token
 
 ### search restaurants with distance
 GET {{host}}/api/tasty-restaurants/search?keyword=감자탕&longitude=127.06283102249932&latitude=37.514322572335935&sort=distance
 
 ### get popular keywords
 GET {{host}}/api/tasty-restaurants/popular
+
+### get visited restaurants
+GET {{host}}/api/tasty-restaurants
