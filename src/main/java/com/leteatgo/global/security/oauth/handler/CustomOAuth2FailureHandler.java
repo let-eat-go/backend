@@ -23,6 +23,7 @@ public class CustomOAuth2FailureHandler implements AuthenticationFailureHandler 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
+    // TODO: 바로 에러를 던지는 것이 아니라, 리다이렉트 URL을 지정해주는 것이 좋을 것 같다.
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException exception) throws IOException {
         log.error("소셜 로그인에 실패했습니다. 에러 메시지: {}", exception.getMessage());

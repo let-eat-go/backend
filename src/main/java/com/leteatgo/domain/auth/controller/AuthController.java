@@ -8,6 +8,7 @@ import com.leteatgo.domain.auth.dto.request.SignInRequest;
 import com.leteatgo.domain.auth.dto.request.SignUpRequest;
 import com.leteatgo.domain.auth.dto.request.SmsSendRequest;
 import com.leteatgo.domain.auth.dto.request.SmsVerifyRequest;
+import com.leteatgo.domain.auth.dto.response.SignInResponse;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.service.AuthService;
 import com.leteatgo.domain.auth.service.SmsSender;
@@ -50,13 +51,13 @@ public class AuthController {
 
     // 로그인 (로컬)
     @PostMapping("/signin")
-    public ResponseEntity<String> signIn(
+    public ResponseEntity<SignInResponse> signIn(
             HttpServletResponse response,
             @RequestBody @Valid SignInRequest request
     ) {
-        String token = authService.signIn(request);
-        CookieUtil.addCookie(response, COOKIE_NAME, token, COOKIE_MAX_AGE);
-        return ResponseEntity.ok().body(token);
+        SignInResponse signInResponse = authService.signIn(request);
+        CookieUtil.addCookie(response, COOKIE_NAME, signInResponse.accessToken(), COOKIE_MAX_AGE);
+        return ResponseEntity.ok().body(signInResponse);
     }
 
     // 로그아웃
@@ -107,4 +108,5 @@ public class AuthController {
         authService.verifySmsAuthCode(request);
         return ResponseEntity.ok().build();
     }
+
 }
