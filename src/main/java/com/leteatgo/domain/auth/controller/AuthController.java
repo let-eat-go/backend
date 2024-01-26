@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -107,6 +108,13 @@ public class AuthController {
     ) {
         authService.verifySmsAuthCode(request);
         return ResponseEntity.ok().build();
+    }
+
+    // 소셜 로그인 성공
+    @GetMapping("/oauth/success")
+    public ResponseEntity<String> oauthSuccess(
+    ) {
+        return ResponseEntity.ok().body("소셜 로그인 성공");
     }
 
 }
