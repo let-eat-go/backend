@@ -1,6 +1,6 @@
 package com.leteatgo.global.security.oauth.service;
 
-import static com.leteatgo.global.exception.ErrorCode.ILLEGAL_REGISTRATION_ID;
+import static com.leteatgo.global.exception.ErrorCode.ILLEGAL_PROVIDER;
 
 import com.leteatgo.domain.auth.exception.AuthException;
 import com.leteatgo.domain.member.type.LoginType;
@@ -33,7 +33,7 @@ public enum OAuth2Provider {
         return switch (providerName) {
             case "google" -> GOOGLE;
             // kakao, naver ...
-            default -> throw new AuthException(ILLEGAL_REGISTRATION_ID);
+            default -> throw new AuthException(ILLEGAL_PROVIDER);
         };
     }
 

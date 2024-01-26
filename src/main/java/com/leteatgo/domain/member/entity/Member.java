@@ -25,6 +25,8 @@ public class Member {
     public static final String DEFAULT_INTRODUCE = "자기소개를 작성해주세요";
     public static final String DEFAULT_PROFILE_IMAGE = "default_profile_image.png";
     public static final Double DEFAULT_MANNER_TEMPERATURE = 36.5;
+    public static final String DEFAULT_PASSWORD = "1!qweqwe";
+    public static final String DEFAULT_PHONE_NUMBER = "01112345678";
 
     @Id
     @Column(name = "id")
@@ -65,13 +67,13 @@ public class Member {
 
     @Builder
     protected Member(String email, String nickname, String password, String phoneNumber,
-            LoginType loginType, MemberRole role
+            String profileImage, LoginType loginType, MemberRole role
     ) {
         this.email = email;
         this.nickname = nickname;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
-        this.profileImage = DEFAULT_PROFILE_IMAGE;
+        this.password = password == null ? DEFAULT_PASSWORD : password;
+        this.phoneNumber = phoneNumber == null ? DEFAULT_PHONE_NUMBER : phoneNumber;
+        this.profileImage = profileImage == null ? DEFAULT_PROFILE_IMAGE : profileImage;
         this.introduce = DEFAULT_INTRODUCE;
         this.mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
         this.loginType = loginType;
