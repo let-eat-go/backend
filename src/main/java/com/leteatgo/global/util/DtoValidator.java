@@ -14,4 +14,6 @@ public class DtoValidator {
     public static final String PHONE_NUMBER_FORMAT = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$";
     public static final String AUTH_CODE_FORMAT = "[0-9]{6}";
 
+    public static final String EMPTY_KEYWORD = "검색어를 입력해주세요.";
+
 }

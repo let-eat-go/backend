@@ -4,6 +4,7 @@ import com.leteatgo.global.entity.BaseEntity;
 import com.leteatgo.global.type.RestaurantCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,9 @@ import lombok.NoArgsConstructor;
         name = "tasty_restaurant",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_tasty_restaurant_kakao_id", columnNames = {"kakao_id"})
+        },
+        indexes = {
+                @Index(name = "idx_tasty_restaurant_number_of_uses", columnList = "number_of_uses")
         }
 )
 public class TastyRestaurant extends BaseEntity {
@@ -52,4 +56,21 @@ public class TastyRestaurant extends BaseEntity {
 
     @Column(name = "number_of_uses", nullable = false)
     private Integer numberOfUses;
+
+    @Builder
+    public TastyRestaurant(Long kakaoId, String name, RestaurantCategory category,
+            String phoneNumber,
+            String roadAddress, String landAddress, Double latitude, Double longitude,
+            String restaurantUrl, Integer numberOfUses) {
+        this.kakaoId = kakaoId;
+        this.name = name;
+        this.category = category;
+        this.phoneNumber = phoneNumber;
+        this.roadAddress = roadAddress;
+        this.landAddress = landAddress;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.restaurantUrl = restaurantUrl;
+        this.numberOfUses = numberOfUses;
+    }
 }
