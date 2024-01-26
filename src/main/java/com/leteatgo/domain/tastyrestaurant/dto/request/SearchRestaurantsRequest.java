@@ -1,6 +1,7 @@
 package com.leteatgo.domain.tastyrestaurant.dto.request;
 
-import com.leteatgo.global.util.DtoValidator;
+import static com.leteatgo.global.util.DtoValidator.EMPTY_KEYWORD;
+
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -10,7 +11,7 @@ import org.springframework.util.ObjectUtils;
 
 @Builder
 public record SearchRestaurantsRequest(
-        @NotBlank(message = DtoValidator.EMPTY_KEYWORD)
+        @NotBlank(message = EMPTY_KEYWORD)
         String keyword,
 
         @Min(1) @Max(45)
