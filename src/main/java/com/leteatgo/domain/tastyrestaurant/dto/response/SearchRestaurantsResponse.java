@@ -2,6 +2,7 @@ package com.leteatgo.domain.tastyrestaurant.dto.response;
 
 import com.leteatgo.global.external.searchplace.dto.RestaurantContent;
 import com.leteatgo.global.external.searchplace.dto.RestaurantsResponse;
+import com.leteatgo.global.type.RestaurantCategory;
 import java.util.List;
 import lombok.Builder;
 
@@ -26,7 +27,7 @@ public record SearchRestaurantsResponse(
     @Builder
     public record Content(
             String name,
-            String category,
+            RestaurantCategory category,
             String phoneNumber,
             String roadAddress,
             String landAddress,
@@ -38,7 +39,7 @@ public record SearchRestaurantsResponse(
         public static Content from(RestaurantContent content) {
             return Content.builder()
                     .name(content.name())
-                    .category(content.category())
+                    .category(RestaurantCategory.from(content.category()))
                     .phoneNumber(content.phoneNumber())
                     .roadAddress(content.roadAddress())
                     .landAddress(content.landAddress())
@@ -50,8 +51,11 @@ public record SearchRestaurantsResponse(
     }
 
     @Builder
-    public record Pagination(Integer currentPage,
-                             boolean hasMore,
-                             Integer totalCount) {
+    public record Pagination(
+            Integer currentPage,
+            boolean hasMore,
+            Integer totalCount
+    ) {
+
     }
 }
