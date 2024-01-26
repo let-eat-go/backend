@@ -82,7 +82,7 @@ class TastyRestaurantServiceTest {
 
             // then
             assertEquals(1, response.pagination().currentPage());
-            assertEquals("한식", response.contents().get(0).category());
+            assertEquals("한식", response.contents().get(0).category().name());
         }
 
         @Test
@@ -107,7 +107,7 @@ class TastyRestaurantServiceTest {
 
             // then
             assertEquals(1, response.pagination().currentPage());
-            assertEquals("한식", response.contents().get(0).category());
+            assertEquals("한식", response.contents().get(0).category().name());
         }
     }
 
