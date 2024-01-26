@@ -23,35 +23,31 @@ import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse.
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse.Content;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse.Pagination;
+import com.leteatgo.domain.tastyrestaurant.dto.response.VisitedRestaurantResponse;
 import com.leteatgo.domain.tastyrestaurant.service.TastyRestaurantService;
-import com.leteatgo.global.config.SecurityConfig;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
+import com.leteatgo.global.type.RestaurantCategory;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+@WithMockUser(username = "do", roles = "USER")
 @AutoConfigureRestDocs
 @WebMvcTest(
         controllers = TastyRestaurantController.class,
-        excludeAutoConfiguration = {
-                UserDetailsServiceAutoConfiguration.class,
-                SecurityAutoConfiguration.class
-        },
         excludeFilters = {
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
                         classes = {
-                                SecurityConfig.class, JwtAuthenticationFilter.class
+                                JwtAuthenticationFilter.class
                         })
         }
 )
@@ -78,7 +74,7 @@ class TastyRestaurantControllerTest {
 
         List<Content> contents = List.of(Content.builder()
                 .name("삼환소한마리")
-                .category("한식")
+                .category(RestaurantCategory.한식)
                 .phoneNumber("02-545-2429")
                 .roadAddress("도로명")
                 .landAddress("지번")
@@ -189,5 +185,71 @@ class TastyRestaurantControllerTest {
                         )));
 
         verify(tastyRestaurantService, times(1)).getKeywordRanking();
+    }
+
+    @Test
+    @DisplayName("회원들이 방문한 맛집 조회")
+    void visitedRestaurants() throws Exception {
+        // given
+        List<VisitedRestaurantResponse.Content> contents = List.of(
+                VisitedRestaurantResponse.Content.builder()
+                        .name("삼환소한마리")
+                        .category(RestaurantCategory.한식)
+                        .phoneNumber("02-545-2429")
+                        .roadAddress("도로명")
+                        .landAddress("지번")
+                        .latitude(127.06283102249932)
+                        .longitude(37.514322572335935)
+                        .restaurantUrl("http://place.map.kakao.com/8137464")
+                        .numberOfUses(100)
+                        .build());
+
+        VisitedRestaurantResponse.Pagination pagination = new VisitedRestaurantResponse.Pagination(
+                100, false);
+
+        given(tastyRestaurantService.visitedRestaurants(any()))
+                .willReturn(new VisitedRestaurantResponse(contents, pagination));
+
+        // when
+        // then
+        mockMvc.perform(get(URI)
+                        .param("lastNumOfUses", "10"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("회원들이 방문한 맛집 조회", resource(
+                        ResourceSnippetParameters.builder()
+                                .tag(TAG)
+                                .summary("회원들이  방문한 맛집 조회")
+                                .requestSchema(null)
+                                .responseSchema(schema("VisitedRestaurantResponse"))
+                                .queryParameters(
+                                        parameterWithName("lastNumOfUses")
+                                                .description("마지막 방문 횟수").optional())
+                                .responseFields(
+                                        fieldWithPath("contents[].name").
+                                                description("식당 이름"),
+                                        fieldWithPath("contents[].category")
+                                                .description("카테고리"),
+                                        fieldWithPath("contents[].phoneNumber")
+                                                .description("전화번호"),
+                                        fieldWithPath("contents[].roadAddress")
+                                                .description("도로명 주소"),
+                                        fieldWithPath("contents[].landAddress")
+                                                .description("지번 주소"),
+                                        fieldWithPath("contents[].latitude")
+                                                .description("경도"),
+                                        fieldWithPath("contents[].longitude")
+                                                .description("위도"),
+                                        fieldWithPath("contents[].restaurantUrl")
+                                                .description("식당 url"),
+                                        fieldWithPath("contents[].numberOfUses")
+                                                .description("방문 횟수"),
+                                        fieldWithPath("pagination.lastNumOfUses")
+                                                .description("마지막 방문 횟수"),
+                                        fieldWithPath("pagination.hasMore")
+                                                .description("다음 페이지 여부")
+                                )
+                                .build()
+                )));
     }
 }

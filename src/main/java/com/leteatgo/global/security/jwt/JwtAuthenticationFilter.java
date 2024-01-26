@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/send-sms", // 인증번호 발송
             "/api/auth/oauth/success", // 소셜 로그인 성공
             "/api/auth/verify-sms", // 인증번호 확인
-            "/api/tasty-restaurants/search", // 맛집 검색
+            "/api/tasty-restaurants", // 회원들이 방문한 맛집 조회
     };
 
     private final JwtTokenProvider jwtTokenProvider;

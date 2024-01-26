@@ -39,7 +39,11 @@ public enum ErrorCode {
     EMPTY_TOKEN(BAD_REQUEST, "토큰이 존재하지 않습니다."),
 
     // member
-    NOT_FOUND_MEMBER(BAD_REQUEST, "존재하지 않는 회원입니다.");
+    NOT_FOUND_MEMBER(BAD_REQUEST, "존재하지 않는 회원입니다."),
+
+    // tastyRestaurant
+    NOT_FOUND_CATEGORY(NOT_FOUND, "존재하지 않는 카테고리입니다.")
+    ;
 
     private final HttpStatus httpStatus;
     private final String errorMessage;

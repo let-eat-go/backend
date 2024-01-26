@@ -6,3 +6,6 @@ GET {{host}}/api/tasty-restaurants/search?keyword=감자탕&longitude=127.062831
 
 ### get popular keywords
 GET {{host}}/api/tasty-restaurants/popular
+
+### get visited restaurants
+GET {{host}}/api/tasty-restaurants
