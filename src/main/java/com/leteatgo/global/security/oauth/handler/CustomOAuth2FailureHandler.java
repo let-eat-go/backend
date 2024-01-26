@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomOAuth2FailureHandler implements AuthenticationFailureHandler {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     // TODO: 바로 에러를 던지는 것이 아니라, 리다이렉트 URL을 지정해주는 것이 좋을 것 같다.
