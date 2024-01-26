@@ -12,6 +12,7 @@ import com.leteatgo.domain.auth.dto.request.EmailCheckRequest;
 import com.leteatgo.domain.auth.dto.request.SignInRequest;
 import com.leteatgo.domain.auth.dto.request.SignUpRequest;
 import com.leteatgo.domain.auth.dto.request.SmsVerifyRequest;
+import com.leteatgo.domain.auth.dto.response.SignInResponse;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.entity.RedisSms;
 import com.leteatgo.domain.auth.entity.RedisToken;
@@ -22,6 +23,7 @@ import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.repository.MemberRepository;
 import com.leteatgo.global.security.CustomUserDetailService;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
+import com.leteatgo.global.security.oauth.dto.OAuth2UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -92,7 +94,7 @@ public class AuthService {
 
     /* [로그인] 성공하면 토큰 발급 */
     @Transactional
-    public String signIn(SignInRequest request) {
+    public SignInResponse signIn(SignInRequest request) {
         UserDetails userDetails = getUserDetails(request.email());
         checkPassword(request.password(), userDetails.getPassword());
         Authentication authentication = createAuthentication(userDetails);
@@ -107,7 +109,7 @@ public class AuthService {
         );
         redisTokenRepository.save(token);
 
-        return accessToken;
+        return new SignInResponse(accessToken);
     }
 
     private UserDetails getUserDetails(String email) {
