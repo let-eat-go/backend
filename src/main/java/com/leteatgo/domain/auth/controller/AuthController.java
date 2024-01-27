@@ -84,8 +84,8 @@ public class AuthController {
     }
 
     // 핸드폰 인증번호 발송 (로컬 테스트용)
-    @PostMapping("/send-sms")
-    public ResponseEntity<String> sendSms(
+    @PostMapping("/send-sms-test")
+    public ResponseEntity<String> sendSmsTest(
             @RequestBody @Valid SmsSendRequest request
     ) {
         String authCode = smsSender.sendSmsTest(request);
@@ -93,15 +93,16 @@ public class AuthController {
     }
 
     // 핸드폰 인증번호 발송 (서비스 운영용)
-//    @PostMapping("/send-sms")
-//    public ResponseEntity<Void> sendSms(
-//            @RequestBody @Valid SmsSendRequest request
-//    ) {
-//        smsSender.sendSms(request);
-//        return ResponseEntity.ok().build();
-//    }
+    @PostMapping("/send-sms")
+    public ResponseEntity<Void> sendSms(
+            @RequestBody @Valid SmsSendRequest request
+    ) {
+        smsSender.sendSms(request);
+        return ResponseEntity.ok().build();
+    }
 
     // 핸드폰 인증번호 확인
+    @Deprecated
     @PutMapping("/verify-sms")
     public ResponseEntity<Void> verifySms(
             @RequestBody @Valid SmsVerifyRequest request

@@ -32,7 +32,10 @@ public record SignUpRequest(
         String passwordCheck,
         @NotBlank(message = EMPTY_MESSAGE)
         @Pattern(regexp = PHONE_NUMBER_FORMAT, message = PHONE_NUMBER_MESSAGE)
-        String phoneNumber
+        String phoneNumber,
+        @NotBlank(message = EMPTY_MESSAGE)
+        // TODO: 2024-01-26 인증코드 형식 정규식 추가 (도희님 작업 후)
+        String authCode
 ) {
 
     public static Member toEntity(SignUpRequest request, String password, LoginType loginType) {
