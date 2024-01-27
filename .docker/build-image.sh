@@ -13,7 +13,6 @@ IMAGE_COMMIT_NGINX="$DOCKER_HUB_ID/$NAME_NGINX:$VERSION"
 IMAGE_LATEST_NGINX="$DOCKER_HUB_ID/$NAME_NGINX:latest"
 
 echo "Building image : api"
-cd ../
 ./gradlew clean build -x test
 #./gradlew build
 docker build -f .docker/api/Dockerfile-api --build-arg ENV="$ENV" -t "$NAME_SERVER:$VERSION" .
