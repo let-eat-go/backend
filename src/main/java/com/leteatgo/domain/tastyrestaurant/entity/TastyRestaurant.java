@@ -15,9 +15,6 @@ import lombok.NoArgsConstructor;
         name = "tasty_restaurant",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_tasty_restaurant_kakao_id", columnNames = {"kakao_id"})
-        },
-        indexes = {
-                @Index(name = "idx_tasty_restaurant_number_of_uses", columnList = "number_of_uses")
         }
 )
 public class TastyRestaurant extends BaseEntity {
@@ -59,9 +56,8 @@ public class TastyRestaurant extends BaseEntity {
 
     @Builder
     public TastyRestaurant(Long kakaoId, String name, RestaurantCategory category,
-            String phoneNumber,
-            String roadAddress, String landAddress, Double latitude, Double longitude,
-            String restaurantUrl, Integer numberOfUses) {
+            String phoneNumber, String roadAddress, String landAddress, Double latitude,
+            Double longitude, String restaurantUrl, Integer numberOfUses) {
         this.kakaoId = kakaoId;
         this.name = name;
         this.category = category;
