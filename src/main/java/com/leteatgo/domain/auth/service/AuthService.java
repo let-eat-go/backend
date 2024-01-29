@@ -2,7 +2,6 @@ package com.leteatgo.domain.auth.service;
 
 import static com.leteatgo.domain.member.type.LoginType.LOCAL;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_EMAIL;
-import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_PHONE_NUMBER;
 import static com.leteatgo.global.exception.ErrorCode.EXPIRED_AUTH_CODE;
 import static com.leteatgo.global.exception.ErrorCode.PHONE_NUMBER_NOT_VERIFIED;
 import static com.leteatgo.global.exception.ErrorCode.WRONG_PASSWORD;
@@ -23,7 +22,6 @@ import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.repository.MemberRepository;
 import com.leteatgo.global.security.CustomUserDetailService;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
-import com.leteatgo.global.security.oauth.dto.OAuth2UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -50,7 +48,7 @@ public class AuthService {
     @Transactional
     public SignUpResponse signUp(SignUpRequest request) {
         validatePasswordMatch(request.password(), request.passwordCheck());
-        validatePhoneNumberVerified(request.phoneNumber());
+        verifySmsAuthCode(request.phoneNumber(), request.authCode());
 
         String password = passwordEncoder.encode(request.password());
         Member member = SignUpRequest.toEntity(request, password, LOCAL);
@@ -65,15 +63,12 @@ public class AuthService {
         }
     }
 
-    private void validatePhoneNumberVerified(String phoneNumber) {
-        if (memberRepository.existsByPhoneNumber(phoneNumber)) {
-            throw new AuthException(ALREADY_EXIST_PHONE_NUMBER);
-        }
+    private void verifySmsAuthCode(String phoneNumber, String authCode) {
         RedisSms redisSms = redisSmsRepository.findById(phoneNumber)
-                .orElseThrow(() -> new AuthException(WRONG_PHONE_NUMBER));
-        if (!redisSms.isVerified()) {
-            throw new AuthException(PHONE_NUMBER_NOT_VERIFIED);
-        }
+                .orElseThrow(() -> new AuthException(EXPIRED_AUTH_CODE));
+        redisSms.validateAuthCode(authCode);
+        redisSms.verify();
+        redisSmsRepository.save(redisSms);
     }
 
     /* [이메일 중복검사] 이미 존재하는 이메일이면 예외 발생 */
@@ -83,6 +78,7 @@ public class AuthService {
         }
     }
 
+    @Deprecated
     /* [핸드폰 인증번호 검증] 인증번호가 일치하지 않으면 예외 발생 */
     public void verifySmsAuthCode(SmsVerifyRequest request) {
         RedisSms redisSms = redisSmsRepository.findById(request.phoneNumber())

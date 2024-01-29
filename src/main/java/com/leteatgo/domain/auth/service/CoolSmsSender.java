@@ -1,11 +1,13 @@
 package com.leteatgo.domain.auth.service;
 
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_PHONE_NUMBER;
 import static com.leteatgo.global.exception.ErrorCode.SMS_SEND_ERROR;
 
 import com.leteatgo.domain.auth.dto.request.SmsSendRequest;
 import com.leteatgo.domain.auth.entity.RedisSms;
 import com.leteatgo.domain.auth.exception.AuthException;
 import com.leteatgo.domain.auth.repository.RedisSmsRepository;
+import com.leteatgo.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
@@ -22,6 +24,7 @@ public class CoolSmsSender implements SmsSender {
 
     private final RedisSmsRepository redisSmsRepository;
     private final DefaultMessageService defaultMessageService;
+    private final MemberRepository memberRepository;
 
     @Value("${coolsms.from}")
     private String fromNumber;
@@ -29,6 +32,7 @@ public class CoolSmsSender implements SmsSender {
     /* [문자 발송] 인증번호 생성 후 문자 발송 */
     @Override
     public void sendSms(SmsSendRequest request) {
+        checkAlreadyExistPhoneNumber(request);
         try {
             String authCode = generateAuthCode();
             redisSmsRepository.deleteById(request.phoneNumber());
@@ -51,6 +55,7 @@ public class CoolSmsSender implements SmsSender {
     /* [문자 발송] 로컬 테스트용 */
     @Override
     public String sendSmsTest(SmsSendRequest request) {
+        checkAlreadyExistPhoneNumber(request);
         try {
             String authCode = generateAuthCode();
             redisSmsRepository.deleteById(request.phoneNumber());
@@ -61,6 +66,12 @@ public class CoolSmsSender implements SmsSender {
         } catch (Exception e) {
             log.error("SMS 전송 중 에러 발생", e);
             throw new AuthException(SMS_SEND_ERROR);
+        }
+    }
+
+    private void checkAlreadyExistPhoneNumber(SmsSendRequest request) {
+        if (memberRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new AuthException(ALREADY_EXIST_PHONE_NUMBER);
         }
     }
 

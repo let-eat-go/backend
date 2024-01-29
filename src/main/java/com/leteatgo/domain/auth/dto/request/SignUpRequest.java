@@ -1,6 +1,7 @@
 package com.leteatgo.domain.auth.dto.request;
 
 import static com.leteatgo.domain.member.type.MemberRole.ROLE_USER;
+
 import static com.leteatgo.global.constants.DtoValid.EMAIL_MESSAGE;
 import static com.leteatgo.global.constants.DtoValid.EMPTY_MESSAGE;
 import static com.leteatgo.global.constants.DtoValid.NICKNAME_FORMAT;
@@ -9,6 +10,8 @@ import static com.leteatgo.global.constants.DtoValid.PHONE_NUMBER_FORMAT;
 import static com.leteatgo.global.constants.DtoValid.PHONE_NUMBER_MESSAGE;
 import static com.leteatgo.global.constants.DtoValid.PW_FORMAT;
 import static com.leteatgo.global.constants.DtoValid.PW_MESSAGE;
+import static com.leteatgo.global.constants.DtoValid.AUTH_CODE_FORMAT;
+import static com.leteatgo.global.constants.DtoValid.AUTH_CODE_MESSAGE;
 
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.type.LoginType;
@@ -32,7 +35,10 @@ public record SignUpRequest(
         String passwordCheck,
         @NotBlank(message = EMPTY_MESSAGE)
         @Pattern(regexp = PHONE_NUMBER_FORMAT, message = PHONE_NUMBER_MESSAGE)
-        String phoneNumber
+        String phoneNumber,
+        @NotBlank(message = EMPTY_MESSAGE)
+        @Pattern(regexp = AUTH_CODE_FORMAT, message = AUTH_CODE_MESSAGE)
+        String authCode
 ) {
 
     public static Member toEntity(SignUpRequest request, String password, LoginType loginType) {
