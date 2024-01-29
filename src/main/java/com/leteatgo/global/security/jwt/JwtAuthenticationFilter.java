@@ -37,6 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/signin", // 로그인
             "/api/auth/check-email", // 이메일 중복 체크
             "/api/auth/send-sms", // 인증번호 발송
+            "/api/auth/send-sms-test", // 인증번호 발송 (로컬 테스트용)
             "/api/auth/oauth/success", // 소셜 로그인 성공
             "/api/auth/verify-sms", // 인증번호 확인
             "/api/tasty-restaurants", // 회원들이 방문한 맛집 조회
