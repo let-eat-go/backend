@@ -19,7 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.leteatgo.domain.tastyrestaurant.dto.request.VisitedRestaurantRequest;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse.Keywords;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
@@ -71,6 +70,7 @@ class TastyRestaurantControllerTest {
     @DisplayName("맛집 검색")
     void searchRestaurants() throws Exception {
         // given
+        String keyword = "감자탕";
         Double longitude = 127.06283102249932;
         Double latitude = 37.514322572335935;
 
@@ -91,13 +91,13 @@ class TastyRestaurantControllerTest {
                 .totalCount(1234)
                 .build();
 
-        given(tastyRestaurantService.searchRestaurants(any()))
+        given(tastyRestaurantService.searchRestaurants(any())) // 아래 request parameter로 인자 값 입력
                 .willReturn(new SearchRestaurantsResponse(contents, pagination));
 
         // when
         // then
         mockMvc.perform(get(URI + "/search")
-                        .param("keyword", "감자탕")
+                        .param("keyword", keyword)
                         .param("page", "1")
                         .param("longitude", String.valueOf(longitude))
                         .param("latitude", String.valueOf(latitude))
@@ -143,8 +143,7 @@ class TastyRestaurantControllerTest {
                                                         .description("경도"),
                                                 fieldWithPath("contents[].longitude")
                                                         .description("위도"),
-                                                fieldWithPath(
-                                                        "contents[].restaurantUrl")
+                                                fieldWithPath("contents[].restaurantUrl")
                                                         .description("식당 url"),
                                                 fieldWithPath("pagination.currentPage")
                                                         .description("현재 페이지"),
@@ -209,7 +208,7 @@ class TastyRestaurantControllerTest {
         VisitedRestaurantResponse.Pagination pagination = new VisitedRestaurantResponse
                 .Pagination(1, false);
 
-        given(tastyRestaurantService.visitedRestaurants(new VisitedRestaurantRequest(null)))
+        given(tastyRestaurantService.visitedRestaurants(any())) // 아래 request parameter로 인자 값 입력
                 .willReturn(new VisitedRestaurantResponse(contents, pagination));
 
         // when
