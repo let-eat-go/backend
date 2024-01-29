@@ -1,11 +1,13 @@
 package com.leteatgo.domain.tastyrestaurant.service;
 
+import static com.leteatgo.global.type.RestaurantCategory.KOREAN_CUISINE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 
 import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantsRequest;
+import com.leteatgo.domain.tastyrestaurant.dto.request.VisitedRestaurantRequest;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse.Keywords;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
@@ -16,7 +18,6 @@ import com.leteatgo.global.external.searchplace.client.RestaurantSearcher;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse.Document;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse.Meta;
-import com.leteatgo.global.type.RestaurantCategory;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.SliceImpl;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +47,7 @@ class TastyRestaurantServiceTest {
     @Nested
     @DisplayName("맛집 검색 메서드")
     class SearchRestaurantsMethod {
+
         String keyword = "감자탕";
 
         List<Document> documents = List.of(Document.builder()
@@ -82,7 +84,7 @@ class TastyRestaurantServiceTest {
 
             // then
             assertEquals(1, response.pagination().currentPage());
-            assertEquals("한식", response.contents().get(0).category().name());
+            assertEquals(KOREAN_CUISINE, response.contents().get(0).category());
         }
 
         @Test
@@ -107,7 +109,7 @@ class TastyRestaurantServiceTest {
 
             // then
             assertEquals(1, response.pagination().currentPage());
-            assertEquals("한식", response.contents().get(0).category().name());
+            assertEquals(KOREAN_CUISINE, response.contents().get(0).category());
         }
     }
 
@@ -134,29 +136,27 @@ class TastyRestaurantServiceTest {
     @DisplayName("회원들이 방문한 맛집 조회")
     void visitedRestaurants() {
         // given
-        Integer lastNumOfUses = 100;
-
         List<TastyRestaurant> contents = List.of(TastyRestaurant.builder()
                 .name("삼환소한마리")
-                .category(RestaurantCategory.한식)
+                .category(KOREAN_CUISINE)
                 .phoneNumber("02-545-2429")
                 .roadAddress("도로명")
                 .landAddress("지번")
                 .latitude(127.06283102249932)
                 .longitude(37.514322572335935)
                 .restaurantUrl("http://place.map.kakao.com/8137464")
-                .numberOfUses(lastNumOfUses)
+                .numberOfUses(100)
                 .build());
 
-        given(tastyRestaurantRepository.visitedRestaurants(any(), any()))
-                .willReturn(new SliceImpl<>(contents, Pageable.ofSize(5), false));
+        given(tastyRestaurantRepository.findAllByOrderByNumberOfUsesDesc(any()))
+                .willReturn(new SliceImpl<>(contents, PageRequest.of(0, 5), false));
 
         // when
         VisitedRestaurantResponse response = tastyRestaurantService.visitedRestaurants(
-                null);
+                new VisitedRestaurantRequest(1));
 
         // then
         assertEquals(1, response.contents().size());
-        assertEquals(lastNumOfUses, response.pagination().lastNumOfUses());
+        assertEquals(1, response.pagination().currentPage());
     }
 }

@@ -1,6 +1,6 @@
 package com.leteatgo.domain.tastyrestaurant.dto.request;
 
-import static com.leteatgo.global.util.DtoValidator.EMPTY_KEYWORD;
+import static com.leteatgo.global.constants.DtoValid.EMPTY_KEYWORD;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Max;

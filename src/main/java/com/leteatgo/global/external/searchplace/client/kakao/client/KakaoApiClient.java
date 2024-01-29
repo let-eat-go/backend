@@ -7,8 +7,8 @@ import org.springframework.web.service.annotation.GetExchange;
 
 public interface KakaoApiClient extends RestaurantSearcher {
 
-    @GetExchange
     @Override
+    @GetExchange("/keyword.json?category_group_code=FD6&size=10")
     KakaoRestaurantsResponse searchRestaurants(
             @RequestParam("query") String keyword,
             @RequestParam("page") Integer page,

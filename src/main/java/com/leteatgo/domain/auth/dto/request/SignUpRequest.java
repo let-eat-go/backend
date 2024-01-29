@@ -1,14 +1,14 @@
 package com.leteatgo.domain.auth.dto.request;
 
 import static com.leteatgo.domain.member.type.MemberRole.ROLE_USER;
-import static com.leteatgo.global.util.DtoValidator.EMAIL_MESSAGE;
-import static com.leteatgo.global.util.DtoValidator.EMPTY_MESSAGE;
-import static com.leteatgo.global.util.DtoValidator.NICKNAME_FORMAT;
-import static com.leteatgo.global.util.DtoValidator.NICKNAME_MESSAGE;
-import static com.leteatgo.global.util.DtoValidator.PHONE_NUMBER_FORMAT;
-import static com.leteatgo.global.util.DtoValidator.PHONE_NUMBER_MESSAGE;
-import static com.leteatgo.global.util.DtoValidator.PW_FORMAT;
-import static com.leteatgo.global.util.DtoValidator.PW_MESSAGE;
+import static com.leteatgo.global.constants.DtoValid.EMAIL_MESSAGE;
+import static com.leteatgo.global.constants.DtoValid.EMPTY_MESSAGE;
+import static com.leteatgo.global.constants.DtoValid.NICKNAME_FORMAT;
+import static com.leteatgo.global.constants.DtoValid.NICKNAME_MESSAGE;
+import static com.leteatgo.global.constants.DtoValid.PHONE_NUMBER_FORMAT;
+import static com.leteatgo.global.constants.DtoValid.PHONE_NUMBER_MESSAGE;
+import static com.leteatgo.global.constants.DtoValid.PW_FORMAT;
+import static com.leteatgo.global.constants.DtoValid.PW_MESSAGE;
 
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.type.LoginType;
