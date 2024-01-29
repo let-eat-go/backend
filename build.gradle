@@ -4,7 +4,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.2'
     id 'io.spring.dependency-management' version '1.1.4'
-    id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id 'org.hidetake.swagger.generator' version '2.18.2'
     id 'com.epages.restdocs-api-spec' version '0.18.4'
 }
@@ -44,6 +43,9 @@ dependencies {
 
     // Batch
 //    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    // websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     // Driver
     runtimeOnly 'com.h2database:h2'
