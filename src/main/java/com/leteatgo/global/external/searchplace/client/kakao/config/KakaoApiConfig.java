@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Configuration
 public class KakaoApiConfig {
@@ -22,17 +21,12 @@ public class KakaoApiConfig {
     @Value("${external.kakao.key}")
     private String key;
 
-    private static final String BASE_URL = "https://dapi.kakao.com/v2/local/search/keyword.json";
+    private static final String BASE_URL = "https://dapi.kakao.com/v2/local/search";
 
     @Bean
     public KakaoApiClient kakaoApiClient() {
         RestClient restClient = RestClient.builder()
-                .baseUrl(UriComponentsBuilder.fromHttpUrl(BASE_URL)
-                        .queryParam("category_group_code", "FD6")
-                        .queryParam("size", "10")
-                        .encode()
-                        .build()
-                        .toUri().toString())
+                .baseUrl(BASE_URL)
                 .defaultHeader(AUTHORIZATION, key)
                 .defaultStatusHandler(HttpStatusCode::is4xxClientError,
                         (request, response) -> {

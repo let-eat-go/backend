@@ -14,10 +14,12 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leteatgo.domain.tastyrestaurant.dto.request.VisitedRestaurantRequest;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse.Keywords;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
@@ -74,7 +76,7 @@ class TastyRestaurantControllerTest {
 
         List<Content> contents = List.of(Content.builder()
                 .name("삼환소한마리")
-                .category(RestaurantCategory.한식)
+                .category(RestaurantCategory.KOREAN_CUISINE)
                 .phoneNumber("02-545-2429")
                 .roadAddress("도로명")
                 .landAddress("지번")
@@ -127,29 +129,29 @@ class TastyRestaurantControllerTest {
                                                         .optional()
                                         )
                                         .responseFields(
-                                                fieldWithPath("contents[].name").description(
-                                                        "식당 이름"),
-                                                fieldWithPath("contents[].category").description(
-                                                        "카테고리"),
-                                                fieldWithPath("contents[].phoneNumber").description(
-                                                        "전화번호"),
-                                                fieldWithPath("contents[].roadAddress").description(
-                                                        "도로명 주소"),
-                                                fieldWithPath("contents[].landAddress").description(
-                                                        "지번 주소"),
-                                                fieldWithPath("contents[].latitude").description(
-                                                        "경도"),
-                                                fieldWithPath("contents[].longitude").description(
-                                                        "위도"),
+                                                fieldWithPath("contents[].name")
+                                                        .description("식당 이름"),
+                                                fieldWithPath("contents[].category")
+                                                        .description("카테고리"),
+                                                fieldWithPath("contents[].phoneNumber")
+                                                        .description("전화번호"),
+                                                fieldWithPath("contents[].roadAddress")
+                                                        .description("도로명 주소"),
+                                                fieldWithPath("contents[].landAddress")
+                                                        .description("지번 주소"),
+                                                fieldWithPath("contents[].latitude")
+                                                        .description("경도"),
+                                                fieldWithPath("contents[].longitude")
+                                                        .description("위도"),
                                                 fieldWithPath(
-                                                        "contents[].restaurantUrl").description(
-                                                        "식당 url"),
-                                                fieldWithPath("pagination.currentPage").description(
-                                                        "현재 페이지"),
-                                                fieldWithPath("pagination.hasMore").description(
-                                                        "다음 페이지 여부"),
-                                                fieldWithPath("pagination.totalCount").description(
-                                                        "전체 컨텐츠 개수")
+                                                        "contents[].restaurantUrl")
+                                                        .description("식당 url"),
+                                                fieldWithPath("pagination.currentPage")
+                                                        .description("현재 페이지"),
+                                                fieldWithPath("pagination.hasMore")
+                                                        .description("다음 페이지 여부"),
+                                                fieldWithPath("pagination.totalCount")
+                                                        .description("전체 컨텐츠 개수")
                                         )
                                         .build()
                         )));
@@ -176,10 +178,10 @@ class TastyRestaurantControllerTest {
                                         .tag(TAG)
                                         .summary("인기 검색어 목록 조회")
                                         .responseFields(
-                                                fieldWithPath("contents[].keyword").description(
-                                                        "키워드"),
-                                                fieldWithPath("contents[].score").description(
-                                                        "검색한 횟수")
+                                                fieldWithPath("contents[].keyword")
+                                                        .description("키워드"),
+                                                fieldWithPath("contents[].score")
+                                                        .description("검색한 횟수")
                                         )
                                         .build()
                         )));
@@ -194,7 +196,7 @@ class TastyRestaurantControllerTest {
         List<VisitedRestaurantResponse.Content> contents = List.of(
                 VisitedRestaurantResponse.Content.builder()
                         .name("삼환소한마리")
-                        .category(RestaurantCategory.한식)
+                        .category(RestaurantCategory.KOREAN_CUISINE)
                         .phoneNumber("02-545-2429")
                         .roadAddress("도로명")
                         .landAddress("지번")
@@ -204,17 +206,18 @@ class TastyRestaurantControllerTest {
                         .numberOfUses(100)
                         .build());
 
-        VisitedRestaurantResponse.Pagination pagination = new VisitedRestaurantResponse.Pagination(
-                100, false);
+        VisitedRestaurantResponse.Pagination pagination = new VisitedRestaurantResponse
+                .Pagination(1, false);
 
-        given(tastyRestaurantService.visitedRestaurants(any()))
+        given(tastyRestaurantService.visitedRestaurants(new VisitedRestaurantRequest(null)))
                 .willReturn(new VisitedRestaurantResponse(contents, pagination));
 
         // when
         // then
         mockMvc.perform(get(URI)
-                        .param("lastNumOfUses", "10"))
+                        .param("page", "1"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pagination.currentPage").value(1))
                 .andDo(print())
                 .andDo(document("회원들이 방문한 맛집 조회", resource(
                         ResourceSnippetParameters.builder()
@@ -223,8 +226,8 @@ class TastyRestaurantControllerTest {
                                 .requestSchema(null)
                                 .responseSchema(schema("VisitedRestaurantResponse"))
                                 .queryParameters(
-                                        parameterWithName("lastNumOfUses")
-                                                .description("마지막 방문 횟수").optional())
+                                        parameterWithName("page")
+                                                .description("요청 페이지").optional())
                                 .responseFields(
                                         fieldWithPath("contents[].name").
                                                 description("식당 이름"),
@@ -244,8 +247,8 @@ class TastyRestaurantControllerTest {
                                                 .description("식당 url"),
                                         fieldWithPath("contents[].numberOfUses")
                                                 .description("방문 횟수"),
-                                        fieldWithPath("pagination.lastNumOfUses")
-                                                .description("마지막 방문 횟수"),
+                                        fieldWithPath("pagination.currentPage")
+                                                .description("현재 페이지"),
                                         fieldWithPath("pagination.hasMore")
                                                 .description("다음 페이지 여부")
                                 )

@@ -1,6 +1,7 @@
 package com.leteatgo.domain.tastyrestaurant.service;
 
 import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantsRequest;
+import com.leteatgo.domain.tastyrestaurant.dto.request.VisitedRestaurantRequest;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.VisitedRestaurantResponse;
@@ -10,7 +11,6 @@ import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.external.searchplace.client.RestaurantSearcher;
 import com.leteatgo.global.external.searchplace.dto.RestaurantsResponse;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -43,17 +43,15 @@ public class TastyRestaurantService {
         return redisRankingService.getKeywordRanking();
     }
 
-    public VisitedRestaurantResponse visitedRestaurants(Integer lastNumOfUses) {
-        Slice<TastyRestaurant> tastyRestaurants = tastyRestaurantRepository.visitedRestaurants(
-                lastNumOfUses, PageRequest.ofSize(VISITED_PAGE_SIZE));
+    public VisitedRestaurantResponse visitedRestaurants(VisitedRestaurantRequest request) {
+        Slice<TastyRestaurant> tastyRestaurants = tastyRestaurantRepository
+                .findAllByOrderByNumberOfUsesDesc(PageRequest.of(request.page(), VISITED_PAGE_SIZE));
 
-        List<TastyRestaurant> contents = tastyRestaurants.getContent();
-
-        Integer lastNumberOfUses = contents.isEmpty() ? 0:
-                contents.get(contents.size() - 1).getNumberOfUses();
-
-        return new VisitedRestaurantResponse(contents.stream()
-                .map(Content::fromEntity)
-                .toList(), new Pagination(lastNumberOfUses, tastyRestaurants.hasNext()));
+        return new VisitedRestaurantResponse(
+                tastyRestaurants.getContent().stream()
+                        .map(Content::fromEntity)
+                        .toList(),
+                new Pagination(tastyRestaurants.getPageable().getPageNumber() + 1,
+                        tastyRestaurants.hasNext()));
     }
 }

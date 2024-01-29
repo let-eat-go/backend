@@ -1,6 +1,6 @@
-package com.leteatgo.global.util;
+package com.leteatgo.global.constants;
 
-public class DtoValidator {
+public class DtoValid {
 
     public static final String EMPTY_MESSAGE = "비어있는 항목을 입력해주세요.";
     public static final String EMAIL_MESSAGE = "올바른 이메일 형식이 아닙니다.";

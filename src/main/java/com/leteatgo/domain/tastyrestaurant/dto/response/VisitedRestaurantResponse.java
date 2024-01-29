@@ -40,7 +40,7 @@ public record VisitedRestaurantResponse(
     }
 
     public record Pagination(
-            Integer lastNumOfUses,
+            Integer currentPage,
             boolean hasMore
     ) {
 
