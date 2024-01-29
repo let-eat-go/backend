@@ -1,6 +1,8 @@
 package com.leteatgo.domain.auth.dto.request;
 
 import static com.leteatgo.domain.member.type.MemberRole.ROLE_USER;
+import static com.leteatgo.global.util.DtoValidator.AUTH_CODE_FORMAT;
+import static com.leteatgo.global.util.DtoValidator.AUTH_CODE_MESSAGE;
 import static com.leteatgo.global.util.DtoValidator.EMAIL_MESSAGE;
 import static com.leteatgo.global.util.DtoValidator.EMPTY_MESSAGE;
 import static com.leteatgo.global.util.DtoValidator.NICKNAME_FORMAT;
@@ -34,7 +36,7 @@ public record SignUpRequest(
         @Pattern(regexp = PHONE_NUMBER_FORMAT, message = PHONE_NUMBER_MESSAGE)
         String phoneNumber,
         @NotBlank(message = EMPTY_MESSAGE)
-        // TODO: 2024-01-26 인증코드 형식 정규식 추가 (도희님 작업 후)
+        @Pattern(regexp = AUTH_CODE_FORMAT, message = AUTH_CODE_MESSAGE)
         String authCode
 ) {
 
