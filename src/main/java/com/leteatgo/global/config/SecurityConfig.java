@@ -64,6 +64,7 @@ public class SecurityConfig {
                         // User 권한만 허용
                         .requestMatchers("/api/auth/signout").hasRole("USER")
                         .requestMatchers("/api/auth/oauth/success").hasRole("USER")
+                        .requestMatchers("/api/meetings/**").hasRole("USER")
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated())
                 .oauth2Login(oauth ->

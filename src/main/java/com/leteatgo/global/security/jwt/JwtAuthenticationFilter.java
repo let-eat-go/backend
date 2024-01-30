@@ -94,7 +94,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (e instanceof TokenException) {
             sendErrorResponse(((TokenException) e).getErrorCode(), response);
         } else {
-            log.error("doFilterInternal : {}", e.getMessage());
+            log.error("doFilterInternal : ", e);
             sendErrorResponse(INTERNAL_ERROR, response);
         }
     }

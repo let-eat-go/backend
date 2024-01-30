@@ -69,4 +69,8 @@ public class TastyRestaurant extends BaseEntity {
         this.restaurantUrl = restaurantUrl;
         this.numberOfUses = numberOfUses;
     }
+
+    public void increaseNumberOfUses() {
+        this.numberOfUses++;
+    }
 }
