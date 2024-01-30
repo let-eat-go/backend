@@ -39,4 +39,8 @@ public class MeetingOptions {
         this.agePreference = agePreference;
         this.alcoholPreference = alcoholPreference;
     }
+
+    public void cancel() {
+        this.status = MeetingStatus.CANCELED;
+    }
 }
