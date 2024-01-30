@@ -1,5 +1,4 @@
 version: '3.7'
-name: leteatgo
 
 services:
   leteatgo-server:
@@ -10,7 +9,7 @@ services:
     restart: always
     networks:
       - leteatgo
-  
+
   leteatgo-nginx:
     image: kingseungil/leteatgo-nginx-dev:latest
     container_name: leteatgo-nginx
@@ -40,4 +39,4 @@ services:
 
 networks:
   leteatgo:
-    driver: bridge
+    external: true

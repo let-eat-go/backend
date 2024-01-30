@@ -1,28 +1,94 @@
-name: Build and Push Docker Images
+name: CI/CD
 
 on:
   push:
     branches:
-      - feat/11-deploy-dev
+      - dev
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Set env.properties
+        run: |
+          cd ./src/main/resources
+          mkdir -p properties
+          cd properties
+          touch ./env.properties
+          echo "${{ secrets.ENV_PROPERTIES }}" > ./env.properties
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push Docker images
-        run: |
-          chmod +x .docker/build-image.sh
-          ./.docker/build-image.sh
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+
+      - name: generate SwaggerUI
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: generateSwaggerUI
+
+      - name: push Springboot Docker images
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./.docker/api/Dockerfile-api
+          push: true
+          tags: |
+            kingseungil/leteatgo-backend-dev:latest
+            kingseungil/leteatgo-backend-dev:${{ github.sha }}
+          build-args: |
+            ENV=dev
+
+      - name: push Nginx Docker images
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./.docker/nginx/Dockerfile-nginx
+          push: true
+          tags: |
+            kingseungil/leteatgo-nginx-dev:latest
+            kingseungil/leteatgo-nginx-dev:${{ github.sha }}
+          build-args: |
+            ENV=dev
+
+      - name: Deploy to GCP
+        uses: appleboy/ssh-action@master
+        with:
+          username: ${{ secrets.GCP_USERNAME }}
+          host: ${{ secrets.GCP_HOST }}
+          key: ${{ secrets.GCP_SSH_KEY }}
+          script: |
+            cd ~/backend
+            git checkout dev
+            git pull origin dev
+            cd ~/backend/.docker
+            echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+            docker pull kingseungil/leteatgo-backend-dev:latest
+            docker pull kingseungil/leteatgo-nginx-dev:latest
+            docker network create leteatgo
+            docker-compose -f docker-compose-dev.yml up -d --build
+            docker image prune -f --filter "until=24h"
