@@ -6,6 +6,7 @@ import com.leteatgo.global.entity.BaseEntity;
 import com.leteatgo.global.type.*;
 import jakarta.persistence.*;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -31,6 +32,9 @@ public class Meeting extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tasty_restaurant_id", foreignKey = @ForeignKey(name = "FK_meeting_tasty_restaurant"))
     private TastyRestaurant tastyRestaurant;
+
+    @OneToMany(mappedBy = "meeting")
+    private List<MeetingParticipant> meetingParticipants;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -90,5 +94,9 @@ public class Meeting extends BaseEntity {
         if (Objects.nonNull(startTime)) {
             this.startTime = startTime;
         }
+    }
+
+    public void cancel() {
+        this.meetingOptions.cancel();
     }
 }
