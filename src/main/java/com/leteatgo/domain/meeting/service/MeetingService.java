@@ -29,6 +29,11 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final TastyRestaurantRepository tastyRestaurantRepository;
 
+    /**
+     * [모임 생성] 모임 생성 시 모임 장소(식당)을 선택할 수도 있고, 선택하지 않고 생성할 수도 있음
+     * <p>
+     * 이미 다른 모임에서 선택한 식당이면 해당 식당의 방문 횟수를 증가시키고, 처음 선택한 식당이면 식당을 생성하고 방문 횟수를 1로 설정
+     */
     @Transactional
     public MeetingCreateResponse createMeeting(Long memberId, MeetingCreateRequest request) {
         Member host = memberRepository.findById(memberId)

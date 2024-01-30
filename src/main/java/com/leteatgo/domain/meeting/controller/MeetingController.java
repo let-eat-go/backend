@@ -23,6 +23,7 @@ public class MeetingController {
 
     private final MeetingService meetingService;
 
+    // 모임 생성
     @PostMapping()
     @RoleUser
     public ResponseEntity<Void> createMeeting(
