@@ -1,0 +1,433 @@
+openapi: 3.0.1
+info:
+  title: Let-Eat-Go API
+  description: Spring REST Docs with SwaggerUI
+  version: 0.0.1
+servers:
+- url: http://localhost:8080
+- url: https://backend-dev.leteatgo.site
+tags: []
+paths:
+  /api/tasty-restaurants:
+    get:
+      tags:
+      - TastyRestaurants
+      summary: 회원들이  방문한 맛집 조회
+      description: 회원들이  방문한 맛집 조회
+      operationId: 회원들이 방문한 맛집 조회
+      parameters:
+      - name: lastNumOfUses
+        in: query
+        description: 마지막 방문 횟수
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/VisitedRestaurantResponse'
+              examples:
+                회원들이 방문한 맛집 조회:
+                  value: "{\"contents\":[{\"name\":\"삼환소한마리\",\"category\":\"한식\"\
+                    ,\"phoneNumber\":\"02-545-2429\",\"roadAddress\":\"도로명\",\"landAddress\"\
+                    :\"지번\",\"latitude\":127.06283102249932,\"longitude\":37.514322572335935,\"\
+                    restaurantUrl\":\"http://place.map.kakao.com/8137464\",\"numberOfUses\"\
+                    :100}],\"pagination\":{\"lastNumOfUses\":100,\"hasMore\":false}}"
+  /api/auth/check-email:
+    post:
+      tags:
+      - auth
+      summary: 이메일 중복 검사
+      description: 이메일 중복 검사
+      operationId: 이
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-auth-signup486549215'
+            examples:
+              이미 존재하는 이메일:
+                value: "{\"email\":\"test@naver.com\"}"
+              이메일 중복 검사:
+                value: "{\"email\":\"test@naver.com\"}"
+      responses:
+        "400":
+          description: "400"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-auth-signup486549215'
+              examples:
+                이미 존재하는 이메일:
+                  value: "{\"code\":\"ALREADY_EXIST_EMAIL\",\"message\":\"이미 존재하는\
+                    \ 이메일입니다.\"}"
+        "200":
+          description: "200"
+  /api/auth/signin:
+    post:
+      tags:
+      - auth
+      summary: 로컬 로그인
+      description: 로컬 로그인
+      operationId: 로컬 로그인
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-auth-signup486549215'
+            examples:
+              로컬 로그인:
+                value: "{\"email\":\"test@naver.com\",\"password\":\"1!qweqwe\"}"
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-auth-signup486549215'
+              examples:
+                로컬 로그인:
+                  value: "{\"accessToken\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI4Iiwicm9sZSI6IlJPTEVfVVNFUiIsImlhdCI6MTcwNjA3NDI5MywiZXhwIjoxNzA4NjY2MjkzLCJpc3MiOiJsZXRlYXRnbyJ9.pRsIGFVZQ8p_WX-Zw2Rf5eQNwfK1xHKA-UFDczzQzt4\"\
+                    }"
+  /api/auth/signout:
+    delete:
+      tags:
+      - auth
+      summary: 로그아웃
+      description: 로그아웃
+      operationId: 로그아웃
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/api-auth-signup486549215'
+            examples:
+              로그아웃:
+                value: _csrf=3KhbFYb65d-Hzblq9ca61cX5OMJFvrCSTLQ6RYrve7seO-UYuMptI7XKh7yq-tsOkOuO4vzPFaB3jNS_fYRYc7vaSoopAocp
+      responses:
+        "200":
+          description: "200"
+  /api/auth/signup:
+    post:
+      tags:
+      - auth
+      summary: 로컬 회원가입
+      description: 로컬 회원가입
+      operationId: 로컬 회원가입비밀번호 불일치아직 인증되지 않은 핸드폰 번호이미 가입된 핸드폰 번호
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-auth-signup486549215'
+            examples:
+              비밀번호 불일치:
+                value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
+                  password\":\"1!qweqwe\",\"passwordCheck\":\"1!qweqwe\",\"phoneNumber\"\
+                  :\"01012345678\"}"
+              로컬 회원가입:
+                value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
+                  password\":\"1!qweqwe\",\"passwordCheck\":\"1!qweqwe\",\"phoneNumber\"\
+                  :\"01012345678\"}"
+              아직 인증되지 않은 핸드폰 번호:
+                value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
+                  password\":\"1!qweqwe\",\"passwordCheck\":\"1!qweqwe\",\"phoneNumber\"\
+                  :\"01012345678\"}"
+              이미 가입된 핸드폰 번호:
+                value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
+                  password\":\"1!qweqwe\",\"passwordCheck\":\"1!qweqwe\",\"phoneNumber\"\
+                  :\"01012345678\"}"
+      responses:
+        "400":
+          description: "400"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-auth-signup486549215'
+              examples:
+                비밀번호 불일치:
+                  value: "{\"code\":\"WRONG_PASSWORD\",\"message\":\"비밀번호가 일치하지 않습\
+                    니다.\"}"
+                이미 가입된 핸드폰 번호:
+                  value: "{\"code\":\"ALREADY_EXIST_PHONE_NUMBER\",\"message\":\"이\
+                    미 존재하는 핸드폰 번호입니다.\"}"
+        "201":
+          description: "201"
+          headers:
+            Location:
+              description: 회원가입된 회원의 URI
+              schema:
+                type: string
+        "401":
+          description: "401"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-auth-signup486549215'
+              examples:
+                아직 인증되지 않은 핸드폰 번호:
+                  value: "{\"code\":\"PHONE_NUMBER_NOT_VERIFIED\",\"message\":\"핸드\
+                    폰 번호 인증이 완료되지 않았습니다.\"}"
+  /api/auth/verify-sms:
+    put:
+      tags:
+      - auth
+      summary: 핸드폰 인증번호 확인
+      description: 핸드폰 인증번호 확인
+      operationId: 이미 인증된 핸드폰 번호인증번호가 일치하지 않음핸드폰 인증 성공
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-auth-signup486549215'
+            examples:
+              이미 인증된 핸드폰 번호:
+                value: "{\"phoneNumber\":\"01012345678\",\"authCode\":\"123456\"}"
+              핸드폰 인증 성공:
+                value: "{\"phoneNumber\":\"01012345678\",\"authCode\":\"123456\"}"
+              인증번호가 일치하지 않음:
+                value: "{\"phoneNumber\":\"01012345678\",\"authCode\":\"123456\"}"
+      responses:
+        "400":
+          description: "400"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-auth-signup486549215'
+              examples:
+                이미 인증된 핸드폰 번호:
+                  value: "{\"code\":\"ALREADY_VERIFIED\",\"message\":\"이미 인증된 핸드폰\
+                    \ 번호입니다.\"}"
+                인증번호가 일치하지 않음:
+                  value: "{\"code\":\"WRONG_AUTH_CODE\",\"message\":\"인증번호가 일치하지 않\
+                    습니다.\"}"
+        "200":
+          description: "200"
+  /api/tasty-restaurants/popular:
+    get:
+      tags:
+      - TastyRestaurants
+      summary: 인기 검색어 목록 조회
+      description: 인기 검색어 목록 조회
+      operationId: 인기 검색어
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-tasty-restaurants-popular-211251346'
+              examples:
+                인기 검색어:
+                  value: "{\"contents\":[{\"keyword\":\"돼지국밥\",\"score\":10},{\"keyword\"\
+                    :\"안심\",\"score\":5}]}"
+  /api/tasty-restaurants/search:
+    get:
+      tags:
+      - TastyRestaurants
+      summary: 맛집 검색
+      description: 맛집을 검색한다.
+      operationId: 맛집 검색
+      parameters:
+      - name: keyword
+        in: query
+        description: 키워드
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: 페이지
+        required: false
+        schema:
+          type: string
+      - name: longitude
+        in: query
+        description: 경도(x)
+        required: false
+        schema:
+          type: string
+      - name: latitude
+        in: query
+        description: 위도(y)
+        required: false
+        schema:
+          type: string
+      - name: radius
+        in: query
+        description: 반경
+        required: false
+        schema:
+          type: string
+      - name: sort
+        in: query
+        description: 정렬
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/SearchRestaurantResponse'
+              examples:
+                맛집 검색:
+                  value: |-
+                    {
+                      "contents" : [ {
+                        "name" : "삼환소한마리",
+                        "category" : "한식",
+                        "phoneNumber" : "02-545-2429",
+                        "roadAddress" : "도로명",
+                        "landAddress" : "지번",
+                        "latitude" : 37.514322572335935,
+                        "longitude" : 127.06283102249932,
+                        "restaurantUrl" : "http://place.map.kakao.com/8137464"
+                      } ],
+                      "pagination" : {
+                        "currentPage" : 1,
+                        "hasMore" : true,
+                        "totalCount" : 1234
+                      }
+                    }
+components:
+  schemas:
+    VisitedRestaurantResponse:
+      title: VisitedRestaurantResponse
+      type: object
+      properties:
+        pagination:
+          required:
+          - hasMore
+          - lastNumOfUses
+          type: object
+          properties:
+            hasMore:
+              type: boolean
+              description: 다음 페이지 여부
+            lastNumOfUses:
+              type: number
+              description: 마지막 방문 횟수
+        contents:
+          type: array
+          items:
+            required:
+            - category
+            - landAddress
+            - latitude
+            - longitude
+            - name
+            - numberOfUses
+            - phoneNumber
+            - restaurantUrl
+            - roadAddress
+            type: object
+            properties:
+              phoneNumber:
+                type: string
+                description: 전화번호
+              landAddress:
+                type: string
+                description: 지번 주소
+              latitude:
+                type: number
+                description: 경도
+              roadAddress:
+                type: string
+                description: 도로명 주소
+              numberOfUses:
+                type: number
+                description: 방문 횟수
+              restaurantUrl:
+                type: string
+                description: 식당 url
+              name:
+                type: string
+                description: 식당 이름
+              category:
+                type: string
+                description: 카테고리
+              longitude:
+                type: number
+                description: 위도
+    SearchRestaurantResponse:
+      title: SearchRestaurantResponse
+      type: object
+      properties:
+        pagination:
+          required:
+          - currentPage
+          - hasMore
+          - totalCount
+          type: object
+          properties:
+            hasMore:
+              type: boolean
+              description: 다음 페이지 여부
+            totalCount:
+              type: number
+              description: 전체 컨텐츠 개수
+            currentPage:
+              type: number
+              description: 현재 페이지
+        contents:
+          type: array
+          items:
+            required:
+            - category
+            - landAddress
+            - latitude
+            - longitude
+            - name
+            - phoneNumber
+            - restaurantUrl
+            - roadAddress
+            type: object
+            properties:
+              phoneNumber:
+                type: string
+                description: 전화번호
+              landAddress:
+                type: string
+                description: 지번 주소
+              latitude:
+                type: number
+                description: 경도
+              roadAddress:
+                type: string
+                description: 도로명 주소
+              restaurantUrl:
+                type: string
+                description: 식당 url
+              name:
+                type: string
+                description: 식당 이름
+              category:
+                type: string
+                description: 카테고리
+              longitude:
+                type: number
+                description: 위도
+    api-tasty-restaurants-popular-211251346:
+      type: object
+      properties:
+        contents:
+          type: array
+          items:
+            required:
+            - keyword
+            - score
+            type: object
+            properties:
+              score:
+                type: number
+                description: 검색한 횟수
+              keyword:
+                type: string
+                description: 키워드
+    api-auth-signup486549215:
+      type: object

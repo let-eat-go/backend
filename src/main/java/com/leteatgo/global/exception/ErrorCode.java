@@ -44,6 +44,9 @@ public enum ErrorCode {
     // tastyRestaurant
     NOT_FOUND_CATEGORY(NOT_FOUND, "존재하지 않는 카테고리입니다."),
 
+    // chat
+    NOT_FOUND_CHATROOM(NOT_FOUND, "존재하지 않는 채팅방입니다."),
+
     // meeting
     NOT_FOUND_MEETING(BAD_REQUEST, "존재하지 않는 모임입니다."),
     NOT_MEETING_HOST(BAD_REQUEST, "모임의 주최자가 아닙니다.");

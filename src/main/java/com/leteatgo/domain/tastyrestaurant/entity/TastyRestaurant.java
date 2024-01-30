@@ -14,8 +14,9 @@ import lombok.NoArgsConstructor;
 @Table(
         name = "tasty_restaurant",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_tasty_restaurant_kakao_id", columnNames = {"kakao_id"})
-        }
+                @UniqueConstraint(name = "uk_tasty_restaurant_api_id", columnNames = {"api_id"})
+        },
+        indexes = @Index(name = "idx_tasty_restaurant_api_id", columnList = "api_id")
 )
 public class TastyRestaurant extends BaseEntity {
 
@@ -23,8 +24,8 @@ public class TastyRestaurant extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "kakao_id", nullable = false)
-    private Long kakaoId;
+    @Column(name = "api_id", nullable = false)
+    private Long apiId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -55,10 +56,10 @@ public class TastyRestaurant extends BaseEntity {
     private Integer numberOfUses;
 
     @Builder
-    public TastyRestaurant(Long kakaoId, String name, RestaurantCategory category,
+    public TastyRestaurant(Long apiId, String name, RestaurantCategory category,
             String phoneNumber, String roadAddress, String landAddress, Double latitude,
             Double longitude, String restaurantUrl, Integer numberOfUses) {
-        this.kakaoId = kakaoId;
+        this.apiId = apiId;
         this.name = name;
         this.category = category;
         this.phoneNumber = phoneNumber;
