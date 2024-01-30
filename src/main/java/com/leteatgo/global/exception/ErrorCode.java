@@ -42,7 +42,13 @@ public enum ErrorCode {
     NOT_FOUND_MEMBER(BAD_REQUEST, "존재하지 않는 회원입니다."),
 
     // tastyRestaurant
-    NOT_FOUND_CATEGORY(NOT_FOUND, "존재하지 않는 카테고리입니다.")
+    NOT_FOUND_CATEGORY(NOT_FOUND, "존재하지 않는 카테고리입니다."),
+
+    // chat
+    NOT_FOUND_CHATROOM(NOT_FOUND, "존재하지 않는 채팅방입니다."),
+
+    // meeting
+    NOT_FOUND_MEETING(NOT_FOUND, "존재하지 않는 모임입니다.")
     ;
 
     private final HttpStatus httpStatus;
