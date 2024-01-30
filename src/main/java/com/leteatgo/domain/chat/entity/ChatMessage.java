@@ -1,6 +1,7 @@
 package com.leteatgo.domain.chat.entity;
 
 import com.leteatgo.domain.member.entity.Member;
+import com.leteatgo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatMessage {
+public class ChatMessage extends BaseEntity {
 
     @Id
     @Column(name = "id")
@@ -26,4 +27,16 @@ public class ChatMessage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", foreignKey = @ForeignKey(name = "fk_sender_chatmessage"), nullable = false)
     private Member sender;
+
+    public ChatMessage(String content) {
+        this.content = content;
+    }
+
+    public void setChatRoom(ChatRoom chatRoom) {
+        this.chatRoom = chatRoom;
+    }
+
+    public void setSender(Member sender) {
+        this.sender = sender;
+    }
 }

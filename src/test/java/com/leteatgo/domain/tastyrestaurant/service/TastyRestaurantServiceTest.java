@@ -68,11 +68,11 @@ class TastyRestaurantServiceTest {
         @DisplayName("성공 - 키워드 검색")
         void searchRestaurants() {
             // given
-            given(searchRestaurantClient.searchRestaurants(any(), any(),
-                    any(), any(), any(), any()))
+            given(searchRestaurantClient.searchRestaurants(keyword, 1,
+                    null, null, null, null))
                     .willReturn(new KakaoRestaurantsResponse(documents, meta));
 
-            doNothing().when(redisRankingService).saveSearchKeyword(any());
+            doNothing().when(redisRankingService).saveSearchKeyword(keyword);
 
             // when
             SearchRestaurantsRequest request = SearchRestaurantsRequest.builder()
@@ -91,8 +91,8 @@ class TastyRestaurantServiceTest {
         @DisplayName("성공 - 위치 기반 검색")
         void searchRestaurantsWithDistance() {
             // given
-            given(searchRestaurantClient.searchRestaurants(any(), any(),
-                    any(), any(), any(), any()))
+            given(searchRestaurantClient.searchRestaurants(keyword, 1,
+                    37.51432, 127.06283, null, null))
                     .willReturn(new KakaoRestaurantsResponse(documents, meta));
 
             doNothing().when(redisRankingService).saveSearchKeyword(any());
@@ -148,8 +148,8 @@ class TastyRestaurantServiceTest {
                 .numberOfUses(100)
                 .build());
 
-        given(tastyRestaurantRepository.findAllByOrderByNumberOfUsesDesc(any()))
-                .willReturn(new SliceImpl<>(contents, PageRequest.of(0, 5), false));
+        given(tastyRestaurantRepository.findAllByOrderByNumberOfUsesDesc(PageRequest.of(0, 10)))
+                .willReturn(new SliceImpl<>(contents, PageRequest.of(0, 10), false));
 
         // when
         VisitedRestaurantResponse response = tastyRestaurantService.visitedRestaurants(
