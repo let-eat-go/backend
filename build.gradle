@@ -102,7 +102,11 @@ tasks.named('test') {
 
 // --------restdocs, swagger 설정 ------------
 openapi3 {
-    server 'http://localhost:8080'
+    servers = [
+            { url = "http://localhost:8080" },
+            { url = "https://backend-dev.leteatgo.site" }
+    ]
+
     title 'Let-Eat-Go API'
     description 'Spring REST Docs with SwaggerUI'
     version '0.0.1'
