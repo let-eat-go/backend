@@ -54,8 +54,8 @@ public class MeetingService {
     }
 
     private TastyRestaurant findOrCreateTastyRestaurant(TastyRestaurantRequest request) {
-        Optional<TastyRestaurant> tastyRestaurant = tastyRestaurantRepository.findByKakaoId(
-                Long.parseLong(request.kakaoId()));
+        Optional<TastyRestaurant> tastyRestaurant = tastyRestaurantRepository.findByApiId(
+                Long.parseLong(request.apiId()));
 
         if (tastyRestaurant.isPresent()) {
             // TODO: 동시에 여러명이 같은 식당을 등록할 경우 문제가 발생할 수 있음 (근데 이런 경우가 있을까?)

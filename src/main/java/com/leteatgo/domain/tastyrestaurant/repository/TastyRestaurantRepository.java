@@ -10,6 +10,6 @@ public interface TastyRestaurantRepository extends JpaRepository<TastyRestaurant
 
     Slice<TastyRestaurant> findAllByOrderByNumberOfUsesDesc(Pageable pageable);
 
-    Optional<TastyRestaurant> findByKakaoId(Long kakaoId);
+    Optional<TastyRestaurant> findByApiId(Long kakaoId);
 
 }

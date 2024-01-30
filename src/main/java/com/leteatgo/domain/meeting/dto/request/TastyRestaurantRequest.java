@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 public record TastyRestaurantRequest(
         String name,
         @NotNull(message = EMPTY_MESSAGE)
-        String kakaoId,
+        String apiId,
         String category,
         String phoneNumber,
         String roadAddress,
@@ -21,7 +21,7 @@ public record TastyRestaurantRequest(
 
     public static TastyRestaurant toEntity(TastyRestaurantRequest request) {
         return TastyRestaurant.builder()
-                .kakaoId(Long.valueOf(request.kakaoId()))
+                .apiId(Long.parseLong(request.apiId()))
                 .name(request.name())
                 .category(RestaurantCategory.from(request.category()))
                 .phoneNumber(request.phoneNumber())
