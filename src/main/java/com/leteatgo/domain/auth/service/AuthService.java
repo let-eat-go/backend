@@ -100,8 +100,8 @@ public class AuthService {
 
         RedisToken token = new RedisToken(
                 Long.valueOf(userDetails.getUsername()),
-                accessToken,
-                refreshToken
+                refreshToken,
+                accessToken
         );
         redisTokenRepository.save(token);
 
