@@ -1,5 +1,6 @@
 package com.leteatgo.domain.chat.dto;
 
+import com.leteatgo.domain.chat.entity.ChatMessage;
 import jakarta.validation.constraints.NotNull;
 
 public record ChatMessageDto(
@@ -13,7 +14,7 @@ public record ChatMessageDto(
         String message
 ) {
 
-    public com.leteatgo.domain.chat.entity.ChatMessage toEntity() {
-        return new com.leteatgo.domain.chat.entity.ChatMessage(message);
+    public ChatMessage toEntity() {
+        return new ChatMessage(message);
     }
 }
