@@ -42,8 +42,11 @@ public enum ErrorCode {
     NOT_FOUND_MEMBER(BAD_REQUEST, "존재하지 않는 회원입니다."),
 
     // tastyRestaurant
-    NOT_FOUND_CATEGORY(NOT_FOUND, "존재하지 않는 카테고리입니다.")
-    ;
+    NOT_FOUND_CATEGORY(NOT_FOUND, "존재하지 않는 카테고리입니다."),
+
+    // meeting
+    NOT_FOUND_MEETING(BAD_REQUEST, "존재하지 않는 모임입니다."),
+    NOT_MEETING_HOST(BAD_REQUEST, "모임의 주최자가 아닙니다.");
 
     private final HttpStatus httpStatus;
     private final String errorMessage;

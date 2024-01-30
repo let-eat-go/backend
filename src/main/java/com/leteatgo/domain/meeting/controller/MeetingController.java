@@ -1,6 +1,7 @@
 package com.leteatgo.domain.meeting.controller;
 
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
+import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.service.MeetingService;
 import com.leteatgo.global.security.annotation.RoleUser;
@@ -10,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,5 +38,17 @@ public class MeetingController {
         URI location = UriComponentsBuilder.fromUriString("/api/meetings/" + response.id())
                 .build().toUri();
         return ResponseEntity.created(location).build();
+    }
+
+    // 모임 수정
+    @PutMapping("/{meetingId}")
+    @RoleUser
+    public ResponseEntity<Void> updateMeeting(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long meetingId,
+            @RequestBody @Valid MeetingUpdateRequest request
+    ) {
+        meetingService.updateMeeting(Long.parseLong(userDetails.getUsername()), meetingId, request);
+        return ResponseEntity.ok().build();
     }
 }

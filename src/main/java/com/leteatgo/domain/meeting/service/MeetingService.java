@@ -1,11 +1,15 @@
 package com.leteatgo.domain.meeting.service;
 
+import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.leteatgo.global.exception.ErrorCode.NOT_MEETING_HOST;
 
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
+import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
+import com.leteatgo.domain.meeting.exception.MeetingException;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
@@ -61,6 +65,29 @@ public class MeetingService {
             TastyRestaurant newTastyRestaurant = TastyRestaurantRequest.toEntity(request);
             tastyRestaurantRepository.save(newTastyRestaurant);
             return newTastyRestaurant;
+        }
+    }
+
+    /* [모임 수정] 주최자는 날짜 및 시간, 모임 장소(식당)을 수정할 수 있음 */
+    @Transactional
+    public void updateMeeting(Long memberId, Long meetingId, MeetingUpdateRequest request) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+        checkHost(memberId, meeting);
+
+        meeting.update(request.startDate(), request.startTime());
+
+        if (Objects.nonNull(request.restaurant())) {
+            TastyRestaurant tastyRestaurant = findOrCreateTastyRestaurant(request.restaurant());
+            meeting.addTastyRestaurant(tastyRestaurant);
+        }
+
+        meetingRepository.save(meeting);
+    }
+
+    private void checkHost(Long memberId, Meeting meeting) {
+        if (!meeting.getHost().getId().equals(memberId)) {
+            throw new MeetingException(NOT_MEETING_HOST);
         }
     }
 }

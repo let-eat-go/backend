@@ -6,6 +6,7 @@ import com.leteatgo.global.entity.BaseEntity;
 import com.leteatgo.global.type.*;
 import jakarta.persistence.*;
 import java.time.LocalTime;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -79,5 +80,15 @@ public class Meeting extends BaseEntity {
 
     public void addTastyRestaurant(TastyRestaurant tastyRestaurant) {
         this.tastyRestaurant = tastyRestaurant;
+    }
+
+    public void update(LocalDate startDate, LocalTime startTime) {
+        if (Objects.nonNull(startDate)) {
+            this.startDate = startDate;
+        }
+
+        if (Objects.nonNull(startTime)) {
+            this.startTime = startTime;
+        }
     }
 }
