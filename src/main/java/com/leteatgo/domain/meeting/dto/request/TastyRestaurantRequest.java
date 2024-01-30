@@ -2,6 +2,8 @@ package com.leteatgo.domain.meeting.dto.request;
 
 import static com.leteatgo.global.constants.DtoValid.EMPTY_MESSAGE;
 
+import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
+import com.leteatgo.global.type.RestaurantCategory;
 import jakarta.validation.constraints.NotNull;
 
 public record TastyRestaurantRequest(
@@ -17,16 +19,18 @@ public record TastyRestaurantRequest(
         String restaurantUrl
 ) {
 
-//    public static TastyRestaurantRequest toEntity(TastyRestaurantRequest request) {
-//        return TastyRestaurantRequest.builder()
-//                .name(request.name())
-//                .category(request.category())
-//                .phoneNumber(request.phoneNumber())
-//                .roadAddress(request.roadAddress())
-//                .landAddress(request.landAddress())
-//                .latitude(request.latitude())
-//                .longitude(request.longitude())
-//                .restaurantUrl(request.restaurantUrl())
-//                .build();
-//    }
+    public static TastyRestaurant toEntity(TastyRestaurantRequest request) {
+        return TastyRestaurant.builder()
+                .kakaoId(Long.valueOf(request.kakaoId()))
+                .name(request.name())
+                .category(RestaurantCategory.from(request.category()))
+                .phoneNumber(request.phoneNumber())
+                .roadAddress(request.roadAddress())
+                .landAddress(request.landAddress())
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .restaurantUrl(request.restaurantUrl())
+                .numberOfUses(1)
+                .build();
+    }
 }

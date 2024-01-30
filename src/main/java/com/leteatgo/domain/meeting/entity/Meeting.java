@@ -28,7 +28,7 @@ public class Meeting extends BaseEntity {
     private Member host;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tasty_restaurant_id", nullable = true)
+    @JoinColumn(name = "tasty_restaurant_id", foreignKey = @ForeignKey(name = "FK_meeting_tasty_restaurant"))
     private TastyRestaurant tastyRestaurant;
 
     @Column(name = "name", nullable = false)
@@ -48,10 +48,10 @@ public class Meeting extends BaseEntity {
     private Integer maxParticipants;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDate start_date;
+    private LocalDate startDate;
 
     @Column(name = "start_time", nullable = false)
-    private LocalTime start_time;
+    private LocalTime startTime;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -62,7 +62,7 @@ public class Meeting extends BaseEntity {
     @Builder
     public Meeting(Member host, TastyRestaurant tastyRestaurant, String name,
             RestaurantCategory restaurantCategory, String region, Integer minParticipants,
-            Integer maxParticipants, LocalDate start_date, LocalTime start_time, String description,
+            Integer maxParticipants, LocalDate startDate, LocalTime startTime, String description,
             MeetingOptions meetingOptions) {
         this.host = host;
         this.tastyRestaurant = tastyRestaurant;
@@ -71,10 +71,13 @@ public class Meeting extends BaseEntity {
         this.region = region;
         this.minParticipants = minParticipants;
         this.maxParticipants = maxParticipants;
-        this.start_date = start_date;
-        this.start_time = start_time;
+        this.startDate = startDate;
+        this.startTime = startTime;
         this.description = description;
         this.meetingOptions = meetingOptions;
     }
 
+    public void addTastyRestaurant(TastyRestaurant tastyRestaurant) {
+        this.tastyRestaurant = tastyRestaurant;
+    }
 }

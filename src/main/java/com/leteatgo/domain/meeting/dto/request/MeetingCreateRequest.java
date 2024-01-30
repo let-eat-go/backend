@@ -4,6 +4,9 @@ import static com.leteatgo.global.constants.DtoValid.CATEGORY_MESSAGE;
 import static com.leteatgo.global.constants.DtoValid.EMPTY_MESSAGE;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.leteatgo.domain.meeting.entity.Meeting;
+import com.leteatgo.domain.member.entity.Member;
+import com.leteatgo.global.type.RestaurantCategory;
 import com.leteatgo.global.validator.annotation.ValidRestaurantCategory;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
@@ -39,5 +42,20 @@ public record MeetingCreateRequest(
         @Nullable
         TastyRestaurantRequest restaurant
 ) {
+
+    public static Meeting toEntity(Member host, MeetingCreateRequest request) {
+        return Meeting.builder()
+                .host(host)
+                .name(request.name())
+                .restaurantCategory(RestaurantCategory.from(request.category()))
+                .region(request.region())
+                .maxParticipants(request.maxParticipants())
+                .minParticipants(request.minParticipants())
+                .startDate(request.startDate())
+                .startTime(request.startTime())
+                .description(request.description())
+                .meetingOptions(MeetingOptionsRequest.toEntiy(request.options()))
+                .build();
+    }
 
 }

@@ -3,16 +3,17 @@ package com.leteatgo.domain.meeting.service;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
-import com.leteatgo.domain.meeting.dto.request.MeetingOptionsRequest;
+import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
 import com.leteatgo.domain.member.repository.MemberRepository;
+import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
-import com.leteatgo.global.type.RestaurantCategory;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,26 +33,29 @@ public class MeetingService {
     public MeetingCreateResponse createMeeting(Long memberId, MeetingCreateRequest request) {
         Member host = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+        Meeting meeting = MeetingCreateRequest.toEntity(host, request);
 
-        // 음식점 선택안한 경우
-        if (Objects.isNull(request.restaurant())) {
-            Meeting meeting = Meeting.builder()
-                    .host(host)
-                    .name(request.name())
-                    .restaurantCategory(RestaurantCategory.from(request.category()))
-                    .region(request.region())
-                    .minParticipants(request.minParticipants())
-                    .maxParticipants(request.maxParticipants())
-                    .start_date(request.startDate())
-                    .start_time(request.startTime())
-                    .description(request.description())
-                    .meetingOptions(MeetingOptionsRequest.toEntiy(request.options()))
-                    .build();
-            meetingRepository.save(meeting);
-            return new MeetingCreateResponse(meeting.getId());
+        if (Objects.nonNull(request.restaurant())) {
+            TastyRestaurant tastyRestaurant = findOrCreateTastyRestaurant(request.restaurant());
+            meeting.addTastyRestaurant(tastyRestaurant);
         }
 
-        // 음식점 선택한 경우
-        return null;
+        meetingRepository.save(meeting);
+        return new MeetingCreateResponse(meeting.getId());
+    }
+
+    private TastyRestaurant findOrCreateTastyRestaurant(TastyRestaurantRequest request) {
+        Optional<TastyRestaurant> tastyRestaurant = tastyRestaurantRepository.findByKakaoId(
+                Long.parseLong(request.kakaoId()));
+
+        if (tastyRestaurant.isPresent()) {
+            // TODO: 동시에 여러명이 같은 식당을 등록할 경우 문제가 발생할 수 있음 (근데 이런 경우가 있을까?)
+            tastyRestaurant.get().increaseNumberOfUses();
+            return tastyRestaurant.get();
+        } else {
+            TastyRestaurant newTastyRestaurant = TastyRestaurantRequest.toEntity(request);
+            tastyRestaurantRepository.save(newTastyRestaurant);
+            return newTastyRestaurant;
+        }
     }
 }
