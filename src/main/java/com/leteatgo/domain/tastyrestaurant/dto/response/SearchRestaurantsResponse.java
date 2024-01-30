@@ -26,6 +26,7 @@ public record SearchRestaurantsResponse(
 
     @Builder
     public record Content(
+            Long apiId,
             String name,
             RestaurantCategory category,
             String phoneNumber,
@@ -38,6 +39,7 @@ public record SearchRestaurantsResponse(
 
         public static Content from(RestaurantContent content) {
             return Content.builder()
+                    .apiId(content.apiId())
                     .name(content.name())
                     .category(RestaurantCategory.from(content.category()))
                     .phoneNumber(content.phoneNumber())
