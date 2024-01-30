@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record RestaurantContent(
-        Long id,
+        Long apiId,
         String name,
         String category,
         String phoneNumber,
@@ -21,7 +21,7 @@ public record RestaurantContent(
         String category = categories.length > 1 ? categories[1].trim() : categories[0].trim();
 
         return RestaurantContent.builder()
-                .id(document.kakaoId())
+                .apiId(document.kakaoId())
                 .name(document.name())
                 .category(category)
                 .phoneNumber(document.phoneNumber())
