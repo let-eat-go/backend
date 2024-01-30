@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,47 +32,50 @@ public class SecurityConfig {
     private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring()
-                .requestMatchers("/docs/**", "/error", "/favicon.ico", "/v3/api-docs/**");
-    }
-
-    @Bean
-    public SecurityFilterChain httpSecurity(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
-                        .accessDeniedHandler(customAccessDeniedHandler)
-                )
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(authorize -> authorize
-                        // 모두 허용
-                        .requestMatchers("/api/auth/**", "/api/tasty-restaurants").permitAll()
-                        // User 권한만 허용
-                        .requestMatchers("/api/auth/signout").hasRole("USER")
-                        .requestMatchers("/api/auth/oauth/success").hasRole("USER")
-                        // 그 외 요청은 인증 필요
+                        // static
+                        .requestMatchers("/docs/**", "/error", "/favicon.ico",
+                                "/v3/api-docs/**", "/ws").permitAll()
+
+                        // api
+                        .requestMatchers("/api/auth/**",
+                                "/api/tasty-restaurants").permitAll()
+
+                        // role
+                        .requestMatchers("/api/auth/signout",
+                                "/api/auth/oauth/success").hasRole("USER")
+
                         .anyRequest().authenticated())
+
                 .oauth2Login(oauth ->
                         oauth.userInfoEndpoint(userInfo ->
                                         userInfo.userService(customOAuth2UserService))
                                 .successHandler(customOAuth2SuccessHandler)
                                 .failureHandler(customOAuth2FailureHandler)
                 )
+
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class)
+
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .build();
     }
 }
