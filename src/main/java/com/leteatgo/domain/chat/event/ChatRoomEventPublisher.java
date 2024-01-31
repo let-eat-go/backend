@@ -15,12 +15,10 @@ public class ChatRoomEventPublisher {
     private final ApplicationEventPublisher eventPublisher;
 
     public void publishCreateChatRoom(CreateChatRoomEvent event) {
-        log.info("채팅방이 생성되었습니다. {}", event.meetingId());
         eventPublisher.publishEvent(event);
     }
 
     public void publishCloseChatRoom(CloseChatRoomEvent event) {
-        log.info("채팅방이 종료되었습니다. {}", event.meetingId());
         eventPublisher.publishEvent(event);
     }
 }
