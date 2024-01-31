@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,6 +50,17 @@ public class MeetingController {
             @RequestBody @Valid MeetingUpdateRequest request
     ) {
         meetingService.updateMeeting(Long.parseLong(userDetails.getUsername()), meetingId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    // 모임 취소(주최자)
+    @DeleteMapping("/{meetingId}/cancel")
+    @RoleUser
+    public ResponseEntity<Void> cancelMeeting(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long meetingId
+    ) {
+        meetingService.cancelMeeting(Long.parseLong(userDetails.getUsername()), meetingId);
         return ResponseEntity.ok().build();
     }
 }

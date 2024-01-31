@@ -1,7 +1,13 @@
 package com.leteatgo.domain.meeting.service;
 
+import static com.leteatgo.domain.meeting.type.MeetingStatus.CANCELED;
+import static com.leteatgo.domain.meeting.type.MeetingStatus.COMPLETED;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.CANNOT_CANCEL_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_REGION;
 import static com.leteatgo.global.exception.ErrorCode.NOT_MEETING_HOST;
 
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
@@ -14,8 +20,13 @@ import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
 import com.leteatgo.domain.member.repository.MemberRepository;
+import com.leteatgo.domain.region.entity.Region;
+import com.leteatgo.domain.region.exception.RegionException;
+import com.leteatgo.domain.region.repository.RegionRepository;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MeetingService {
 
     private final MemberRepository memberRepository;
+    private final RegionRepository regionRepository;
     private final MeetingRepository meetingRepository;
     private final TastyRestaurantRepository tastyRestaurantRepository;
 
@@ -42,13 +54,16 @@ public class MeetingService {
     public MeetingCreateResponse createMeeting(Long memberId, MeetingCreateRequest request) {
         Member host = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
-        Meeting meeting = MeetingCreateRequest.toEntity(host, request);
+        Region region = regionRepository.findByName(request.region())
+                .orElseThrow(() -> new RegionException(NOT_FOUND_REGION));
+        Meeting meeting = MeetingCreateRequest.toEntity(host, region, request);
 
         if (Objects.nonNull(request.restaurant())) {
             TastyRestaurant tastyRestaurant = findOrCreateTastyRestaurant(request.restaurant());
             meeting.addTastyRestaurant(tastyRestaurant);
         }
-
+        
+        meeting.addMeetingParticipant(host);
         meetingRepository.save(meeting);
         return new MeetingCreateResponse(meeting.getId());
     }
@@ -89,5 +104,41 @@ public class MeetingService {
         if (!meeting.getHost().getId().equals(memberId)) {
             throw new MeetingException(NOT_MEETING_HOST);
         }
+    }
+
+    /* [모임 취소] 주최자는 모임을 취소할 수 있음 (1시간 전까지만 취소 가능) */
+    @Transactional
+    public void cancelMeeting(Long memberId, Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+        checkHost(memberId, meeting);
+        checkCancel(meeting);
+
+        meeting.cancel();
+        meetingRepository.save(meeting);
+    }
+
+    private void checkCancel(Meeting meeting) {
+        // TODO: Clock 사용 -> 테스트 작성해보고 정하기
+        LocalDate nowDate = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
+        LocalDate startDate = meeting.getStartDate();
+        LocalTime startTime = meeting.getStartTime();
+
+        // 이미 취소된 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == CANCELED) {
+            throw new MeetingException(ALREADY_CANCELED_MEETING);
+        }
+
+        // 완료된 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == COMPLETED) {
+            throw new MeetingException(ALREADY_COMPLETED_MEETING);
+        }
+
+        // 모임 시작 1시간 전까지만 취소 가능
+        if (nowDate.isEqual(startDate) && nowTime.isAfter(startTime.minusHours(1))) {
+            throw new MeetingException(CANNOT_CANCEL_MEETING);
+        }
+
     }
 }

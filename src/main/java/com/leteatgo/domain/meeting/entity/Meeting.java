@@ -1,11 +1,13 @@
 package com.leteatgo.domain.meeting.entity;
 
 import com.leteatgo.domain.member.entity.Member;
+import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.global.entity.BaseEntity;
 import com.leteatgo.global.type.*;
 import jakarta.persistence.*;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -33,8 +35,12 @@ public class Meeting extends BaseEntity {
     @JoinColumn(name = "tasty_restaurant_id", foreignKey = @ForeignKey(name = "FK_meeting_tasty_restaurant"))
     private TastyRestaurant tastyRestaurant;
 
-    @OneToMany(mappedBy = "meeting")
-    private List<MeetingParticipant> meetingParticipants;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id", foreignKey = @ForeignKey(name = "FK_meeting_region"))
+    private Region region;
+
+    @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL)
+    private List<MeetingParticipant> meetingParticipants = new ArrayList<>();
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -42,9 +48,6 @@ public class Meeting extends BaseEntity {
     @Column(name = "restaurant_category", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private RestaurantCategory restaurantCategory;
-
-    @Column(name = "region", nullable = false)
-    private String region;
 
     @Column(name = "min_participants", nullable = false)
     private Integer minParticipants;
@@ -66,7 +69,7 @@ public class Meeting extends BaseEntity {
 
     @Builder
     public Meeting(Member host, TastyRestaurant tastyRestaurant, String name,
-            RestaurantCategory restaurantCategory, String region, Integer minParticipants,
+            RestaurantCategory restaurantCategory, Region region, Integer minParticipants,
             Integer maxParticipants, LocalDate startDate, LocalTime startTime, String description,
             MeetingOptions meetingOptions) {
         this.host = host;
@@ -86,6 +89,15 @@ public class Meeting extends BaseEntity {
         this.tastyRestaurant = tastyRestaurant;
     }
 
+    public void addMeetingParticipant(Member host) {
+        MeetingParticipant meetingParticipant = MeetingParticipant.builder()
+                .meeting(this)
+                .member(host)
+                .build();
+
+        this.meetingParticipants.add(meetingParticipant);
+    }
+
     public void update(LocalDate startDate, LocalTime startTime) {
         if (Objects.nonNull(startDate)) {
             this.startDate = startDate;
@@ -99,4 +111,5 @@ public class Meeting extends BaseEntity {
     public void cancel() {
         this.meetingOptions.cancel();
     }
+
 }

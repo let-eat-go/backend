@@ -2,6 +2,7 @@ package com.leteatgo.domain.meeting.repository;
 
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
+import java.time.LocalTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -13,14 +14,14 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 
     @Query("""
             SELECT m FROM Meeting m
-            LEFT JOIN m.meetingParticipants mp
-            WHERE m.startDate < :startDate
+            WHERE m.startDate <= :startDate
+            AND m.startTime <= :startTime
             AND m.meetingOptions.status = :status
-            GROUP BY m
-            HAVING COUNT(mp) < m.minParticipants
             """)
     List<Meeting> findMeetingsForCancel(
             @Param("startDate") LocalDate startDate,
-            @Param("status") MeetingStatus status);
+            @Param("startTime") LocalTime startTime,
+            @Param("status") MeetingStatus status
+    );
 
 }
