@@ -10,6 +10,9 @@ import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_REGION;
 import static com.leteatgo.global.exception.ErrorCode.NOT_MEETING_HOST;
 
+import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
+import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
+import com.leteatgo.domain.chat.event.dto.CreateChatRoomEvent;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
@@ -44,6 +47,8 @@ public class MeetingService {
     private final RegionRepository regionRepository;
     private final MeetingRepository meetingRepository;
     private final TastyRestaurantRepository tastyRestaurantRepository;
+    private final ChatRoomEventPublisher chatRoomEventPublisher;
+
 
     /**
      * [모임 생성] 모임 생성 시 모임 장소(식당)을 선택할 수도 있고, 선택하지 않고 생성할 수도 있음
@@ -62,9 +67,10 @@ public class MeetingService {
             TastyRestaurant tastyRestaurant = findOrCreateTastyRestaurant(request.restaurant());
             meeting.addTastyRestaurant(tastyRestaurant);
         }
-        
+
         meeting.addMeetingParticipant(host);
         meetingRepository.save(meeting);
+        chatRoomEventPublisher.publishCreateChatRoom(new CreateChatRoomEvent(meeting.getId()));
         return new MeetingCreateResponse(meeting.getId());
     }
 
@@ -116,6 +122,7 @@ public class MeetingService {
 
         meeting.cancel();
         meetingRepository.save(meeting);
+        chatRoomEventPublisher.publishCloseChatRoom(new CloseChatRoomEvent(meeting.getId()));
     }
 
     private void checkCancel(Meeting meeting) {

@@ -2,6 +2,8 @@ package com.leteatgo.global.batch.meeting;
 
 import static com.leteatgo.global.constants.BeanPrefix.CANCEL_UNMATCHED_MEETING;
 
+import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
+import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
@@ -32,7 +34,7 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
     private final static Integer CHUNK_SIZE = 100;
 
     private final MeetingRepository meetingRepository;
-
+    private final ChatRoomEventPublisher chatRoomEventPublisher;
 
     @Bean(CANCEL_UNMATCHED_MEETING + "Job")
     public Job job() {
@@ -80,6 +82,7 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
     public ItemProcessor<Meeting, Meeting> processor() {
         return meeting -> {
             meeting.cancel();
+            chatRoomEventPublisher.publishCloseChatRoom(new CloseChatRoomEvent(meeting.getId()));
             // TODO: 취소 알림
             return meeting;
         };
