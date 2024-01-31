@@ -29,6 +29,8 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
     private final static Integer CHUNK_SIZE = 100;
 
     private final MeetingRepository meetingRepository;
+    private Iterator<Meeting> meetingIterator;
+
 
     @Bean(CANCEL_UNMATCHED_MEETING + "Job")
     public Job job() {
@@ -53,9 +55,11 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
     @StepScope
     public ItemReader<Meeting> reader() {
         return () -> {
-            LocalDate nowDate = LocalDate.now();
-            Iterator<Meeting> meetingIterator = meetingRepository.findMeetingsForCancel(
-                    nowDate, MeetingStatus.BEFORE).iterator();
+            if (meetingIterator == null || !meetingIterator.hasNext()) {
+                LocalDate nowDate = LocalDate.now();
+                meetingIterator = meetingRepository.findMeetingsForCancel(
+                        nowDate, MeetingStatus.BEFORE).iterator();
+            }
 
             if (meetingIterator.hasNext()) {
                 return meetingIterator.next();
