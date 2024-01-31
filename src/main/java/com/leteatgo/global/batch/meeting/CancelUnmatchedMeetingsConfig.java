@@ -7,11 +7,12 @@ import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
 import java.time.LocalDate;
 import java.util.Iterator;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -24,12 +25,12 @@ import org.springframework.context.annotation.Configuration;
 
 @RequiredArgsConstructor
 @Configuration
+@Slf4j
 public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
 
     private final static Integer CHUNK_SIZE = 100;
 
     private final MeetingRepository meetingRepository;
-    private Iterator<Meeting> meetingIterator;
 
 
     @Bean(CANCEL_UNMATCHED_MEETING + "Job")
@@ -52,19 +53,23 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
     }
 
     @Bean(CANCEL_UNMATCHED_MEETING + "Reader")
-    @StepScope
     public ItemReader<Meeting> reader() {
-        return () -> {
-            if (meetingIterator == null || !meetingIterator.hasNext()) {
-                LocalDate nowDate = LocalDate.now();
-                meetingIterator = meetingRepository.findMeetingsForCancel(
-                        nowDate, MeetingStatus.BEFORE).iterator();
-            }
+        return new ItemReader<>() {
+            private Iterator<Meeting> meetingIterator;
 
-            if (meetingIterator.hasNext()) {
-                return meetingIterator.next();
-            } else {
-                return null;
+            @Override
+            public Meeting read() {
+                if (meetingIterator == null) {
+                    LocalDate startDate = LocalDate.now();
+                    meetingIterator = meetingRepository.findMeetingsForCancel(
+                            startDate, MeetingStatus.BEFORE).iterator();
+                }
+
+                if (meetingIterator.hasNext()) {
+                    return meetingIterator.next();
+                } else {
+                    return null;
+                }
             }
         };
     }
@@ -80,6 +85,9 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
 
     @Bean(CANCEL_UNMATCHED_MEETING + "Writer")
     public ItemWriter<Meeting> writer() {
-        return meetingRepository::saveAll;
+        return chunk -> {
+            List<? extends Meeting> meetings = chunk.getItems();
+            meetingRepository.saveAll(meetings);
+        };
     }
 }
