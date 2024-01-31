@@ -1,9 +1,10 @@
 package com.leteatgo.global.batch.scheduler;
 
-import com.leteatgo.global.batch.config.CancelUnmatchedMeetingsConfig;
+import com.leteatgo.global.batch.meeting.CancelUnmatchedMeetingsConfig;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,15 +18,15 @@ public class BatchScheduler {
     private final JobLauncher jobLauncher;
     private final CancelUnmatchedMeetingsConfig cancelUnmatchedMeetingsConfig;
 
-    // 10초 마다 실행
-//    @Scheduled(cron = "0/10 * * * * *")
+    @Scheduled(cron = "0/30 * * * * *")
     public void run() {
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addDate("date", new Date())
+                .toJobParameters();
+
         try {
             log.info("BatchScheduler.run()");
-            jobLauncher.run(cancelUnmatchedMeetingsConfig.job(),
-                    new JobParametersBuilder()
-                            .addDate("date", new Date())
-                            .toJobParameters());
+            jobLauncher.run(cancelUnmatchedMeetingsConfig.job(), jobParameters);
         } catch (Exception e) {
             log.error("BatchScheduler.run() error", e);
         }
