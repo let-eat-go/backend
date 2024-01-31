@@ -18,8 +18,7 @@ public class BatchScheduler {
     private final JobLauncher jobLauncher;
     private final CancelUnmatchedMeetingsConfig cancelUnmatchedMeetingsConfig;
 
-    // 매일 오후 11시 50분에 실행 (startDate로 조회하기 때문에 자정 전에 실행해야 함) -> 싱크를 완벽히 맞출 수 있을까??
-    @Scheduled(cron = "0 50 23 * * *")
+    @Scheduled(cron = "0 0 0/2 * * *")
     public void run() {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())
