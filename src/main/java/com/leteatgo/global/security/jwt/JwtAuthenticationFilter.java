@@ -64,6 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             validateAndReissueToken(accessToken, response);
             filterChain.doFilter(request, response);
         } catch (Exception e) {
+            log.error("Exception is occurred. ", e);
             handleException(e, response);
         }
     }

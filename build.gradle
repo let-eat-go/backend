@@ -81,7 +81,7 @@ dependencies {
 }
 
 // ------ Querydsl 설정 ------------
-def generatedQueryDsl = 'src/main/generated/querydsl'
+def generatedQueryDsl = 'src/main/generated'
 
 sourceSets {
     main.java.srcDirs += [generatedQueryDsl]
