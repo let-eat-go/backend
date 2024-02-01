@@ -7,8 +7,7 @@ import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -63,10 +62,9 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
             @Override
             public Meeting read() {
                 if (meetingIterator == null) {
-                    LocalDate startDate = LocalDate.now();
-                    LocalTime startTime = LocalTime.now();
+                    LocalDateTime startDateTime = LocalDateTime.now();
                     meetingIterator = meetingRepository.findMeetingsForCancel(
-                            startDate, startTime, MeetingStatus.BEFORE).iterator();
+                            startDateTime, MeetingStatus.BEFORE).iterator();
                 }
 
                 if (meetingIterator.hasNext()) {

@@ -19,7 +19,7 @@ paths:
         content:
           application/json;charset=UTF-8:
             schema:
-              $ref: '#/components/schemas/api-auth-signout486549215'
+              $ref: '#/components/schemas/api-meetings486549215'
             examples:
               지역이 존재하지 않음:
                 value: "{\"name\":\"모임 제목\",\"category\":\"한식\",\"region\":\"강남구\"\
@@ -53,7 +53,7 @@ paths:
           content:
             application/json;charset=UTF-8:
               schema:
-                $ref: '#/components/schemas/api-auth-signout486549215'
+                $ref: '#/components/schemas/api-meetings486549215'
               examples:
                 지역이 존재하지 않음:
                   value: "{\"code\":\"NOT_FOUND_REGION\",\"message\":\"존재하지 않는 지역입\
@@ -104,7 +104,7 @@ paths:
         content:
           application/json;charset=UTF-8:
             schema:
-              $ref: '#/components/schemas/api-auth-signout486549215'
+              $ref: '#/components/schemas/api-meetings486549215'
             examples:
               이미 존재하는 이메일:
                 value: "{\"email\":\"test@naver.com\"}"
@@ -116,7 +116,7 @@ paths:
           content:
             application/json;charset=UTF-8:
               schema:
-                $ref: '#/components/schemas/api-auth-signout486549215'
+                $ref: '#/components/schemas/api-meetings486549215'
               examples:
                 이미 존재하는 이메일:
                   value: "{\"code\":\"ALREADY_EXIST_EMAIL\",\"message\":\"이미 존재하는\
@@ -134,7 +134,7 @@ paths:
         content:
           application/json;charset=UTF-8:
             schema:
-              $ref: '#/components/schemas/api-auth-signout486549215'
+              $ref: '#/components/schemas/api-meetings486549215'
             examples:
               핸드폰 인증번호 발송:
                 value: "{\"phoneNumber\":\"01012345678\"}"
@@ -152,7 +152,7 @@ paths:
         content:
           application/json;charset=UTF-8:
             schema:
-              $ref: '#/components/schemas/api-auth-signout486549215'
+              $ref: '#/components/schemas/api-meetings486549215'
             examples:
               로컬 로그인:
                 value: "{\"email\":\"test@naver.com\",\"password\":\"1!qweqwe\"}"
@@ -162,7 +162,7 @@ paths:
           content:
             application/json;charset=UTF-8:
               schema:
-                $ref: '#/components/schemas/api-auth-signout486549215'
+                $ref: '#/components/schemas/api-meetings486549215'
               examples:
                 로컬 로그인:
                   value: "{\"accessToken\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI4Iiwicm9sZSI6IlJPTEVfVVNFUiIsImlhdCI6MTcwNjA3NDI5MywiZXhwIjoxNzA4NjY2MjkzLCJpc3MiOiJsZXRlYXRnbyJ9.pRsIGFVZQ8p_WX-Zw2Rf5eQNwfK1xHKA-UFDczzQzt4\"\
@@ -178,10 +178,10 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/api-auth-signout486549215'
+              $ref: '#/components/schemas/api-meetings486549215'
             examples:
               로그아웃:
-                value: _csrf=0KbVf7HoNf2678OWixQF3iVwbLiUEHNXZzgZe13CsF6yp--a5Z_gR4XfBZiX2PHz7zkx6BZIQdrwc0p6Bg17GGimgTqDltz4
+                value: _csrf=DRZLG4syp6e4iUWwfpYxjs0y2HdCr0UAztgJizMoABArTU8ZOHR8Lb0DxJ6VviSCG7sFvfwB9U8nnSYtrLxvvQNLOXVJfX99
       responses:
         "200":
           description: "200"
@@ -196,7 +196,7 @@ paths:
         content:
           application/json;charset=UTF-8:
             schema:
-              $ref: '#/components/schemas/api-auth-signout486549215'
+              $ref: '#/components/schemas/api-meetings486549215'
             examples:
               비밀번호 불일치:
                 value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
@@ -220,7 +220,7 @@ paths:
           content:
             application/json;charset=UTF-8:
               schema:
-                $ref: '#/components/schemas/api-auth-signout486549215'
+                $ref: '#/components/schemas/api-meetings486549215'
               examples:
                 비밀번호 불일치:
                   value: "{\"code\":\"WRONG_PASSWORD\",\"message\":\"비밀번호가 일치하지 않습\
@@ -240,7 +240,7 @@ paths:
           content:
             application/json;charset=UTF-8:
               schema:
-                $ref: '#/components/schemas/api-auth-signout486549215'
+                $ref: '#/components/schemas/api-meetings486549215'
               examples:
                 아직 인증되지 않은 핸드폰 번호:
                   value: "{\"code\":\"PHONE_NUMBER_NOT_VERIFIED\",\"message\":\"핸드\
@@ -263,7 +263,7 @@ paths:
         content:
           application/json;charset=UTF-8:
             schema:
-              $ref: '#/components/schemas/api-auth-signout486549215'
+              $ref: '#/components/schemas/api-meetings486549215'
             examples:
               모임 수정 - 시간,식당을 선택한 경우:
                 value: "{\"startDate\":\"2024-01-31\",\"startTime\":\"19:00\",\"restaurant\"\
@@ -385,27 +385,27 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/api-auth-signout486549215'
+              $ref: '#/components/schemas/api-meetings486549215'
             examples:
               모임 시작 1시간 전까지만 취소 가능:
-                value: _csrf=oX8NtWoMcOJe25bbweTF6uw0TMcnwqo20MCZRnAPmnH8Jhw5kE4-1l5oR9Zz7aO59Mnxi41QYaUTo5kbtfD8dEBroxDPRS0A
+                value: _csrf=gckLyn2rQuyxvH5ScP4ZDuZItJIaMQuqblOBqwo5Jq93HpY_s_1urx7NdNycjEdhQdMtaNR8maoqAW2HWTawnW4LR8wTJqUM
               모임 취소:
-                value: _csrf=eV0SfhROX3K0zoEx9uyn-fHDWwj7xr0LJLhSfMZD3CjdytxcGGxxHC0raxGZrLMEl8GTycOhdjHJ9NsmEIlmSPV7vRi--us-
+                value: _csrf=o8BP-XY9VfhnrjwB8FjpvMIJrIhzEqTiE1mHLBBlV0ie-KxPx6F2n0NcMchKyglgx3Xd3qM9gbFAd8LPIm2-HXUHYXyswJ97
               모임이 존재하지 않음:
-                value: _csrf=oMR6PPjnKgjHsak2SUgn_9oxZckgVZiNTB1YveJE1JL73WfExvdMXc6CEz7qgZkPfWUTye0CSKsYN6igKS1vj9J34aXJ7wWi
+                value: _csrf=xmxNKuByVYas8_NJvLduSySi45UaRI6CiuKwLJFxpJAp7QtMp18sEtJDZ7SBkMtxjZpaeEGbzvR7drevvdLTSqYQkqccj2p1
               주최자가 아님:
-                value: _csrf=mjLlSMdy2hzuld1si8UlEFbDdTwafVVcE_So0o71gDGzSPPOrgGEefcR4n_DobkNvOgRJWLxWF4vTGFxIZaQ5LaWs1eCLMH6
+                value: _csrf=Deck_G5syYl1_QerZjjaDTYm_XzTuru6zjI6oeFXdTjPyEKdPtRHzFxZrO9YxTGdXhXuPAZC0ETkgoqX-FBbktQ1EF2qqiGl
               모임이 이미 완료됨:
-                value: _csrf=tPwWt4ZrjLJ3o4a6toNUOyk2Ne5t3dNtTrC5h2oerMAxznv2h80v1bBeu9RakuCOhq5gCR9VGNde7rVAfNaAtl99mvgA_RnE
+                value: _csrf=JG0aNd83gTHaTKCxNBezaFvFclEqwbviekZDWh06c1zbEWkxQlwtUbwO5Qj3dJjUBDqHUGz3X2kT9YLPSXJyb3gJRz2-dQ9X
               모임이 이미 취소됨:
-                value: _csrf=Yi-8uf4T9pBNcteu4-WB9bjINnqJL5hQK5_vsquvwVxtLRpIVx2KjJsmwaNgQrPK1Mi1x4DwGxiwFvx9SK6Mgsqa-DlcTyx5
+                value: _csrf=nJs_yEaX8crwZNiiH9tj_WLmbh9x-zxKURfkkBYn5v33OU0crPpe8XH0wq_dV-mXKPZXyQPVQyZJygpnMCPT9iYR1MnBWnt-
       responses:
         "400":
           description: "400"
           content:
             application/json;charset=UTF-8:
               schema:
-                $ref: '#/components/schemas/api-auth-signout486549215'
+                $ref: '#/components/schemas/api-meetings486549215'
               examples:
                 모임 시작 1시간 전까지만 취소 가능:
                   value: "{\"code\":\"CANNOT_CANCEL_MEETING\",\"message\":\"모임 시작\
@@ -563,5 +563,5 @@ components:
               longitude:
                 type: number
                 description: 위도
-    api-auth-signout486549215:
+    api-meetings486549215:
       type: object
