@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface MeetingRepository extends JpaRepository<Meeting, Long> {
 
+    // TODO: Querydsl로 변경 (컴파일 시 에러 확인 가능)
     @Query("""
             SELECT m FROM Meeting m
             WHERE m.startDateTime <= :startDateTime
@@ -19,5 +20,4 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("status") MeetingStatus status
     );
-
 }

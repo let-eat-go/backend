@@ -22,13 +22,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/meetings")
+@RequestMapping("/api/meetings")
 public class MeetingController {
 
     private final MeetingService meetingService;
 
     // 모임 생성
-    @PostMapping()
+    @PostMapping
     @RoleUser
     public ResponseEntity<Void> createMeeting(
             @AuthenticationPrincipal UserDetails userDetails,
