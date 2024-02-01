@@ -43,4 +43,8 @@ public class MeetingOptions {
     public void cancel() {
         this.status = MeetingStatus.CANCELED;
     }
+
+    public void complete() {
+        this.status = MeetingStatus.COMPLETED;
+    }
 }

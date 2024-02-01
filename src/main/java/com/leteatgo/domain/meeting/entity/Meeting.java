@@ -112,4 +112,8 @@ public class Meeting extends BaseEntity {
         this.meetingOptions.cancel();
     }
 
+    public void complete() {
+        this.meetingOptions.complete();
+    }
+
 }
