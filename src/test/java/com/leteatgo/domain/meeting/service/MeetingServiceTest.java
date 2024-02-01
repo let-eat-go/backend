@@ -39,6 +39,7 @@ import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.type.RestaurantCategory;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -215,8 +216,7 @@ class MeetingServiceTest {
                 .region(new Region("강남구"))
                 .maxParticipants(4)
                 .minParticipants(2)
-                .startDate(LocalDate.of(2024, 1, 31))
-                .startTime(LocalTime.of(19, 0))
+                .startDateTime(LocalDateTime.of(2024, 1, 31, 19, 0))
                 .description("모임 설명")
                 .meetingOptions(options)
                 .build();
@@ -287,10 +287,9 @@ class MeetingServiceTest {
 
             // then
             verify(meetingRepository, times(1)).save(existingMeeting);
-            assertThat(existingMeeting.getStartDate()).isEqualTo(
-                    requestNotContainRestaurant.startDate());
-            assertThat(existingMeeting.getStartTime()).isEqualTo(
-                    requestNotContainRestaurant.startTime());
+            assertThat(existingMeeting.getStartDateTime()).isEqualTo(
+                    LocalDateTime.of(requestNotContainRestaurant.startDate(),
+                            requestNotContainRestaurant.startTime()));
         }
 
         @Test
@@ -327,8 +326,7 @@ class MeetingServiceTest {
                 .region(new Region("강남구"))
                 .maxParticipants(4)
                 .minParticipants(2)
-                .startDate(LocalDate.of(2024, 1, 31))
-                .startTime(LocalTime.of(19, 0))
+                .startDateTime(LocalDateTime.of(2025, 1, 31, 19, 0))
                 .description("모임 설명")
                 .meetingOptions(options)
                 .build();
@@ -426,7 +424,7 @@ class MeetingServiceTest {
         @DisplayName("[실패] 모임 시작 1시간 전까지만 취소할 수 있다.")
         void cancelMeetingBeforeOneHour() {
             // given
-            existingMeeting.update(LocalDate.now(), LocalTime.now().plusMinutes(59));
+            existingMeeting.update(LocalDateTime.now().plusMinutes(1));
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
                     Optional.of(existingMeeting));
             // when

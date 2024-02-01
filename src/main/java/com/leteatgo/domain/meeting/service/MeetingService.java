@@ -28,8 +28,7 @@ import com.leteatgo.domain.region.exception.RegionException;
 import com.leteatgo.domain.region.repository.RegionRepository;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -96,7 +95,7 @@ public class MeetingService {
                 .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
         checkHost(memberId, meeting);
 
-        meeting.update(request.startDate(), request.startTime());
+        meeting.update(LocalDateTime.of(request.startDate(), request.startTime()));
 
         if (Objects.nonNull(request.restaurant())) {
             TastyRestaurant tastyRestaurant = findOrCreateTastyRestaurant(request.restaurant());
@@ -126,11 +125,13 @@ public class MeetingService {
     }
 
     private void checkCancel(Meeting meeting) {
-        // TODO: Clock 사용 -> 테스트 작성해보고 정하기
-        LocalDate nowDate = LocalDate.now();
-        LocalTime nowTime = LocalTime.now();
-        LocalDate startDate = meeting.getStartDate();
-        LocalTime startTime = meeting.getStartTime();
+        LocalDateTime nowDateTime = LocalDateTime.now();
+        LocalDateTime startDateTime = meeting.getStartDateTime();
+
+        // 이미 지나간건 취소 가능
+        if (nowDateTime.isAfter(startDateTime)) {
+            return;
+        }
 
         // 이미 취소된 모임인지 확인
         if (meeting.getMeetingOptions().getStatus() == CANCELED) {
@@ -142,10 +143,10 @@ public class MeetingService {
             throw new MeetingException(ALREADY_COMPLETED_MEETING);
         }
 
-        // 모임 시작 1시간 전까지만 취소 가능
-        if (nowDate.isEqual(startDate) && nowTime.isAfter(startTime.minusHours(1))) {
+        // 모임 시작 1시간 전에는 취소할 수 없음
+        if (nowDateTime.isBefore(startDateTime)
+                && nowDateTime.isAfter(startDateTime.minusHours(1))) {
             throw new MeetingException(CANNOT_CANCEL_MEETING);
         }
-
     }
 }

@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.Builder;
 
@@ -45,6 +46,8 @@ public record MeetingCreateRequest(
 ) {
 
     public static Meeting toEntity(Member host, Region region, MeetingCreateRequest request) {
+        LocalDateTime startDateTime = LocalDateTime.of(request.startDate(), request.startTime());
+
         return Meeting.builder()
                 .host(host)
                 .name(request.name())
@@ -52,8 +55,7 @@ public record MeetingCreateRequest(
                 .region(region)
                 .maxParticipants(request.maxParticipants())
                 .minParticipants(request.minParticipants())
-                .startDate(request.startDate())
-                .startTime(request.startTime())
+                .startDateTime(startDateTime)
                 .description(request.description())
                 .meetingOptions(MeetingOptionsRequest.toEntiy(request.options()))
                 .build();

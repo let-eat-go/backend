@@ -4,9 +4,22 @@ import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.global.entity.BaseEntity;
-import com.leteatgo.global.type.*;
-import jakarta.persistence.*;
-import java.time.LocalTime;
+import com.leteatgo.global.type.RestaurantCategory;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,8 +27,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -55,11 +66,8 @@ public class Meeting extends BaseEntity {
     @Column(name = "max_participants", nullable = false)
     private Integer maxParticipants;
 
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
-
-    @Column(name = "start_time", nullable = false)
-    private LocalTime startTime;
+    @Column(name = "start_date_time", nullable = false)
+    private LocalDateTime startDateTime;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -70,7 +78,7 @@ public class Meeting extends BaseEntity {
     @Builder
     public Meeting(Member host, TastyRestaurant tastyRestaurant, String name,
             RestaurantCategory restaurantCategory, Region region, Integer minParticipants,
-            Integer maxParticipants, LocalDate startDate, LocalTime startTime, String description,
+            Integer maxParticipants, LocalDateTime startDateTime, String description,
             MeetingOptions meetingOptions) {
         this.host = host;
         this.tastyRestaurant = tastyRestaurant;
@@ -79,8 +87,7 @@ public class Meeting extends BaseEntity {
         this.region = region;
         this.minParticipants = minParticipants;
         this.maxParticipants = maxParticipants;
-        this.startDate = startDate;
-        this.startTime = startTime;
+        this.startDateTime = startDateTime;
         this.description = description;
         this.meetingOptions = meetingOptions;
     }
@@ -98,13 +105,9 @@ public class Meeting extends BaseEntity {
         this.meetingParticipants.add(meetingParticipant);
     }
 
-    public void update(LocalDate startDate, LocalTime startTime) {
-        if (Objects.nonNull(startDate)) {
-            this.startDate = startDate;
-        }
-
-        if (Objects.nonNull(startTime)) {
-            this.startTime = startTime;
+    public void update(LocalDateTime startDateTime) {
+        if (Objects.nonNull(startDateTime)) {
+            this.startDateTime = startDateTime;
         }
     }
 
