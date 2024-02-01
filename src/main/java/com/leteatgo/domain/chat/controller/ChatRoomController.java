@@ -34,9 +34,10 @@ public class ChatRoomController {
     @GetMapping("/{roomId}/messages")
     public ResponseEntity<SliceResponse<ChatMessageResponse>> roomMessages(
             @PathVariable(value = "roomId") Long roomId,
-            @Valid CustomPageRequest request) {
+            @Valid CustomPageRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(new SliceResponse<>(
-                chatRoomService.roomMessages(roomId, request)));
+                chatRoomService.roomMessages(roomId, request, userDetails.getUsername())));
     }
 
     /**

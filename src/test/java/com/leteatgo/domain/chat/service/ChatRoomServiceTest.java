@@ -3,6 +3,7 @@ package com.leteatgo.domain.chat.service;
 
 import static com.leteatgo.domain.chat.type.RoomStatus.CLOSE;
 import static com.leteatgo.domain.chat.type.RoomStatus.OPEN;
+import static com.leteatgo.global.exception.ErrorCode.ACCESS_DENIED;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
@@ -168,21 +169,28 @@ class ChatRoomServiceTest {
     @Nested
     @DisplayName("채팅방 대화 목록 조회 메서드는")
     class RoomMessagesMethod {
+        String authId = "1";
         Long roomId = 1L;
         CustomPageRequest customPageRequest = new CustomPageRequest(1);
-        ChatRoom chatRoom = new ChatRoom(OPEN, Meeting.builder().build());
-        Pageable pageable = PageRequest.of(0, CustomPageRequest.PAGE_SIZE);
+
         Member member = Member.builder()
                 .nickname("nick")
                 .profileImage("profile")
                 .build();
+
+        Meeting meeting = Meeting.builder().build();
+
+        ChatRoom chatRoom = new ChatRoom(OPEN, meeting);
+
+        Pageable pageable = PageRequest.of(0, CustomPageRequest.PAGE_SIZE);
         ChatMessage chatMessage = new ChatMessage("message");
         List<ChatMessage> contents = List.of(chatMessage);
 
         @BeforeEach
         void setup() {
-            ReflectionTestUtils.setField(member, "id", 1L);
+            ReflectionTestUtils.setField(member, "id", Long.parseLong(authId));
             chatMessage.setSender(member);
+            meeting.addMeetingParticipant(member);
         }
 
         @Test
@@ -197,7 +205,7 @@ class ChatRoomServiceTest {
 
             // when
             Slice<ChatMessageResponse> chatMessageResponses =
-                    chatRoomService.roomMessages(roomId, customPageRequest);
+                    chatRoomService.roomMessages(roomId, customPageRequest, authId);
 
             // then
             assertEquals(1, chatMessageResponses.getContent().size());
@@ -214,7 +222,7 @@ class ChatRoomServiceTest {
             // when
             // then
             assertThatThrownBy(() ->
-                    chatRoomService.roomMessages(roomId, customPageRequest))
+                    chatRoomService.roomMessages(roomId, customPageRequest, authId))
                     .isInstanceOf(ChatException.class)
                     .hasMessageContaining(NOT_FOUND_CHATROOM.getErrorMessage());
 
@@ -225,14 +233,29 @@ class ChatRoomServiceTest {
         void roomMessages_already_closed() {
             // given
             given(chatRoomRepository.findById(roomId))
+                    .willReturn(Optional.of(new ChatRoom(CLOSE, meeting)));
+
+            // when
+            ChatException exception = assertThrows(ChatException.class, () ->
+                    chatRoomService.roomMessages(roomId, customPageRequest, authId));
+
+            // then
+            assertEquals(ALREADY_CLOSED, exception.getErrorCode());
+        }
+
+        @Test
+        @DisplayName("참여하지 않은 모임의 채팅방이면 예외를 발생시킨다.")
+        void roomMessages_access_deny() {
+            // given
+            given(chatRoomRepository.findById(roomId))
                     .willReturn(Optional.of(new ChatRoom(CLOSE, Meeting.builder().build())));
 
             // when
             ChatException exception = assertThrows(ChatException.class, () ->
-                    chatRoomService.roomMessages(roomId, customPageRequest));
+                    chatRoomService.roomMessages(roomId, customPageRequest, authId));
 
             // then
-            assertEquals(ALREADY_CLOSED, exception.getErrorCode());
+            assertEquals(ACCESS_DENIED, exception.getErrorCode());
         }
 
     }

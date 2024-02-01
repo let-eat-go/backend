@@ -82,7 +82,7 @@ class ChatRoomControllerTest {
                 .createdAt(LocalDateTime.now())
                 .build());
 
-        given(chatRoomService.roomMessages(roomId, customPageRequest))
+        given(chatRoomService.roomMessages(roomId, customPageRequest, "1"))
                 .willReturn(new SliceImpl<>(contents,
                         PageRequest.of(customPageRequest.page(), 10), true));
 
