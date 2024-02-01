@@ -54,7 +54,9 @@ public class SecurityConfig {
 
                         // api
                         .requestMatchers("/api/auth/**",
-                                "/api/tasty-restaurants").permitAll()
+                                "/api/tasty-restaurants",
+                                "/api/regions/**"
+                        ).permitAll()
 
                         // role
                         .requestMatchers("/api/auth/signout",
