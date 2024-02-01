@@ -1,13 +1,16 @@
 package com.leteatgo.domain.chat.service;
 
 
+import static com.leteatgo.domain.chat.type.RoomStatus.CLOSE;
 import static com.leteatgo.domain.chat.type.RoomStatus.OPEN;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -202,7 +205,7 @@ class ChatRoomServiceTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는  채팅방이면 예외를 발생시킨다.")
+        @DisplayName("존재하지 않는 채팅방이면 예외를 발생시킨다.")
         void roomMessages_not_found_chatRoom() {
             // given
             given(chatRoomRepository.findById(roomId))
@@ -216,6 +219,22 @@ class ChatRoomServiceTest {
                     .hasMessageContaining(NOT_FOUND_CHATROOM.getErrorMessage());
 
         }
+
+        @Test
+        @DisplayName("이미 종료된 채팅방이면 예외를 발생시킨다.")
+        void roomMessages_already_closed() {
+            // given
+            given(chatRoomRepository.findById(roomId))
+                    .willReturn(Optional.of(new ChatRoom(CLOSE, Meeting.builder().build())));
+
+            // when
+            ChatException exception = assertThrows(ChatException.class, () ->
+                    chatRoomService.roomMessages(roomId, customPageRequest));
+
+            // then
+            assertEquals(ALREADY_CLOSED, exception.getErrorCode());
+        }
+
     }
 
     @Nested

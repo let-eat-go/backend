@@ -1,6 +1,7 @@
 package com.leteatgo.domain.chat.service;
 
 import static com.leteatgo.domain.chat.type.RoomStatus.OPEN;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 
@@ -12,6 +13,7 @@ import com.leteatgo.domain.chat.event.dto.CreateChatRoomEvent;
 import com.leteatgo.domain.chat.exception.ChatException;
 import com.leteatgo.domain.chat.repository.ChatMessageRepository;
 import com.leteatgo.domain.chat.repository.ChatRoomRepository;
+import com.leteatgo.domain.chat.type.RoomStatus;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
@@ -60,6 +62,7 @@ public class ChatRoomService {
     @Transactional
     public Slice<ChatMessageResponse> roomMessages(Long roomId, CustomPageRequest request) {
         ChatRoom chatRoom = getChatRoomOrThrow(roomId);
+        validateChatRoom(chatRoom);
 
         return chatMessageRepository.findByChatRoomFetch(chatRoom,
                         PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE))
@@ -69,6 +72,12 @@ public class ChatRoomService {
                     }
                     return ChatMessageResponse.fromEntity(chatMessage);
                 });
+    }
+
+    private static void validateChatRoom(ChatRoom chatRoom) {
+        if (chatRoom.getStatus() == RoomStatus.CLOSE) {
+            throw new ChatException(ALREADY_CLOSED);
+        }
     }
 
     public Slice<MyChatRoomResponse> myChatRooms(String authId, CustomPageRequest request) {
