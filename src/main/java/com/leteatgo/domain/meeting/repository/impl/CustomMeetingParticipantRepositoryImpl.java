@@ -40,7 +40,6 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                         meeting.restaurantCategory.as("category"),
                         meeting.region,
                         chatRoom.id.as("roomId"),
-                        chatMessage.id.as("messageId"),
                         chatMessage.content,
                         chatMessage.isRead,
                         ExpressionUtils.as(

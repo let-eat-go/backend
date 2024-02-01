@@ -17,7 +17,6 @@ public class MyChatRoomResponse {
     private RestaurantCategory category;
     private String regin;
     private Long roomId;
-    private Long messageId;
     private String content;
     private boolean isRead;
 
