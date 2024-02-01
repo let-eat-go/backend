@@ -33,7 +33,7 @@ public class SocketInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor =
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+        if (StompCommand.CONNECT.equals(accessor.getCommand())) { // todo subscribe 권한 확인 및 처리
             String accessToken = accessor.getFirstNativeHeader(AUTHORIZATION);
 
             if (tokenProvider.validateToken(accessToken)) {

@@ -1,6 +1,6 @@
 package com.leteatgo.global.config;
 
-import com.leteatgo.global.socket.handler.SocketErrorHandler;
+import com.leteatgo.global.socket.handler.StompErrorHandler;
 import com.leteatgo.global.socket.interceptor.SocketInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final SocketInterceptor socketInterceptor;
-    private final SocketErrorHandler errorHandler;
+    private final StompErrorHandler errorHandler;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -28,7 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/chat"); // messageMapping (목적지)
-        registry.enableSimpleBroker("/topic", "/queue");
+        registry.enableSimpleBroker("/topic"); // channel
     }
 
     @Override
