@@ -1,7 +1,6 @@
 package com.leteatgo.domain.tastyrestaurant.controller;
 
 import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantsRequest;
-import com.leteatgo.domain.tastyrestaurant.dto.request.VisitedRestaurantRequest;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.VisitedRestaurantResponse;
@@ -46,14 +45,12 @@ public class TastyRestaurantController {
     }
 
     /**
-     * 회원들이 방문한 맛집 조회
+     * 회원들이 방문한 맛집 조회 (5개 반환)
      *
-     * @param request 요청 파라미터
      * @return 방문한 맛집 리스트
      */
     @GetMapping
-    public ResponseEntity<VisitedRestaurantResponse> visitedRestaurants(
-            @Valid VisitedRestaurantRequest request) {
-        return ResponseEntity.ok(tastyRestaurantService.visitedRestaurants(request));
+    public ResponseEntity<VisitedRestaurantResponse> visitedRestaurants() {
+        return ResponseEntity.ok(tastyRestaurantService.visitedRestaurants());
     }
 }

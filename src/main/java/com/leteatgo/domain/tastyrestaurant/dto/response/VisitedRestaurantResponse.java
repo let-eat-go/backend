@@ -6,8 +6,7 @@ import java.util.List;
 import lombok.Builder;
 
 public record VisitedRestaurantResponse(
-        List<Content> contents,
-        Pagination pagination
+        List<Content> contents
 ) {
 
     @Builder
@@ -36,13 +35,6 @@ public record VisitedRestaurantResponse(
                     .numberOfUses(tastyRestaurant.getNumberOfUses())
                     .build();
         }
-
-    }
-
-    public record Pagination(
-            Integer currentPage,
-            boolean hasMore
-    ) {
 
     }
 }
