@@ -7,6 +7,7 @@ import static com.leteatgo.domain.meeting.entity.QMeetingParticipant.meetingPart
 
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
 import com.leteatgo.domain.chat.entity.QChatMessage;
+import com.leteatgo.domain.chat.type.RoomStatus;
 import com.leteatgo.domain.meeting.repository.CustomMeetingParticipantRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.global.util.SliceUtil;
@@ -28,7 +29,7 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<MyChatRoomResponse> findByMemberFetch(Member member, Pageable pageable) {
+    public Slice<MyChatRoomResponse> findAllMyChatRooms(Member member, Pageable pageable) {
         DatePath<LocalDateTime> createdAt =
                 Expressions.datePath(LocalDateTime.class, "createdAt");
 
@@ -53,7 +54,8 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                 .join(meetingParticipant.meeting, meeting)
                 .join(meeting.chatRoom, chatRoom)
                 .join(chatRoom.chatMessages, chatMessage)
-                .where(meetingParticipant.member.eq(member))
+                .where(meetingParticipant.member.eq(member),
+                        chatRoom.status.eq(RoomStatus.OPEN))
                 .groupBy(meeting.id)
                 .orderBy(createdAt.desc())
                 .offset(pageable.getOffset())

@@ -7,5 +7,5 @@ import org.springframework.data.domain.Slice;
 
 public interface CustomMeetingParticipantRepository {
 
-    Slice<MyChatRoomResponse> findByMemberFetch(Member member, Pageable pageable);
+    Slice<MyChatRoomResponse> findAllMyChatRooms(Member member, Pageable pageable);
 }

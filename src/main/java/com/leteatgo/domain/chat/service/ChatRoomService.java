@@ -44,7 +44,6 @@ public class ChatRoomService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createChatRoom(CreateChatRoomEvent event) {
         Meeting meeting = getMeetingOrThrow(event.meetingId());
-
         chatRoomRepository.save(new ChatRoom(OPEN, meeting));
     }
 
@@ -74,12 +73,12 @@ public class ChatRoomService {
 
     public Slice<MyChatRoomResponse> myChatRooms(String authId, CustomPageRequest request) {
         Member member = userDetailService.findByIdOrThrow(Long.parseLong(authId));
-        return meetingParticipantRepository.findByMemberFetch(
+        return meetingParticipantRepository.findAllMyChatRooms(
                 member, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
     }
 
-    private Meeting getMeetingOrThrow(Long event) {
-        return meetingRepository.findById(event)
+    private Meeting getMeetingOrThrow(Long meetingId) {
+        return meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_MEETING));
     }
 }
