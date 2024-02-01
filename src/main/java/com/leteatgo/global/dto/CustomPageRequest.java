@@ -1,14 +1,14 @@
-package com.leteatgo.domain.tastyrestaurant.dto.request;
+package com.leteatgo.global.dto;
 
-import jakarta.annotation.Nullable;
 import org.springframework.util.ObjectUtils;
 
-public record VisitedRestaurantRequest(
-        @Nullable
+public record CustomPageRequest(
         Integer page
 ) {
 
-    public VisitedRestaurantRequest {
+    public static final int PAGE_SIZE = 10;
+
+    public CustomPageRequest {
         if (ObjectUtils.isEmpty(page)) {
             page = 0;
         } else {

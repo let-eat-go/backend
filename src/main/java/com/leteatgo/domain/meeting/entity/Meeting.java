@@ -1,5 +1,6 @@
 package com.leteatgo.domain.meeting.entity;
 
+import com.leteatgo.domain.chat.entity.ChatRoom;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.global.entity.BaseEntity;
@@ -58,4 +59,6 @@ public class Meeting extends BaseEntity {
     @Embedded
     private MeetingOptions meetingOptions;
 
+    @OneToOne(mappedBy = "meeting")
+    private ChatRoom chatRoom;
 }
