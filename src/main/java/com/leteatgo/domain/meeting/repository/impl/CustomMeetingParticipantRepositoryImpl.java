@@ -16,6 +16,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.DatePath;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,19 +36,33 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
 
         QChatMessage cm2 = new QChatMessage("cm2");
 
+        JPQLQuery<LocalDateTime> createdAtQuery = JPAExpressions.select(cm2.createdAt.max())
+                .from(cm2)
+                .where(cm2.chatRoom.eq(chatRoom));
+
         List<MyChatRoomResponse> contents = queryFactory
                 .select(Projections.fields(MyChatRoomResponse.class,
                         meeting.name.as("meetingName"),
                         meeting.restaurantCategory.as("category"),
                         meeting.region,
                         chatRoom.id.as("roomId"),
-                        chatMessage.content,
-                        chatMessage.isRead,
+                        ExpressionUtils.as(
+                                JPAExpressions.select(cm2.isRead)
+                                        .from(cm2)
+                                        .where(cm2.chatRoom.eq(chatRoom),
+                                                cm2.createdAt.eq(createdAtQuery))
+                                , "isRead"),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(cm2.content)
+                                        .from(cm2)
+                                        .where(cm2.chatRoom.eq(chatRoom),
+                                                cm2.createdAt.eq(createdAtQuery))
+                                , "content"),
+
                         ExpressionUtils.as(
                                 JPAExpressions.select(cm2.createdAt.max())
                                         .from(cm2)
                                         .where(cm2.chatRoom.eq(chatRoom))
-                                        .orderBy(cm2.createdAt.desc())
                                 , "createdAt")
                 ))
                 .from(meetingParticipant)
