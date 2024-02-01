@@ -29,6 +29,7 @@ import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
+import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.security.CustomUserDetailService;
 import com.leteatgo.global.type.RestaurantCategory;
@@ -248,7 +249,7 @@ class ChatRoomServiceTest {
         List<MyChatRoomResponse> contents = List.of(MyChatRoomResponse.builder()
                 .meetingName("meeting name")
                 .category(RestaurantCategory.ASIAN_CUISINE)
-                .regin("지역")
+                .region(new Region("지역"))
                 .roomId(1L)
                 .content("recent message")
                 .isRead(false)

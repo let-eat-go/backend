@@ -16,6 +16,7 @@ import com.leteatgo.domain.chat.dto.response.ChatMessageResponse.Sender;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
 import com.leteatgo.domain.chat.service.ChatRoomService;
 import com.leteatgo.domain.member.entity.Member;
+import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
 import com.leteatgo.global.type.RestaurantCategory;
@@ -112,7 +113,7 @@ class ChatRoomControllerTest {
         List<MyChatRoomResponse> contents = List.of(MyChatRoomResponse.builder()
                 .meetingName("meeting name")
                 .category(RestaurantCategory.ASIAN_CUISINE)
-                .regin("지역")
+                .region(new Region("지역"))
                 .roomId(1L)
                 .content("recent message")
                 .isRead(false)
