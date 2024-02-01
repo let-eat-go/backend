@@ -2,6 +2,7 @@ package com.leteatgo.domain.member.entity;
 
 import com.leteatgo.domain.member.type.LoginType;
 import com.leteatgo.domain.member.type.MemberRole;
+import com.leteatgo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,7 +21,7 @@ import java.time.LocalDateTime;
                 @UniqueConstraint(name = "UK_phone_number", columnNames = {"phone_number"})
         }
 )
-public class Member {
+public class Member extends BaseEntity {
 
     public static final String DEFAULT_INTRODUCE = "자기소개를 작성해주세요";
     public static final String DEFAULT_PROFILE_IMAGE = "default_profile_image.png";
