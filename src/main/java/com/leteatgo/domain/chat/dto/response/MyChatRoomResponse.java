@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MyChatRoomResponse {
+
     private String meetingName;
     private RestaurantCategory category;
     private String regin;

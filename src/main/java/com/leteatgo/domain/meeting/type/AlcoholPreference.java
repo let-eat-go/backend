@@ -1,5 +1,5 @@
 package com.leteatgo.domain.meeting.type;
 
-public enum AlcoholAllowed {
+public enum AlcoholPreference {
     DISALLOWED, ALLOWED, ANY
 }

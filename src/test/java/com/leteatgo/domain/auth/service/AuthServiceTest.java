@@ -1,13 +1,10 @@
 package com.leteatgo.domain.auth.service;
 
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_EMAIL;
-import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_PHONE_NUMBER;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_VERIFIED;
 import static com.leteatgo.global.exception.ErrorCode.EXPIRED_AUTH_CODE;
-import static com.leteatgo.global.exception.ErrorCode.PHONE_NUMBER_NOT_VERIFIED;
 import static com.leteatgo.global.exception.ErrorCode.WRONG_AUTH_CODE;
 import static com.leteatgo.global.exception.ErrorCode.WRONG_PASSWORD;
-import static com.leteatgo.global.exception.ErrorCode.WRONG_PHONE_NUMBER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,7 +40,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;

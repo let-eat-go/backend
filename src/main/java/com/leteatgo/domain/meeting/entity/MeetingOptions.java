@@ -5,6 +5,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +27,24 @@ public class MeetingOptions {
     private AgePreference agePreference;
 
     @Enumerated(EnumType.STRING)
-    private AlcoholAllowed alcoholAllowed;
+    private AlcoholPreference alcoholPreference;
 
+    @Builder
+    public MeetingOptions(MeetingStatus status, MeetingPurpose purpose,
+            GenderPreference genderPreference,
+            AgePreference agePreference, AlcoholPreference alcoholPreference) {
+        this.status = status == null ? MeetingStatus.BEFORE : status;
+        this.purpose = purpose;
+        this.genderPreference = genderPreference;
+        this.agePreference = agePreference;
+        this.alcoholPreference = alcoholPreference;
+    }
+
+    public void cancel() {
+        this.status = MeetingStatus.CANCELED;
+    }
+
+    public void complete() {
+        this.status = MeetingStatus.COMPLETED;
+    }
 }
