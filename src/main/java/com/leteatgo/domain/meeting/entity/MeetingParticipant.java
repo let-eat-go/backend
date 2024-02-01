@@ -4,6 +4,7 @@ import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,4 +25,9 @@ public class MeetingParticipant extends BaseEntity {
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "FK_meeting_participant_member"), nullable = false)
     private Member member;
 
+    @Builder
+    public MeetingParticipant(Meeting meeting, Member member) {
+        this.meeting = meeting;
+        this.member = member;
+    }
 }

@@ -8,6 +8,7 @@ public class DtoValid {
     public static final String NICKNAME_MESSAGE = "이름은 특수문자를 제외하고 공백없이 10자 이내로 작성 가능합니다.";
     public static final String PHONE_NUMBER_MESSAGE = "올바른 핸드폰 번호 형식이 아닙니다.";
     public static final String AUTH_CODE_MESSAGE = "인증번호는 6자리 숫자입니다.";
+    public static final String CATEGORY_MESSAGE = "올바른 카테고리가 아닙니다.";
 
     public static final String PW_FORMAT = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W).{8,20}$";
     public static final String NICKNAME_FORMAT = "^[a-zA-Z0-9\\p{IsHangul}]{1,10}$";

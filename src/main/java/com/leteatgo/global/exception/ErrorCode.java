@@ -48,8 +48,14 @@ public enum ErrorCode {
     NOT_FOUND_CHATROOM(NOT_FOUND, "존재하지 않는 채팅방입니다."),
 
     // meeting
-    NOT_FOUND_MEETING(NOT_FOUND, "존재하지 않는 모임입니다.")
-    ;
+    NOT_FOUND_MEETING(BAD_REQUEST, "존재하지 않는 모임입니다."),
+    NOT_MEETING_HOST(BAD_REQUEST, "모임의 주최자가 아닙니다."),
+    CANNOT_CANCEL_MEETING(BAD_REQUEST, "모임 시작 1시간 전까지만 취소할 수 있습니다."),
+    ALREADY_CANCELED_MEETING(BAD_REQUEST, "이미 취소된 모임입니다."),
+    ALREADY_COMPLETED_MEETING(BAD_REQUEST, "이미 종료된 모임입니다."),
+
+    // region
+    NOT_FOUND_REGION(BAD_REQUEST, "존재하지 않는 지역입니다.");
 
     private final HttpStatus httpStatus;
     private final String errorMessage;
