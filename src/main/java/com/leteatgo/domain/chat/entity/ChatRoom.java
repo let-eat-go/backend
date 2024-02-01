@@ -6,6 +6,8 @@ import com.leteatgo.domain.chat.type.RoomStatus;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.global.entity.BaseEntity;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +29,9 @@ public class ChatRoom extends BaseEntity {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private RoomStatus status;
+
+    @OneToMany(mappedBy = "chatRoom", orphanRemoval = true)
+    private final List<ChatMessage> chatMessages = new ArrayList<>();
 
     public ChatRoom(RoomStatus status, Meeting meeting) {
         this.status = status;

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -19,6 +20,10 @@ public class ChatMessage extends BaseEntity {
 
     @Column(name = "content", nullable = false)
     private String content;
+
+    @Column(name = "is_read", nullable = false)
+    @ColumnDefault("false")
+    private boolean isRead = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chatting_room_id", foreignKey = @ForeignKey(name = "fk_chatroom_chatmessage"), nullable = false)
@@ -38,5 +43,9 @@ public class ChatMessage extends BaseEntity {
 
     public void setSender(Member sender) {
         this.sender = sender;
+    }
+
+    public void setRead() {
+        this.isRead = true;
     }
 }

@@ -1,5 +1,6 @@
 package com.leteatgo.domain.meeting.entity;
 
+import com.leteatgo.domain.chat.entity.ChatRoom;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
@@ -19,6 +20,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +48,9 @@ public class Meeting extends BaseEntity {
     @JoinColumn(name = "tasty_restaurant_id", foreignKey = @ForeignKey(name = "FK_meeting_tasty_restaurant"))
     private TastyRestaurant tastyRestaurant;
 
+    @OneToOne(mappedBy = "meeting", orphanRemoval = true)
+    private ChatRoom chatRoom;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id", foreignKey = @ForeignKey(name = "FK_meeting_region"))
     private Region region;
@@ -56,7 +61,7 @@ public class Meeting extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "restaurant_category", nullable = false, length = 50)
+    @Column(name = "restaurant_category", nullable = false)
     @Enumerated(EnumType.STRING)
     private RestaurantCategory restaurantCategory;
 

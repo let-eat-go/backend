@@ -14,7 +14,6 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
@@ -208,18 +207,13 @@ class TastyRestaurantControllerTest {
                         .numberOfUses(100)
                         .build());
 
-        VisitedRestaurantResponse.Pagination pagination = new VisitedRestaurantResponse
-                .Pagination(1, false);
-
-        given(tastyRestaurantService.visitedRestaurants(any())) // 아래 request parameter로 인자 값 입력
-                .willReturn(new VisitedRestaurantResponse(contents, pagination));
+        given(tastyRestaurantService.visitedRestaurants()) // 아래 request parameter로 인자 값 입력
+                .willReturn(new VisitedRestaurantResponse(contents));
 
         // when
         // then
-        mockMvc.perform(get(URI)
-                        .param("page", "1"))
+        mockMvc.perform(get(URI))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.pagination.currentPage").value(1))
                 .andDo(print())
                 .andDo(document("회원들이 방문한 맛집 조회", resource(
                         ResourceSnippetParameters.builder()
@@ -248,11 +242,7 @@ class TastyRestaurantControllerTest {
                                         fieldWithPath("contents[].restaurantUrl")
                                                 .description("식당 url"),
                                         fieldWithPath("contents[].numberOfUses")
-                                                .description("방문 횟수"),
-                                        fieldWithPath("pagination.currentPage")
-                                                .description("현재 페이지"),
-                                        fieldWithPath("pagination.hasMore")
-                                                .description("다음 페이지 여부")
+                                                .description("방문 횟수")
                                 )
                                 .build()
                 )));

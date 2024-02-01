@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.StompSubProtocolErrorHandler;
 
 @Component
-public class SocketErrorHandler extends StompSubProtocolErrorHandler {
+public class StompErrorHandler extends StompSubProtocolErrorHandler {
 
     private static final byte[] EMPTY_PAYLOAD = new byte[0];
 
-    public SocketErrorHandler() {
+    public StompErrorHandler() {
         super();
     }
 

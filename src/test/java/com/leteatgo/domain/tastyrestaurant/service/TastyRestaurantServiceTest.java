@@ -7,7 +7,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 
 import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantsRequest;
-import com.leteatgo.domain.tastyrestaurant.dto.request.VisitedRestaurantRequest;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse.Keywords;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
@@ -26,8 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.SliceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class TastyRestaurantServiceTest {
@@ -148,15 +145,13 @@ class TastyRestaurantServiceTest {
                 .numberOfUses(100)
                 .build());
 
-        given(tastyRestaurantRepository.findAllByOrderByNumberOfUsesDesc(PageRequest.of(0, 10)))
-                .willReturn(new SliceImpl<>(contents, PageRequest.of(0, 10), false));
+        given(tastyRestaurantRepository.findTop5ByOrderByNumberOfUsesDesc())
+                .willReturn(contents);
 
         // when
-        VisitedRestaurantResponse response = tastyRestaurantService.visitedRestaurants(
-                new VisitedRestaurantRequest(1));
+        VisitedRestaurantResponse response = tastyRestaurantService.visitedRestaurants();
 
         // then
         assertEquals(1, response.contents().size());
-        assertEquals(1, response.pagination().currentPage());
     }
 }
