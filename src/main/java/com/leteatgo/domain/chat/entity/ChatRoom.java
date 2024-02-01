@@ -30,7 +30,7 @@ public class ChatRoom extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private RoomStatus status;
 
-    @OneToMany(mappedBy = "chatRoom")
+    @OneToMany(mappedBy = "chatRoom", orphanRemoval = true)
     private final List<ChatMessage> chatMessages = new ArrayList<>();
 
     public ChatRoom(RoomStatus status, Meeting meeting) {

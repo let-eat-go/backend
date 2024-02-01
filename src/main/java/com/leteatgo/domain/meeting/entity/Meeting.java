@@ -7,6 +7,7 @@ import com.leteatgo.global.entity.BaseEntity;
 import com.leteatgo.global.type.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -59,6 +60,22 @@ public class Meeting extends BaseEntity {
     @Embedded
     private MeetingOptions meetingOptions;
 
-    @OneToOne(mappedBy = "meeting")
+    @OneToOne(mappedBy = "meeting", orphanRemoval = true)
     private ChatRoom chatRoom;
+
+    @Builder
+    public Meeting(Member host, String name, RestaurantCategory restaurantCategory, String region,
+            Integer minParticipants, Integer maxParticipants, LocalDate start_date, Time start_time,
+            String description, MeetingOptions meetingOptions) {
+        this.host = host;
+        this.name = name;
+        this.restaurantCategory = restaurantCategory;
+        this.region = region;
+        this.minParticipants = minParticipants;
+        this.maxParticipants = maxParticipants;
+        this.start_date = start_date;
+        this.start_time = start_time;
+        this.description = description;
+        this.meetingOptions = meetingOptions;
+    }
 }
