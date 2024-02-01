@@ -1,7 +1,6 @@
 package com.leteatgo.domain.chat.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.global.type.RestaurantCategory;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,7 @@ public class MyChatRoomResponse {
 
     private String meetingName;
     private RestaurantCategory category;
-    private Region region;
+    private String region;
     private Long roomId;
     private String content;
     private boolean isRead;

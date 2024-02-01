@@ -36,7 +36,7 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
 
         QChatMessage cm2 = new QChatMessage("cm2");
 
-        JPQLQuery<LocalDateTime> createdAtQuery = JPAExpressions.select(cm2.createdAt.max())
+        JPQLQuery<Long> maxId = JPAExpressions.select(cm2.id.max())
                 .from(cm2)
                 .where(cm2.chatRoom.eq(chatRoom));
 
@@ -44,25 +44,20 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                 .select(Projections.fields(MyChatRoomResponse.class,
                         meeting.name.as("meetingName"),
                         meeting.restaurantCategory.as("category"),
-                        meeting.region,
+                        meeting.region.name.as("region"),
                         chatRoom.id.as("roomId"),
                         ExpressionUtils.as(
                                 JPAExpressions.select(cm2.isRead)
                                         .from(cm2)
-                                        .where(cm2.chatRoom.eq(chatRoom),
-                                                cm2.createdAt.eq(createdAtQuery))
-                                , "isRead"),
+                                        .where(cm2.id.eq(maxId)), "isRead"),
                         ExpressionUtils.as(
                                 JPAExpressions.select(cm2.content)
                                         .from(cm2)
-                                        .where(cm2.chatRoom.eq(chatRoom),
-                                                cm2.createdAt.eq(createdAtQuery))
-                                , "content"),
+                                        .where(cm2.id.eq(maxId)), "content"),
                         ExpressionUtils.as(
-                                JPAExpressions.select(cm2.createdAt.max())
+                                JPAExpressions.select(cm2.createdAt)
                                         .from(cm2)
-                                        .where(cm2.chatRoom.eq(chatRoom))
-                                , "createdAt")
+                                        .where(cm2.id.eq(maxId)), "createdAt")
                 ))
                 .from(meetingParticipant)
                 .join(meetingParticipant.meeting, meeting)
