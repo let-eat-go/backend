@@ -58,7 +58,6 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                                         .where(cm2.chatRoom.eq(chatRoom),
                                                 cm2.createdAt.eq(createdAtQuery))
                                 , "content"),
-
                         ExpressionUtils.as(
                                 JPAExpressions.select(cm2.createdAt.max())
                                         .from(cm2)
