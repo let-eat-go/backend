@@ -1,0 +1,5 @@
+### room messages
+GET {{host}}/api/chat/rooms/1/messages
+
+### my chatRooms
+GET {{host}}/api/chat/rooms/me
