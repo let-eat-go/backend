@@ -1,6 +1,7 @@
 package com.leteatgo.domain.meeting.dto.response;
 
 import com.leteatgo.domain.meeting.type.MeetingStatus;
+import com.leteatgo.global.type.RestaurantCategory;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -45,6 +46,7 @@ public record MeetingDetailResponse(
     public record RestaurantResponse(
             Long id,
             String name,
+            RestaurantCategory category,
             String address,
             String phoneNumber
     ) {

@@ -5,19 +5,21 @@ import static com.leteatgo.domain.meeting.entity.QMeeting.meeting;
 import static com.leteatgo.domain.meeting.entity.QMeetingParticipant.meetingParticipant;
 import static com.leteatgo.domain.member.entity.QMember.member;
 import static com.leteatgo.domain.tastyrestaurant.entity.QTastyRestaurant.tastyRestaurant;
+import static com.leteatgo.global.util.QuerydslUtil.meetingDetailProjection;
+import static com.leteatgo.global.util.QuerydslUtil.meetingListProjection;
 
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.HostResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.MeetingResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.ParticipantResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.RestaurantResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
 import com.leteatgo.domain.meeting.repository.CustomMeetingRepository;
-import com.querydsl.core.types.ConstructorExpression;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.NumberExpression;
+import com.leteatgo.global.type.RestaurantCategory;
+import com.leteatgo.global.util.SliceUtil;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 @RequiredArgsConstructor
 public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
@@ -40,50 +42,32 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
         return Optional.ofNullable(meetingDetailResponse);
     }
 
-    private ConstructorExpression<MeetingDetailResponse> meetingDetailProjection() {
-        return Projections.constructor(MeetingDetailResponse.class,
-                meetingProjection(),
-                hostProjection(),
-                Projections.list(meetingParticipantsProjection()),
-                restaurantProjection(),
-                chatRoomProjection());
+    @Override
+    public Slice<MeetingListResponse> findMeetingList(
+            String category, String region, Pageable pageable
+    ) {
+
+        BooleanBuilder predicate = new BooleanBuilder();
+
+        if (category != null) {
+            predicate.and(tastyRestaurant.category.eq(RestaurantCategory.valueOf(category)));
+        }
+
+        if (region != null) {
+            predicate.and(meeting.region.name.eq(region));
+        }
+
+        List<MeetingListResponse> meetingList = queryFactory.select(meetingListProjection())
+                .from(meeting)
+                .join(meeting.host, member)
+                .leftJoin(meeting.tastyRestaurant, tastyRestaurant)
+                .where(predicate)
+                .orderBy(meeting.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        return new SliceUtil<>(meetingList, pageable).getSlice();
     }
 
-    private ConstructorExpression<MeetingResponse> meetingProjection() {
-        return Projections.constructor(MeetingResponse.class,
-                meeting.id,
-                meeting.name,
-                meeting.minParticipants,
-                meeting.maxParticipants,
-                meeting.currentParticipants,
-                meeting.startDateTime,
-                meeting.description,
-                meeting.meetingOptions.status);
-    }
-
-    private ConstructorExpression<HostResponse> hostProjection() {
-        return Projections.constructor(HostResponse.class,
-                meeting.host.id,
-                meeting.host.nickname,
-                meeting.host.profileImage);
-    }
-
-    private ConstructorExpression<ParticipantResponse> meetingParticipantsProjection() {
-        return Projections.constructor(ParticipantResponse.class,
-                meetingParticipant.member.id,
-                meetingParticipant.member.nickname,
-                meetingParticipant.member.profileImage);
-    }
-
-    private ConstructorExpression<RestaurantResponse> restaurantProjection() {
-        return Projections.constructor(RestaurantResponse.class,
-                tastyRestaurant.id,
-                tastyRestaurant.name,
-                tastyRestaurant.roadAddress,
-                tastyRestaurant.phoneNumber);
-    }
-
-    private NumberExpression<Integer> chatRoomProjection() {
-        return chatRoom.id.intValue();
-    }
 }

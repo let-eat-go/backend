@@ -42,6 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/verify-sms", // 인증번호 확인
             "/api/tasty-restaurants", // 회원들이 방문한 맛집 조회
             "/api/regions", // 지역 목록 조회
+            "/api/meetings/detail/**", // 모임 상세 조회
+            "/api/meetings/list", // 모임 목록 조회
             "/ws" // websocket connection
     };
 
