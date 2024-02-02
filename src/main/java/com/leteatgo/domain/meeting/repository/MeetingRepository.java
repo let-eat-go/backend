@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MeetingRepository extends JpaRepository<Meeting, Long> {
+public interface MeetingRepository extends JpaRepository<Meeting, Long>, CustomMeetingRepository {
 
     // TODO: Querydsl로 변경 (컴파일 시 에러 확인 가능)
     @Query("""

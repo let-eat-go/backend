@@ -71,6 +71,9 @@ public class Meeting extends BaseEntity {
     @Column(name = "max_participants", nullable = false)
     private Integer maxParticipants;
 
+    @Column(name = "current_participants", nullable = false)
+    private Integer currentParticipants;
+
     @Column(name = "start_date_time", nullable = false)
     private LocalDateTime startDateTime;
 
@@ -108,6 +111,7 @@ public class Meeting extends BaseEntity {
                 .build();
 
         this.meetingParticipants.add(meetingParticipant);
+        this.currentParticipants = this.meetingParticipants.size();
     }
 
     public void update(LocalDateTime startDateTime) {
