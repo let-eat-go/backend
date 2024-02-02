@@ -1,5 +1,6 @@
 package com.leteatgo.domain.meeting.repository;
 
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
 import java.time.LocalDateTime;
@@ -20,4 +21,7 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("status") MeetingStatus status
     );
+
+    
+    MeetingDetailResponse findMeetingDetail(Long meetingId);
 }

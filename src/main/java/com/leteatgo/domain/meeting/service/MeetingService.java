@@ -17,6 +17,7 @@ import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.exception.MeetingException;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
@@ -148,5 +149,12 @@ public class MeetingService {
                 && nowDateTime.isAfter(startDateTime.minusHours(1))) {
             throw new MeetingException(CANNOT_CANCEL_MEETING);
         }
+    }
+
+    /* [모임 상세 조회] 모임 정보, 주최자, 참가자, 식당 정보, 채팅방 정보를 조회할 수 있음 */
+    public MeetingDetailResponse getMeetingDetail(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+        return null;
     }
 }

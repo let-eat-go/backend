@@ -3,6 +3,7 @@ package com.leteatgo.domain.meeting.controller;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.service.MeetingService;
 import com.leteatgo.global.security.annotation.RoleUser;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -62,5 +64,13 @@ public class MeetingController {
     ) {
         meetingService.cancelMeeting(Long.parseLong(userDetails.getUsername()), meetingId);
         return ResponseEntity.ok().build();
+    }
+
+    // 모임 상세 조회
+    @GetMapping("/{meetingId}")
+    public ResponseEntity<MeetingDetailResponse> getMeetingDetail(
+            @PathVariable Long meetingId
+    ) {
+        return ResponseEntity.ok(meetingService.getMeetingDetail(meetingId));
     }
 }
