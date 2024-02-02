@@ -72,7 +72,7 @@ public class Meeting extends BaseEntity {
     private Integer maxParticipants;
 
     @Column(name = "current_participants", nullable = false)
-    private Integer currentParticipants;
+    private Integer currentParticipants = 1;
 
     @Column(name = "start_date_time", nullable = false)
     private LocalDateTime startDateTime;

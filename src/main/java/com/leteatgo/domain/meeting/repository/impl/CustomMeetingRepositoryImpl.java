@@ -10,11 +10,14 @@ import static com.leteatgo.global.util.QuerydslUtil.meetingListProjection;
 
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
+import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.CustomMeetingRepository;
+import com.leteatgo.domain.meeting.type.MeetingStatus;
 import com.leteatgo.global.type.RestaurantCategory;
 import com.leteatgo.global.util.SliceUtil;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,14 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    @Override
+    public List<Meeting> findMeetingsForCancel(LocalDateTime startDateTime, MeetingStatus status) {
+        return queryFactory
+                .selectFrom(meeting)
+                .where(meeting.startDateTime.loe(startDateTime)
+                        .and(meeting.meetingOptions.status.eq(status)))
+                .fetch();
+    }
 
     @Override
     public Optional<MeetingDetailResponse> findMeetingDetail(Long meetingId) {
