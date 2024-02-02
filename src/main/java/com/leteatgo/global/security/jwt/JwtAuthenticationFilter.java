@@ -44,6 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/regions", // 지역 목록 조회
             "/api/meetings/detail/**", // 모임 상세 조회
             "/api/meetings/list", // 모임 목록 조회
+            "/api/meetings/search", // 모임 검색
             "/ws" // websocket connection
     };
 

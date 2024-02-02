@@ -57,7 +57,8 @@ public class SecurityConfig {
                                 "/api/tasty-restaurants",
                                 "/api/regions/**",
                                 "/api/meetings/detail/**",
-                                "/api/meetings/list"
+                                "/api/meetings/list",
+                                "/api/meetings/search"
                         )
 
                         .permitAll()

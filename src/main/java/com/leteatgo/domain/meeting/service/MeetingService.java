@@ -19,6 +19,7 @@ import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.exception.MeetingException;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
@@ -167,5 +168,13 @@ public class MeetingService {
     ) {
         return meetingRepository.findMeetingList(
                 category, region, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
+    }
+
+    /* [모임 검색] 지역, 카테고리, 식당 이름으로 검색 */
+    public Slice<MeetingSearchResponse> searchMeetings(
+            String type, String term, CustomPageRequest request
+    ) {
+        return meetingRepository.searchMeetings(
+                type, term, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
     }
 }

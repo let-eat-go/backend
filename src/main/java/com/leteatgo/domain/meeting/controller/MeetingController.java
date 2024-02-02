@@ -5,6 +5,7 @@ import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.service.MeetingService;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.dto.SliceResponse;
@@ -89,6 +90,17 @@ public class MeetingController {
     ) {
         Slice<MeetingListResponse> response = meetingService.getMeetingList(
                 category, region, request);
+        return ResponseEntity.ok(new SliceResponse<>(response));
+    }
+
+    // 모임 검색
+    @GetMapping("/search")
+    public ResponseEntity<SliceResponse<MeetingSearchResponse>> searchMeetings(
+            @RequestParam String type,
+            @RequestParam String term,
+            @Valid CustomPageRequest request
+    ) {
+        Slice<MeetingSearchResponse> response = meetingService.searchMeetings(type, term, request);
         return ResponseEntity.ok(new SliceResponse<>(response));
     }
 }

@@ -7,12 +7,15 @@ import static com.leteatgo.domain.member.entity.QMember.member;
 import static com.leteatgo.domain.tastyrestaurant.entity.QTastyRestaurant.tastyRestaurant;
 import static com.leteatgo.global.util.QuerydslUtil.meetingDetailProjection;
 import static com.leteatgo.global.util.QuerydslUtil.meetingListProjection;
+import static com.leteatgo.global.util.QuerydslUtil.meetingSearchProjection;
 
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.CustomMeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
+import com.leteatgo.domain.meeting.type.SearchType;
 import com.leteatgo.global.type.RestaurantCategory;
 import com.leteatgo.global.util.SliceUtil;
 import com.querydsl.core.BooleanBuilder;
@@ -61,7 +64,7 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
         BooleanBuilder condition = new BooleanBuilder();
 
         if (category != null) {
-            condition.and(tastyRestaurant.category.eq(RestaurantCategory.valueOf(category)));
+            condition.and(tastyRestaurant.category.eq(RestaurantCategory.from(category)));
         }
 
         if (region != null) {
@@ -81,4 +84,30 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
         return new SliceUtil<>(meetingList, pageable).getSlice();
     }
 
+    @Override
+    public Slice<MeetingSearchResponse> searchMeetings(
+            String type, String term, Pageable pageable) {
+
+        SearchType searchType = SearchType.getSearchTypeIgnoringCase(type);
+        BooleanBuilder condition = new BooleanBuilder();
+        // TODO: 인덱스 걸기
+        condition.and(
+                switch (searchType) {
+                    case CATEGORY -> tastyRestaurant.category.eq(RestaurantCategory.from(term));
+                    case REGION -> meeting.region.name.eq(term);
+                    case RESTAURANT_NAME -> tastyRestaurant.name.contains(term);
+                });
+
+        List<MeetingSearchResponse> meetingSearchResponses = queryFactory
+                .select(meetingSearchProjection())
+                .from(meeting)
+                .leftJoin(meeting.tastyRestaurant, tastyRestaurant)
+                .where(condition)
+                .orderBy(meeting.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        return new SliceUtil<>(meetingSearchResponses, pageable).getSlice();
+    }
 }
