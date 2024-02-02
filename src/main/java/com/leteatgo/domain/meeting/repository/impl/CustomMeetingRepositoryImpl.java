@@ -47,21 +47,21 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
             String category, String region, Pageable pageable
     ) {
 
-        BooleanBuilder predicate = new BooleanBuilder();
+        BooleanBuilder condition = new BooleanBuilder();
 
         if (category != null) {
-            predicate.and(tastyRestaurant.category.eq(RestaurantCategory.valueOf(category)));
+            condition.and(tastyRestaurant.category.eq(RestaurantCategory.valueOf(category)));
         }
 
         if (region != null) {
-            predicate.and(meeting.region.name.eq(region));
+            condition.and(meeting.region.name.eq(region));
         }
 
         List<MeetingListResponse> meetingList = queryFactory.select(meetingListProjection())
                 .from(meeting)
                 .join(meeting.host, member)
                 .leftJoin(meeting.tastyRestaurant, tastyRestaurant)
-                .where(predicate)
+                .where(condition)
                 .orderBy(meeting.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
