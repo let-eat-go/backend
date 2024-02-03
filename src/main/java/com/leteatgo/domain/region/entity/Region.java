@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = {
+        @Index(name = "idx_region_name", columnList = "name")
+})
 public class Region extends BaseEntity {
 
     @Id
