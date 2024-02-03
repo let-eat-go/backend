@@ -31,12 +31,16 @@ public class QuerydslUtil {
         return Projections.constructor(MeetingResponse.class,
                 meeting.id,
                 meeting.name,
+                meeting.restaurantCategory,
                 meeting.minParticipants,
                 meeting.maxParticipants,
                 meeting.currentParticipants,
                 meeting.startDateTime,
                 meeting.description,
-                meeting.meetingOptions.status);
+                meeting.meetingOptions.status,
+                meeting.meetingOptions.genderPreference,
+                meeting.meetingOptions.agePreference
+        );
     }
 
     public static ConstructorExpression<HostResponse> hostProjection() {
@@ -57,9 +61,11 @@ public class QuerydslUtil {
         return Projections.constructor(RestaurantResponse.class,
                 tastyRestaurant.id,
                 tastyRestaurant.name,
-                tastyRestaurant.category,
                 tastyRestaurant.roadAddress,
-                tastyRestaurant.phoneNumber);
+                tastyRestaurant.phoneNumber,
+                tastyRestaurant.latitude,
+                tastyRestaurant.longitude
+        );
     }
 
     public static NumberExpression<Integer> chatRoomProjection() {
@@ -70,6 +76,7 @@ public class QuerydslUtil {
         return Projections.constructor(MeetingListResponse.class,
                 meeting.id,
                 meeting.name,
+                meeting.restaurantCategory,
                 meeting.minParticipants,
                 meeting.maxParticipants,
                 meeting.currentParticipants,
@@ -87,7 +94,7 @@ public class QuerydslUtil {
                 meeting.name,
                 tastyRestaurant.name,
                 tastyRestaurant.roadAddress,
-                tastyRestaurant.category,
+                meeting.restaurantCategory,
                 meeting.startDateTime,
                 meeting.minParticipants,
                 meeting.maxParticipants,

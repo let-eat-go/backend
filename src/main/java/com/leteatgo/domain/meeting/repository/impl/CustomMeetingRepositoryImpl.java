@@ -64,7 +64,7 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
         BooleanBuilder condition = new BooleanBuilder();
 
         if (category != null) {
-            condition.and(tastyRestaurant.category.eq(RestaurantCategory.from(category)));
+            condition.and(meeting.restaurantCategory.eq(RestaurantCategory.from(category)));
         }
 
         if (region != null) {
@@ -93,9 +93,10 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
         // TODO: 인덱스 걸기
         condition.and(
                 switch (searchType) {
-                    case CATEGORY -> tastyRestaurant.category.eq(RestaurantCategory.from(term));
+                    case CATEGORY -> meeting.restaurantCategory.eq(RestaurantCategory.from(term));
                     case REGION -> meeting.region.name.eq(term);
-                    case RESTAURANT_NAME -> tastyRestaurant.name.contains(term);
+                    case RESTAURANTNAME ->
+                            tastyRestaurant.name.containsIgnoreCase(term); // LIKE %term%
                 });
 
         List<MeetingSearchResponse> meetingSearchResponses = queryFactory
