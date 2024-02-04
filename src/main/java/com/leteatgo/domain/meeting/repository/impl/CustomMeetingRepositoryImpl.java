@@ -4,6 +4,7 @@ import static com.leteatgo.domain.chat.entity.QChatRoom.chatRoom;
 import static com.leteatgo.domain.meeting.entity.QMeeting.meeting;
 import static com.leteatgo.domain.meeting.entity.QMeetingParticipant.meetingParticipant;
 import static com.leteatgo.domain.member.entity.QMember.member;
+import static com.leteatgo.domain.region.entity.QRegion.region;
 import static com.leteatgo.domain.tastyrestaurant.entity.QTastyRestaurant.tastyRestaurant;
 import static com.leteatgo.global.util.QuerydslUtil.meetingDetailProjection;
 import static com.leteatgo.global.util.QuerydslUtil.meetingListProjection;
@@ -19,6 +20,7 @@ import com.leteatgo.domain.meeting.type.SearchType;
 import com.leteatgo.global.type.RestaurantCategory;
 import com.leteatgo.global.util.SliceUtil;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -94,7 +96,12 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
         condition.and(
                 switch (searchType) {
                     case CATEGORY -> meeting.restaurantCategory.eq(RestaurantCategory.from(term));
-                    case REGION -> meeting.region.name.eq(term);
+                    case REGION -> meeting.region.id.eq(
+                            JPAExpressions
+                                    .select(region.id)
+                                    .from(region)
+                                    .where(region.name.eq(term))
+                    );
                     case RESTAURANTNAME ->
                             tastyRestaurant.name.containsIgnoreCase(term); // LIKE %term%
                 });
