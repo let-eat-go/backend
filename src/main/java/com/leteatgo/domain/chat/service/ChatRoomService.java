@@ -2,7 +2,7 @@ package com.leteatgo.domain.chat.service;
 
 import static com.leteatgo.domain.chat.type.RoomStatus.OPEN;
 import static com.leteatgo.global.exception.ErrorCode.ACCESS_DENIED;
-import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 
@@ -39,11 +39,6 @@ public class ChatRoomService {
     private final CustomUserDetailService userDetailService;
     private final MeetingParticipantRepository meetingParticipantRepository;
 
-    public ChatRoom getChatRoomOrThrow(Long roomId) {
-        return chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new ChatException(NOT_FOUND_CHATROOM));
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createChatRoom(CreateChatRoomEvent event) {
         Meeting meeting = getMeetingOrThrow(event.meetingId());
@@ -63,7 +58,8 @@ public class ChatRoomService {
     @Transactional
     public Slice<ChatMessageResponse> roomMessages(Long roomId, CustomPageRequest request,
             String authId) {
-        ChatRoom chatRoom = getChatRoomOrThrow(roomId);
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomFetch(roomId)
+                .orElseThrow(() -> new ChatException(NOT_FOUND_CHATROOM));
         validateChatRoom(chatRoom, authId);
 
         return chatMessageRepository.findByChatRoomFetch(chatRoom,
@@ -86,18 +82,14 @@ public class ChatRoomService {
         }
 
         if (chatRoom.getStatus() == RoomStatus.CLOSE) {
-            throw new ChatException(ALREADY_CLOSED);
+            throw new ChatException(ALREADY_CLOSED_CHATROOM);
         }
     }
 
     public Slice<MyChatRoomResponse> myChatRooms(String authId, CustomPageRequest request) {
-        Member member = getMemberOrThrow(authId);
+        Member member = userDetailService.findByIdOrThrow(Long.parseLong(authId));
         return meetingParticipantRepository.findAllMyChatRooms(
                 member, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
-    }
-
-    private Member getMemberOrThrow(String authId) {
-        return userDetailService.findByIdOrThrow(Long.parseLong(authId));
     }
 
     private Meeting getMeetingOrThrow(Long meetingId) {
