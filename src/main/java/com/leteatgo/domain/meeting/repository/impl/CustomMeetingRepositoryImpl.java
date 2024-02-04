@@ -92,7 +92,6 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
 
         SearchType searchType = SearchType.getSearchTypeIgnoringCase(type);
         BooleanBuilder condition = new BooleanBuilder();
-        // TODO: 인덱스 걸기
         condition.and(
                 switch (searchType) {
                     case CATEGORY -> meeting.restaurantCategory.eq(RestaurantCategory.from(term));
