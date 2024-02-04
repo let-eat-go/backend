@@ -37,6 +37,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = {
         @Index(name = "idx_meeting_restaurantCategory", columnList = "restaurantCategory"),
+        @Index(name = "idx_meeting_createdAt", columnList = "created_at"),
 })
 public class Meeting extends BaseEntity {
 
