@@ -47,6 +47,15 @@ dependencies {
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // for stomp broker relay
+    implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
+
+    // for websocket security
+//    implementation 'org.springframework.security:spring-security-messaging'
+
+    // rabbitmq
+//    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
     // Driver
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -73,9 +82,6 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-    // rabbitmq
-    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
