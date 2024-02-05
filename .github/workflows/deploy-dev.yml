@@ -9,6 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     services:
+      mysql:
+        image: mysql:lastest
+        ports:
+          - 3306:3306
+      
       redis:
         image: redis
         ports:
@@ -97,7 +102,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./.docker/nginx/Dockerfile-rabbitmq
+          file: ./.docker/rabbitmq/Dockerfile-rabbitmq
           push: true
           tags: |
             kingseungil/leteatgo-rabbitmq-dev:latest
