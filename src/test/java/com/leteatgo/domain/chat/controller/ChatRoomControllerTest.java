@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.chat.dto.response.ChatMessageResponse;
 import com.leteatgo.domain.chat.dto.response.ChatMessageResponse.Sender;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
+import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse.Chat;
 import com.leteatgo.domain.chat.service.ChatRoomService;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.global.dto.CustomPageRequest;
@@ -109,13 +110,17 @@ class ChatRoomControllerTest {
         String authId = "1";
         CustomPageRequest customPageRequest = new CustomPageRequest(1);
 
+        Chat chat = Chat.builder()
+                .roomId(1L)
+                .content("recent message")
+                .isRead(false)
+                .build();
+
         List<MyChatRoomResponse> contents = List.of(MyChatRoomResponse.builder()
                 .meetingName("meeting name")
                 .category(RestaurantCategory.ASIAN_CUISINE)
                 .region("지역")
-                .roomId(1L)
-                .content("recent message")
-                .isRead(false)
+                .chat(chat)
                 .build());
 
         given(chatRoomService.myChatRooms(authId, customPageRequest))
