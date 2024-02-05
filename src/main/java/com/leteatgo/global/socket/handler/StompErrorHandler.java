@@ -1,6 +1,8 @@
 package com.leteatgo.global.socket.handler;
 
 import com.leteatgo.domain.auth.exception.TokenException;
+import com.leteatgo.domain.chat.exception.ChatException;
+import com.leteatgo.global.exception.ErrorCode;
 import java.nio.charset.StandardCharsets;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
@@ -28,24 +30,36 @@ public class StompErrorHandler extends StompSubProtocolErrorHandler {
         }
 
         if (ex instanceof TokenException) {
-            return handleTokenException(ex);
+            return handleTokenException(((TokenException) ex).getErrorCode());
         }
 
-        return super.handleClientMessageProcessingError(clientMessage, ex);
+        if (ex instanceof ChatException) {
+            return handleChatException(((ChatException) ex).getErrorCode());
+        }
+
+        return handleException(ex);
     }
 
-    private Message<byte[]> handleTokenException(Throwable ex) {
-        return errorMessage(ex.getMessage(), HttpStatus.UNAUTHORIZED.name());
+    private Message<byte[]> handleException(Throwable ex) {
+        return errorMessage(ex.getMessage(), HttpStatus.BAD_REQUEST.name());
     }
 
-    private Message<byte[]> errorMessage(String errorMessage,
-            String errorCode) {
+    private Message<byte[]> handleChatException(ErrorCode errorCode) {
+        return errorMessage(errorCode.getErrorMessage(), errorCode.name());
+    }
+
+    private Message<byte[]> handleTokenException(ErrorCode errorCode) {
+        return errorMessage(errorCode.getErrorMessage(), errorCode.name());
+    }
+
+    private Message<byte[]> errorMessage(String errorMessage, String errorCode) {
         StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.ERROR);
         accessor.setMessage(errorCode);
         accessor.setLeaveMutable(true);
 
+        String response = String.format("[%s] %s", errorCode, errorMessage);
         return MessageBuilder.createMessage(errorMessage != null ?
-                        errorMessage.getBytes(StandardCharsets.UTF_8) : EMPTY_PAYLOAD,
+                        response.getBytes(StandardCharsets.UTF_8) : EMPTY_PAYLOAD,
                 accessor.getMessageHeaders());
     }
 }
