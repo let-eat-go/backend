@@ -1,6 +1,7 @@
 package com.leteatgo.domain.meeting.controller;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
@@ -12,6 +13,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -28,17 +30,25 @@ import com.leteatgo.domain.meeting.dto.request.MeetingOptionsRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.exception.MeetingException;
 import com.leteatgo.domain.meeting.service.MeetingService;
 import com.leteatgo.domain.meeting.type.AgePreference;
 import com.leteatgo.domain.meeting.type.AlcoholPreference;
 import com.leteatgo.domain.meeting.type.GenderPreference;
 import com.leteatgo.domain.meeting.type.MeetingPurpose;
+import com.leteatgo.domain.meeting.type.MeetingStatus;
 import com.leteatgo.domain.region.exception.RegionException;
+import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
+import com.leteatgo.global.type.RestaurantCategory;
+import com.leteatgo.global.util.SliceUtil;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,8 +58,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WithMockUser(username = "1", roles = "USER")
@@ -64,6 +77,7 @@ import org.springframework.test.web.servlet.MockMvc;
                         })
         }
 )
+@ActiveProfiles("test")
 class MeetingControllerTest {
 
     @MockBean
@@ -245,7 +259,7 @@ class MeetingControllerTest {
                                     .tag("meeting")
                                     .summary("모임 수정")
                                     .pathParameters(
-                                            ResourceDocumentation.parameterWithName("meetingId")
+                                            parameterWithName("meetingId")
                                                     .description("모임 ID")
                                     )
                                     .build()
@@ -273,7 +287,7 @@ class MeetingControllerTest {
                                     .tag("meeting")
                                     .summary("모임 수정")
                                     .pathParameters(
-                                            ResourceDocumentation.parameterWithName("meetingId")
+                                            parameterWithName("meetingId")
                                                     .description("모임 ID")
                                     )
                                     .build()
@@ -304,7 +318,7 @@ class MeetingControllerTest {
                                     .tag("meeting")
                                     .summary("모임 취소")
                                     .pathParameters(
-                                            ResourceDocumentation.parameterWithName("meetingId")
+                                            parameterWithName("meetingId")
                                                     .description("모임 ID")
                                     )
                                     .build()
@@ -331,7 +345,7 @@ class MeetingControllerTest {
                                     .tag("meeting")
                                     .summary("모임 취소")
                                     .pathParameters(
-                                            ResourceDocumentation.parameterWithName("meetingId")
+                                            parameterWithName("meetingId")
                                                     .description("모임 ID")
                                     )
                                     .build()
@@ -358,7 +372,7 @@ class MeetingControllerTest {
                                     .tag("meeting")
                                     .summary("모임 취소")
                                     .pathParameters(
-                                            ResourceDocumentation.parameterWithName("meetingId")
+                                            parameterWithName("meetingId")
                                                     .description("모임 ID")
                                     )
                                     .build()
@@ -385,7 +399,7 @@ class MeetingControllerTest {
                                     .tag("meeting")
                                     .summary("모임 취소")
                                     .pathParameters(
-                                            ResourceDocumentation.parameterWithName("meetingId")
+                                            parameterWithName("meetingId")
                                                     .description("모임 ID")
                                     )
                                     .build()
@@ -412,7 +426,7 @@ class MeetingControllerTest {
                                     .tag("meeting")
                                     .summary("모임 취소")
                                     .pathParameters(
-                                            ResourceDocumentation.parameterWithName("meetingId")
+                                            parameterWithName("meetingId")
                                                     .description("모임 ID")
                                     )
                                     .build()
@@ -439,12 +453,249 @@ class MeetingControllerTest {
                                     .tag("meeting")
                                     .summary("모임 취소")
                                     .pathParameters(
-                                            ResourceDocumentation.parameterWithName("meetingId")
+                                            parameterWithName("meetingId")
                                                     .description("모임 ID")
                                     )
                                     .build()
                             )
                     ));
+        }
+    }
+
+    @Nested
+    @DisplayName("모임 상세 조회")
+    class GetMeetingDetail {
+
+        MeetingDetailResponse.MeetingResponse meetingResponse() {
+            return new MeetingDetailResponse.MeetingResponse(
+                    1L,
+                    "모임 제목",
+                    null,
+                    2,
+                    4,
+                    1,
+                    LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
+                    "모임 설명",
+                    null,
+                    GenderPreference.ANY,
+                    AgePreference.ANY
+            );
+        }
+
+        MeetingDetailResponse.HostResponse hostResponse() {
+            return new MeetingDetailResponse.HostResponse(
+                    1L,
+                    "주최자 닉네임",
+                    "주최자 프로필 이미지 URL"
+            );
+        }
+
+        MeetingDetailResponse.ParticipantResponse participantResponse() {
+            return new MeetingDetailResponse.ParticipantResponse(
+                    2L,
+                    "참가자 닉네임",
+                    "참가자 프로필 이미지 URL"
+            );
+        }
+
+        MeetingDetailResponse.RestaurantResponse restaurantResponse() {
+            return new MeetingDetailResponse.RestaurantResponse(
+                    1L,
+                    "식당 이름",
+                    "도로명 주소",
+                    "01012341234",
+                    37.123456,
+                    127.123456
+            );
+        }
+
+        MeetingDetailResponse response = new MeetingDetailResponse(
+                meetingResponse(),
+                hostResponse(),
+                List.of(participantResponse()),
+                restaurantResponse(),
+                1
+        );
+
+        @Test
+        @DisplayName("[성공] 모임 상세 조회")
+        void getMeetingDetail() throws Exception {
+            // given
+            given(meetingService.getMeetingDetail(1L))
+                    .willReturn(response);
+            // when
+            // then
+            mockMvc.perform(get("/api/meetings/detail/{meetingId}", 1L))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andDo(document("모임 상세 조회",
+                            resource(ResourceSnippetParameters.builder()
+                                    .tag("meeting")
+                                    .summary("모임 상세 조회")
+                                    .pathParameters(
+                                            parameterWithName("meetingId")
+                                                    .description("모임 ID")
+                                    )
+                                    .build()
+                            )
+                    ));
+        }
+
+        @Test
+        @DisplayName("[실패] 모임 상세 조회 - 모임이 존재하지 않는 경우")
+        void getMeetingDetailFailWhenMeetingNotFound() throws Exception {
+            // given
+            doThrow(new MeetingException(NOT_FOUND_MEETING))
+                    .when(meetingService).getMeetingDetail(1L);
+            // when
+            // then
+            mockMvc.perform(get("/api/meetings/detail/{meetingId}", 1L))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andDo(document("모임이 존재하지 않음",
+                            resource(ResourceSnippetParameters.builder()
+                                    .tag("meeting")
+                                    .summary("모임 상세 조회")
+                                    .pathParameters(
+                                            parameterWithName("meetingId")
+                                                    .description("모임 ID")
+                                    )
+                                    .build()
+                            )
+                    ));
+        }
+    }
+
+    @Nested
+    @DisplayName("모임 목록 조회")
+    class GetMeetingList {
+
+        MeetingListResponse meetingListResponse() {
+            return new MeetingListResponse(
+                    1L,
+                    "모임 제목",
+                    RestaurantCategory.ASIAN_CUISINE,
+                    2,
+                    4,
+                    1,
+                    LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
+                    LocalDate.of(2024, 1, 30).atTime(LocalTime.of(18, 0)),
+                    "모임 설명",
+                    MeetingStatus.BEFORE,
+                    restaurantResponse()
+            );
+        }
+
+        MeetingDetailResponse.RestaurantResponse restaurantResponse() {
+            return new MeetingDetailResponse.RestaurantResponse(
+                    1L,
+                    "식당 이름",
+                    "도로명 주소",
+                    "01012341234",
+                    37.123456,
+                    127.123456
+            );
+        }
+
+        List<MeetingListResponse> meetingListResponses = List.of(meetingListResponse());
+        CustomPageRequest pageRequest = new CustomPageRequest(1);
+        Slice<MeetingListResponse> response = new SliceUtil<>(meetingListResponses,
+                PageRequest.of(0, 10)).getSlice();
+
+
+        @Test
+        @DisplayName("[성공] 모임 목록 조회")
+        void getMeetingList() throws Exception {
+            // given
+            String category = "한식";
+            String region = "강남구";
+            given(meetingService.getMeetingList(category, region, pageRequest))
+                    .willReturn(response);
+            // when
+            // then
+            mockMvc.perform(get("/api/meetings/list")
+                            .param("category", category)
+                            .param("region", region)
+                            .param("page", "1")
+                    )
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andDo(document("모임 목록 조회",
+                            resource(ResourceSnippetParameters.builder()
+                                    .tag("meeting")
+                                    .summary("모임 목록 조회")
+                                    .queryParameters(
+                                            parameterWithName("category")
+                                                    .description("식당 카테고리").optional(),
+                                            parameterWithName("region")
+                                                    .description("지역").optional(),
+                                            parameterWithName("page")
+                                                    .description("페이지 번호").optional()
+                                    )
+                                    .build()
+                            )
+
+                    ));
+        }
+    }
+
+    @Nested
+    @DisplayName("모임 검색")
+    class SearchMeetings {
+
+        MeetingSearchResponse meetingSearchResponse() {
+            return new MeetingSearchResponse(
+                    1L,
+                    "모임 제목",
+                    "식당 이름",
+                    "도로명 주소",
+                    RestaurantCategory.ASIAN_CUISINE,
+                    LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
+                    2,
+                    4,
+                    1,
+                    MeetingStatus.BEFORE
+            );
+        }
+
+        List<MeetingSearchResponse> meetingSearchResponses = List.of(meetingSearchResponse());
+        CustomPageRequest pageRequest = new CustomPageRequest(1);
+        Slice<MeetingSearchResponse> response = new SliceUtil<>(meetingSearchResponses,
+                PageRequest.of(0, 10)).getSlice();
+
+        @Test
+        @DisplayName("[성공] 모임 검색")
+        void searchMeetings() throws Exception {
+            // given
+            String type = "category";
+            String term = "아시아음식";
+            given(meetingService.searchMeetings(type, term, pageRequest))
+                    .willReturn(response);
+            // when
+            // then
+            mockMvc.perform(get("/api/meetings/search")
+                            .param("type", type)
+                            .param("term", term)
+                            .param("page", "1"))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andDo(document("모임 검색",
+                                    resource(ResourceSnippetParameters.builder()
+                                            .tag("meeting")
+                                            .summary("모임 검색")
+                                            .queryParameters(
+                                                    parameterWithName("type")
+                                                            .description(
+                                                                    "검색 타입(category, region, restaurantName)"),
+                                                    parameterWithName("term")
+                                                            .description("검색어"),
+                                                    parameterWithName("page")
+                                                            .description("페이지 번호").optional()
+                                            )
+                                            .build()
+                                    )
+                            )
+                    );
         }
     }
 }

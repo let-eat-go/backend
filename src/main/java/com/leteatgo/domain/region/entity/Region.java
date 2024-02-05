@@ -1,9 +1,13 @@
 package com.leteatgo.domain.region.entity;
 
-import com.leteatgo.domain.meeting.entity.Meeting;
-import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.global.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +15,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = {
+        @Index(name = "idx_region_name", columnList = "name")
+})
 public class Region extends BaseEntity {
 
     @Id
