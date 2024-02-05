@@ -48,3 +48,6 @@ out/
 
 ### http private env ###
 /src/test/java/com/leteatgo/http/http-client.private.env.json
+
+### openapi yml ###
+/src/main/resources/static/docs/leteatgo-api.yaml

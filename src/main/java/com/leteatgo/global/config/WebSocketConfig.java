@@ -1,8 +1,9 @@
 package com.leteatgo.global.config;
 
 import com.leteatgo.global.socket.handler.StompErrorHandler;
-import com.leteatgo.global.socket.interceptor.SocketInterceptor;
+import com.leteatgo.global.socket.interceptor.StompChannelInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -10,17 +11,21 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-@RequiredArgsConstructor
+//@EnableWebSocketSecurity
 @EnableWebSocketMessageBroker
 @Configuration
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    private final SocketInterceptor socketInterceptor;
-    private final StompErrorHandler errorHandler;
+    private final StompChannelInterceptor stompChannelInterceptor;
+    private final StompErrorHandler stompErrorHandler;
+
+    @Value("${spring.rabbitmq.host}")
+    private String host;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.setErrorHandler(errorHandler)
+        registry.setErrorHandler(stompErrorHandler)
                 .addEndpoint("/ws")
                 .setAllowedOrigins("*");
     }
@@ -28,11 +33,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/chat"); // messageMapping (목적지)
-        registry.enableSimpleBroker("/topic"); // channel
+        registry.enableStompBrokerRelay("/topic") // subscribe
+                .setRelayHost(host);
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(socketInterceptor);
+        registration.interceptors(stompChannelInterceptor);
     }
+
+//    @Bean
+//    public AuthorizationManager<Message<?>> authorizationManager(
+//            MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+//        messages.simpDestMatchers("/topic/**").hasRole("USER")
+//                .anyMessage().authenticated();
+//        return messages.build();
+//    }
 }

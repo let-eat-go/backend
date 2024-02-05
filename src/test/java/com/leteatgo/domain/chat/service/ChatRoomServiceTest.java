@@ -4,7 +4,7 @@ package com.leteatgo.domain.chat.service;
 import static com.leteatgo.domain.chat.type.RoomStatus.CLOSE;
 import static com.leteatgo.domain.chat.type.RoomStatus.OPEN;
 import static com.leteatgo.global.exception.ErrorCode.ACCESS_DENIED;
-import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
@@ -197,7 +197,7 @@ class ChatRoomServiceTest {
         @DisplayName("존재하는 채팅방이면 대화 목록을 조회할 수 있다.")
         void roomMessages() {
             // given
-            given(chatRoomRepository.findById(roomId))
+            given(chatRoomRepository.findChatRoomFetch(roomId))
                     .willReturn(Optional.of(chatRoom));
 
             given(chatMessageRepository.findByChatRoomFetch(chatRoom, pageable))
@@ -216,7 +216,7 @@ class ChatRoomServiceTest {
         @DisplayName("존재하지 않는 채팅방이면 예외를 발생시킨다.")
         void roomMessages_not_found_chatRoom() {
             // given
-            given(chatRoomRepository.findById(roomId))
+            given(chatRoomRepository.findChatRoomFetch(roomId))
                     .willReturn(Optional.empty());
 
             // when
@@ -225,14 +225,13 @@ class ChatRoomServiceTest {
                     chatRoomService.roomMessages(roomId, customPageRequest, authId))
                     .isInstanceOf(ChatException.class)
                     .hasMessageContaining(NOT_FOUND_CHATROOM.getErrorMessage());
-
         }
 
         @Test
         @DisplayName("이미 종료된 채팅방이면 예외를 발생시킨다.")
         void roomMessages_already_closed() {
             // given
-            given(chatRoomRepository.findById(roomId))
+            given(chatRoomRepository.findChatRoomFetch(roomId))
                     .willReturn(Optional.of(new ChatRoom(CLOSE, meeting)));
 
             // when
@@ -240,14 +239,14 @@ class ChatRoomServiceTest {
                     chatRoomService.roomMessages(roomId, customPageRequest, authId));
 
             // then
-            assertEquals(ALREADY_CLOSED, exception.getErrorCode());
+            assertEquals(ALREADY_CLOSED_CHATROOM, exception.getErrorCode());
         }
 
         @Test
         @DisplayName("참여하지 않은 모임의 채팅방이면 예외를 발생시킨다.")
         void roomMessages_access_deny() {
             // given
-            given(chatRoomRepository.findById(roomId))
+            given(chatRoomRepository.findChatRoomFetch(roomId))
                     .willReturn(Optional.of(new ChatRoom(CLOSE, Meeting.builder().build())));
 
             // when
@@ -278,8 +277,8 @@ class ChatRoomServiceTest {
                 .build());
 
         @Test
-        @DisplayName("존재하는 회원이면 열려있는 채팅방을 조회할 수 있다.")
-        void roomMessages() {
+        @DisplayName("내가 참여한 열려있는 채팅방 목록을 조회할 수 있다.")
+        void myChatRooms() {
             // given
             given(customUserDetailService.findByIdOrThrow(Long.parseLong(authId)))
                     .willReturn(member);
@@ -297,7 +296,7 @@ class ChatRoomServiceTest {
 
         @Test
         @DisplayName("존재하지 않는 회원이면 예외를 발생시킨다.")
-        void roomMessages_not_found_chatRoom() {
+        void myChatRooms_not_found_member() {
             // given
             given(customUserDetailService.findByIdOrThrow(Long.parseLong(authId)))
                     .willThrow(new MemberException(NOT_FOUND_MEMBER));

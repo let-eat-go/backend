@@ -21,6 +21,6 @@ public class MyChatRoomResponse {
     private String content;
     private boolean isRead;
 
-    @JsonFormat(pattern = "yyyy-MM-dd mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 }

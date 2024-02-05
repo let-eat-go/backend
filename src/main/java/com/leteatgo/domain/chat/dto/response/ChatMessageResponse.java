@@ -11,7 +11,7 @@ public record ChatMessageResponse(
         Sender sender,
         String content,
         boolean isRead,
-        @JsonFormat(pattern = "yyyy-MM-dd mm:ss")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt
 ) {
 
