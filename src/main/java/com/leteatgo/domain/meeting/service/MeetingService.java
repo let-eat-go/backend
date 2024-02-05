@@ -17,6 +17,9 @@ import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.exception.MeetingException;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
@@ -28,11 +31,14 @@ import com.leteatgo.domain.region.exception.RegionException;
 import com.leteatgo.domain.region.repository.RegionRepository;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
+import com.leteatgo.global.dto.CustomPageRequest;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -148,5 +154,27 @@ public class MeetingService {
                 && nowDateTime.isAfter(startDateTime.minusHours(1))) {
             throw new MeetingException(CANNOT_CANCEL_MEETING);
         }
+    }
+
+    /* [모임 상세 조회] 모임 정보, 주최자 정보, 참가자 정보, 식당 정보, 채팅방 ID를 조회 */
+    public MeetingDetailResponse getMeetingDetail(Long meetingId) {
+        return meetingRepository.findMeetingDetail(meetingId)
+                .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+    }
+
+    /* [모임 목록 조회] 기본 10개씩 페이징 처리, 카테고리, 지역에 따라 조회 */
+    public Slice<MeetingListResponse> getMeetingList(
+            String category, String region, CustomPageRequest request
+    ) {
+        return meetingRepository.findMeetingList(
+                category, region, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
+    }
+
+    /* [모임 검색] 지역, 카테고리, 식당 이름으로 검색 */
+    public Slice<MeetingSearchResponse> searchMeetings(
+            String type, String term, CustomPageRequest request
+    ) {
+        return meetingRepository.searchMeetings(
+                type, term, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
     }
 }
