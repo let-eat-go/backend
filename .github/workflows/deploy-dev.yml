@@ -20,6 +20,12 @@ jobs:
           - 5672:5672
           - 15672:15672
 
+      h2:
+        image: oscarfonts/h2:latest
+        ports:
+          - 1521:1521
+          - 81:81
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
