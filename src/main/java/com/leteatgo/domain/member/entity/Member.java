@@ -53,7 +53,7 @@ public class Member extends BaseEntity {
     private String introduce;
 
     @Column(name = "manner_temperature", nullable = false)
-    private Double mannerTemperature;
+    private final Double mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
 
     @Column(name = "login_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -68,15 +68,14 @@ public class Member extends BaseEntity {
 
     @Builder
     protected Member(String email, String nickname, String password, String phoneNumber,
-            String profileImage, LoginType loginType, MemberRole role
+            String profileImage, LoginType loginType, MemberRole role, String introduce
     ) {
         this.email = email;
         this.nickname = nickname;
         this.password = password == null ? DEFAULT_PASSWORD : password;
         this.phoneNumber = phoneNumber == null ? DEFAULT_PHONE_NUMBER : phoneNumber;
         this.profileImage = profileImage == null ? DEFAULT_PROFILE_IMAGE : profileImage;
-        this.introduce = DEFAULT_INTRODUCE;
-        this.mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
+        this.introduce = introduce == null ? DEFAULT_INTRODUCE : introduce;
         this.loginType = loginType;
         this.role = role;
     }

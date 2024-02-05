@@ -1,0 +1,2 @@
+### my information
+GET {{host}}/api/members/me
