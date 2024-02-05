@@ -1,16 +1,16 @@
 package com.leteatgo.domain.chat.controller;
 
+import static com.leteatgo.global.constants.Destination.CHAT_ROOM;
+
 import com.leteatgo.domain.chat.dto.ChatMessageDto;
 import com.leteatgo.domain.chat.service.ChatMessageService;
-import jakarta.validation.Valid;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class ChatMessageController {
@@ -18,12 +18,10 @@ public class ChatMessageController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
 
-    private final static String DESTINATION = "/topic/chat/rooms/";
-
     @MessageMapping("/rooms/message")
-    public void sendMessage(@Payload @Valid ChatMessageDto chatMessageDto) {
-        chatMessageService.saveMessage(chatMessageDto);
-        messagingTemplate.convertAndSend(DESTINATION + chatMessageDto.roomId(),
+    public void sendMessage(@Payload ChatMessageDto chatMessageDto, Principal principal) {
+        chatMessageService.saveMessage(chatMessageDto, principal.getName());
+        messagingTemplate.convertAndSend(CHAT_ROOM + chatMessageDto.roomId(),
                 chatMessageDto);
     }
 }

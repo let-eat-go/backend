@@ -47,6 +47,15 @@ dependencies {
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // for stomp broker relay
+    implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
+
+    // for websocket security
+//    implementation 'org.springframework.security:spring-security-messaging'
+
+    // rabbitmq
+//    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
     // Driver
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -119,6 +128,7 @@ openapi3 {
 tasks.withType(GenerateSwaggerUI).configureEach {
     dependsOn 'openapi3'
     delete file('src/main/resources/static/docs')
+    mkdir 'src/main/resources/static/docs'
     copy {
         from 'build/resources/main/static/docs'
         into 'src/main/resources/static/docs'

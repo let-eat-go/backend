@@ -29,3 +29,9 @@ spring:
     redis:
       port: 6379
       host: leteatgo-redis
+
+  rabbitmq:
+    host: leteatgo-rabbitmq
+    port: 5672
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}

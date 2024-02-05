@@ -3,7 +3,6 @@ package com.leteatgo.domain.tastyrestaurant.controller;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static com.epages.restdocs.apispec.Schema.schema;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leteatgo.domain.tastyrestaurant.dto.request.SearchRestaurantsRequest;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse.Keywords;
 import com.leteatgo.domain.tastyrestaurant.dto.response.SearchRestaurantsResponse;
@@ -91,7 +91,16 @@ class TastyRestaurantControllerTest {
                 .totalCount(1234)
                 .build();
 
-        given(tastyRestaurantService.searchRestaurants(any())) // 아래 request parameter로 인자 값 입력
+        SearchRestaurantsRequest request = SearchRestaurantsRequest.builder()
+                .keyword(keyword)
+                .page(1)
+                .longitude(longitude)
+                .latitude(latitude)
+                .radius(1000)
+                .sort("distance")
+                .build();
+
+        given(tastyRestaurantService.searchRestaurants(request))
                 .willReturn(new SearchRestaurantsResponse(contents, pagination));
 
         // when
@@ -112,7 +121,6 @@ class TastyRestaurantControllerTest {
                                 ResourceSnippetParameters.builder()
                                         .tag(TAG)
                                         .summary("맛집 검색")
-                                        .description("맛집을 검색한다.")
                                         .requestSchema(null)
                                         .responseSchema(schema("SearchRestaurantResponse"))
                                         .queryParameters(
@@ -207,7 +215,7 @@ class TastyRestaurantControllerTest {
                         .numberOfUses(100)
                         .build());
 
-        given(tastyRestaurantService.visitedRestaurants()) // 아래 request parameter로 인자 값 입력
+        given(tastyRestaurantService.visitedRestaurants())
                 .willReturn(new VisitedRestaurantResponse(contents));
 
         // when
@@ -215,36 +223,37 @@ class TastyRestaurantControllerTest {
         mockMvc.perform(get(URI))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andDo(document("회원들이 방문한 맛집 조회", resource(
-                        ResourceSnippetParameters.builder()
-                                .tag(TAG)
-                                .summary("회원들이  방문한 맛집 조회")
-                                .requestSchema(null)
-                                .responseSchema(schema("VisitedRestaurantResponse"))
-                                .queryParameters(
-                                        parameterWithName("page")
-                                                .description("요청 페이지").optional())
-                                .responseFields(
-                                        fieldWithPath("contents[].name").
-                                                description("식당 이름"),
-                                        fieldWithPath("contents[].category")
-                                                .description("카테고리"),
-                                        fieldWithPath("contents[].phoneNumber")
-                                                .description("전화번호"),
-                                        fieldWithPath("contents[].roadAddress")
-                                                .description("도로명 주소"),
-                                        fieldWithPath("contents[].landAddress")
-                                                .description("지번 주소"),
-                                        fieldWithPath("contents[].latitude")
-                                                .description("경도"),
-                                        fieldWithPath("contents[].longitude")
-                                                .description("위도"),
-                                        fieldWithPath("contents[].restaurantUrl")
-                                                .description("식당 url"),
-                                        fieldWithPath("contents[].numberOfUses")
-                                                .description("방문 횟수")
-                                )
-                                .build()
-                )));
+                .andDo(document("회원들이 방문한 맛집 조회",
+                        resource(
+                                ResourceSnippetParameters.builder()
+                                        .tag(TAG)
+                                        .summary("회원들이 방문한 맛집 조회")
+                                        .requestSchema(null)
+                                        .responseSchema(schema("VisitedRestaurantResponse"))
+                                        .queryParameters(
+                                                parameterWithName("page")
+                                                        .description("요청 페이지").optional())
+                                        .responseFields(
+                                                fieldWithPath("contents[].name").
+                                                        description("식당 이름"),
+                                                fieldWithPath("contents[].category")
+                                                        .description("카테고리"),
+                                                fieldWithPath("contents[].phoneNumber")
+                                                        .description("전화번호"),
+                                                fieldWithPath("contents[].roadAddress")
+                                                        .description("도로명 주소"),
+                                                fieldWithPath("contents[].landAddress")
+                                                        .description("지번 주소"),
+                                                fieldWithPath("contents[].latitude")
+                                                        .description("경도"),
+                                                fieldWithPath("contents[].longitude")
+                                                        .description("위도"),
+                                                fieldWithPath("contents[].restaurantUrl")
+                                                        .description("식당 url"),
+                                                fieldWithPath("contents[].numberOfUses")
+                                                        .description("방문 횟수")
+                                        )
+                                        .build()
+                        )));
     }
 }

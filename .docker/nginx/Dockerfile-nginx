@@ -1,4 +1,4 @@
 FROM nginx:latest
 
 ARG ENV
-COPY .docker/nginx/nginx-${ENV}.conf /etc/nginx/nginx.conf
+COPY .docker/nginx/nginx-${ENV}.conf /etc/nginx/conf.d/default.conf

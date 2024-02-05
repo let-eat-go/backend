@@ -7,6 +7,9 @@ services:
     expose:
       - "8080"
     restart: always
+    depends_on:
+      - leteatgo-redis
+      - leteatgo-rabbitmq
     networks:
       - leteatgo
 
@@ -16,8 +19,6 @@ services:
     restart: always
     ports:
       - "80:80"
-    volumes:
-      - ./nginx/nginx-dev.conf:/etc/nginx/nginx-dev.conf
     networks:
       - leteatgo
 
@@ -36,6 +37,14 @@ services:
     networks:
       - leteatgo
     restart: always
+
+  leteatgo-rabbitmq:
+    image: kingseungil/leteatgo-rabbitmq-dev:latest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - leteatgo
 
 networks:
   leteatgo:

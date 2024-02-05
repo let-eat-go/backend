@@ -1,0 +1,13 @@
+FROM rabbitmq:management-alpine
+
+COPY .docker/.env /.env
+ADD .docker/rabbitmq/init.sh /init.sh
+
+RUN chmod +x /init.sh && \
+    rabbitmq-plugins enable rabbitmq_stomp --offline
+
+# stomp broker relay port
+EXPOSE 61613
+
+CMD ["/init.sh"]
+
