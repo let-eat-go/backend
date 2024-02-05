@@ -48,6 +48,7 @@ public enum ErrorCode {
     NOT_FOUND_CHATROOM(NOT_FOUND, "존재하지 않는 채팅방입니다."),
     ALREADY_CLOSED_CHATROOM(BAD_REQUEST, "이미 종료된 채팅방입니다."),
     ILLEGAL_DESTINATION(BAD_REQUEST, "잘못된 구독 경로입니다."),
+    NOT_JOINED_CHATROOM(BAD_REQUEST, "참여하지 않은 채팅방입니다."),
 
     // meeting
     NOT_FOUND_MEETING(BAD_REQUEST, "존재하지 않는 모임입니다."),

@@ -6,6 +6,7 @@ import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.EXPIRED_TOKEN;
 import static com.leteatgo.global.exception.ErrorCode.ILLEGAL_DESTINATION;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
+import static com.leteatgo.global.exception.ErrorCode.NOT_JOINED_CHATROOM;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.leteatgo.domain.auth.entity.RedisToken;
@@ -17,6 +18,7 @@ import com.leteatgo.domain.chat.repository.ChatRoomRepository;
 import com.leteatgo.domain.chat.type.RoomStatus;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
 import java.security.Principal;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,14 +74,20 @@ public class StompChannelInterceptor implements ChannelInterceptor {
             Long memberId = getMemberId(accessor.getUser());
             Long roomId = parseRoomId(accessor.getDestination());
 
-            ChatRoom chatRoom = chatRoomRepository.findChatRoomFetch(roomId)
-                    .orElseThrow(() -> new ChatException(NOT_FOUND_CHATROOM));
+            validateChatRoom(roomId);
 
-            validateChatRoom(chatRoom, memberId);
+            ChatRoom chatRoom = chatRoomRepository.findChatRoomFetch(roomId)
+                    .orElseThrow(() -> new ChatException(NOT_JOINED_CHATROOM));
+
+            checkAccessChatRoom(chatRoom, memberId);
+
+            // 현재 구독한 채팅방으로만 메세지 전송
+            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+            sessionAttributes.put("roomId", roomId);
+
             log.info("[WS] subscribed chat room [{}]", roomId);
         }
 
-//        log.info("[WS] message header : {}", message.getHeaders());
         return message;
     }
 
@@ -88,7 +96,13 @@ public class StompChannelInterceptor implements ChannelInterceptor {
         accessor.setUser(authentication);
     }
 
-    private void validateChatRoom(ChatRoom chatRoom, Long memberId) {
+    private void validateChatRoom(Long roomId) {
+        if (!chatRoomRepository.existsById(roomId)) {
+            throw new ChatException(NOT_FOUND_CHATROOM);
+        }
+    }
+
+    private void checkAccessChatRoom(ChatRoom chatRoom, Long memberId) {
         boolean match = chatRoom.getMeeting().getMeetingParticipants()
                 .stream().anyMatch(participant ->
                         Objects.equals(participant.getMember().getId(), memberId));
