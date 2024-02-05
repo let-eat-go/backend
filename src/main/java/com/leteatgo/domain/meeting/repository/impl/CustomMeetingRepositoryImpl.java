@@ -60,7 +60,7 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
 
     @Override
     public Slice<MeetingListResponse> findMeetingList(
-            String category, String region, Pageable pageable
+            String category, String regionName, Pageable pageable
     ) {
 
         BooleanBuilder condition = new BooleanBuilder();
@@ -69,8 +69,14 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
             condition.and(meeting.restaurantCategory.eq(RestaurantCategory.from(category)));
         }
 
-        if (region != null) {
-            condition.and(meeting.region.name.eq(region));
+        if (regionName != null) {
+            condition.and(meeting.region.id.eq(
+                    JPAExpressions
+                            .select(region.id)
+                            .from(region)
+                            .where(region.name.eq(regionName)
+                            )
+            ));
         }
 
         List<MeetingListResponse> meetingList = queryFactory.select(meetingListProjection())
