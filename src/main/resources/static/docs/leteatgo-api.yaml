@@ -1,0 +1,736 @@
+openapi: 3.0.1
+info:
+  title: Let-Eat-Go API
+  description: Spring REST Docs with SwaggerUI
+  version: 0.0.1
+servers:
+- url: http://localhost:8080
+- url: https://backend-dev.leteatgo.site
+tags: []
+paths:
+  /api/meetings:
+    post:
+      tags:
+      - meeting
+      summary: 모임 생성
+      description: 모임 생성
+      operationId: 모임 생성 - 식당을 선택하지 않은 경우모임 생성 - 식당을 선택한 경우지역이 존재하지 않음
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-regions486549215'
+            examples:
+              지역이 존재하지 않음:
+                value: "{\"name\":\"모임 제목\",\"category\":\"한식\",\"region\":\"강남구\"\
+                  ,\"maxParticipants\":4,\"minParticipants\":2,\"startDate\":\"2024-01-31\"\
+                  ,\"startTime\":\"19:00\",\"description\":\"모임 설명\",\"options\":{\"\
+                  genderPreference\":\"ANY\",\"agePreference\":\"ANY\",\"purpose\"\
+                  :\"DRINKING\",\"alcoholPreference\":\"ANY\"},\"restaurant\":{\"\
+                  name\":\"식당 이름\",\"apiId\":\"123123123\",\"category\":\"한식\",\"\
+                  phoneNumber\":\"01012341234\",\"roadAddress\":\"도로명 주소\",\"landAddress\"\
+                  :\"지번 주소\",\"latitude\":37.123456,\"longitude\":127.123456,\"restaurantUrl\"\
+                  :\"식당 URL\"}}"
+              모임 생성 - 식당을 선택한 경우:
+                value: "{\"name\":\"모임 제목\",\"category\":\"한식\",\"region\":\"강남구\"\
+                  ,\"maxParticipants\":4,\"minParticipants\":2,\"startDate\":\"2024-01-31\"\
+                  ,\"startTime\":\"19:00\",\"description\":\"모임 설명\",\"options\":{\"\
+                  genderPreference\":\"ANY\",\"agePreference\":\"ANY\",\"purpose\"\
+                  :\"DRINKING\",\"alcoholPreference\":\"ANY\"},\"restaurant\":{\"\
+                  name\":\"식당 이름\",\"apiId\":\"123123123\",\"category\":\"한식\",\"\
+                  phoneNumber\":\"01012341234\",\"roadAddress\":\"도로명 주소\",\"landAddress\"\
+                  :\"지번 주소\",\"latitude\":37.123456,\"longitude\":127.123456,\"restaurantUrl\"\
+                  :\"식당 URL\"}}"
+              모임 생성 - 식당을 선택하지 않은 경우:
+                value: "{\"name\":\"모임 제목\",\"category\":\"한식\",\"region\":\"강남구\"\
+                  ,\"maxParticipants\":4,\"minParticipants\":2,\"startDate\":\"2024-01-31\"\
+                  ,\"startTime\":\"19:00\",\"description\":\"모임 설명\",\"options\":{\"\
+                  genderPreference\":\"ANY\",\"agePreference\":\"ANY\",\"purpose\"\
+                  :\"DRINKING\",\"alcoholPreference\":\"ANY\"},\"restaurant\":null}"
+      responses:
+        "400":
+          description: "400"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                지역이 존재하지 않음:
+                  value: "{\"code\":\"NOT_FOUND_REGION\",\"message\":\"존재하지 않는 지역입\
+                    니다.\"}"
+        "201":
+          description: "201"
+          headers:
+            Location:
+              description: 생성된 모임의 URI
+              schema:
+                type: string
+  /api/regions:
+    get:
+      tags:
+      - regions
+      summary: 지역 목록 조회
+      description: 지역 목록 조회
+      operationId: 지역 목록 조회
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                지역 목록 조회:
+                  value: "{\"regions\":[{\"id\":null,\"name\":\"서울\"},{\"id\":null,\"\
+                    name\":\"경기\"},{\"id\":null,\"name\":\"인천\"}]}"
+  /api/tasty-restaurants:
+    get:
+      tags:
+      - TastyRestaurants
+      summary: 회원들이  방문한 맛집 조회
+      description: 회원들이  방문한 맛집 조회
+      operationId: 회원들이 방문한 맛집 조회
+      parameters:
+      - name: page
+        in: query
+        description: 요청 페이지
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/VisitedRestaurantResponse'
+              examples:
+                회원들이 방문한 맛집 조회:
+                  value: "{\"contents\":[{\"name\":\"삼환소한마리\",\"category\":\"KOREAN_CUISINE\"\
+                    ,\"phoneNumber\":\"02-545-2429\",\"roadAddress\":\"도로명\",\"landAddress\"\
+                    :\"지번\",\"latitude\":127.06283102249932,\"longitude\":37.514322572335935,\"\
+                    restaurantUrl\":\"http://place.map.kakao.com/8137464\",\"numberOfUses\"\
+                    :100}]}"
+  /api/auth/check-email:
+    post:
+      tags:
+      - auth
+      summary: 이메일 중복 검사
+      description: 이메일 중복 검사
+      operationId: 이
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-regions486549215'
+            examples:
+              이미 존재하는 이메일:
+                value: "{\"email\":\"test@naver.com\"}"
+              이메일 중복 검사:
+                value: "{\"email\":\"test@naver.com\"}"
+      responses:
+        "400":
+          description: "400"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                이미 존재하는 이메일:
+                  value: "{\"code\":\"ALREADY_EXIST_EMAIL\",\"message\":\"이미 존재하는\
+                    \ 이메일입니다.\"}"
+        "200":
+          description: "200"
+  /api/auth/send-sms:
+    post:
+      tags:
+      - auth
+      summary: 핸드폰 인증번호 발송
+      description: 핸드폰 인증번호 발송
+      operationId: 핸드폰 인증번호 발송
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-regions486549215'
+            examples:
+              핸드폰 인증번호 발송:
+                value: "{\"phoneNumber\":\"01012345678\"}"
+      responses:
+        "200":
+          description: "200"
+  /api/auth/signin:
+    post:
+      tags:
+      - auth
+      summary: 로컬 로그인
+      description: 로컬 로그인
+      operationId: 로컬 로그인
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-regions486549215'
+            examples:
+              로컬 로그인:
+                value: "{\"email\":\"test@naver.com\",\"password\":\"1!qweqwe\"}"
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                로컬 로그인:
+                  value: "{\"accessToken\":\"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI4Iiwicm9sZSI6IlJPTEVfVVNFUiIsImlhdCI6MTcwNjA3NDI5MywiZXhwIjoxNzA4NjY2MjkzLCJpc3MiOiJsZXRlYXRnbyJ9.pRsIGFVZQ8p_WX-Zw2Rf5eQNwfK1xHKA-UFDczzQzt4\"\
+                    }"
+  /api/auth/signout:
+    delete:
+      tags:
+      - auth
+      summary: 로그아웃
+      description: 로그아웃
+      operationId: 로그아웃
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/api-regions486549215'
+            examples:
+              로그아웃:
+                value: _csrf=iI1mhOQ1lezIi8D51UcZCVLrJTSY94ziF9Tk-dSzg3bTUqo8sLgEt9ICo43l7vjL5GotODaICAyowL7PcbXSmrfS50_la5gF
+      responses:
+        "200":
+          description: "200"
+  /api/auth/signup:
+    post:
+      tags:
+      - auth
+      summary: 로컬 회원가입
+      description: 로컬 회원가입
+      operationId: 로컬 회원가입비밀번호 불일치아직 인증되지 않은 핸드폰 번호이미 가입된 핸드폰 번호
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-regions486549215'
+            examples:
+              비밀번호 불일치:
+                value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
+                  password\":\"1!qweqwe\",\"passwordCheck\":\"1!qweqwe\",\"phoneNumber\"\
+                  :\"01012345678\",\"authCode\":\"123456\"}"
+              로컬 회원가입:
+                value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
+                  password\":\"1!qweqwe\",\"passwordCheck\":\"1!qweqwe\",\"phoneNumber\"\
+                  :\"01012345678\",\"authCode\":\"123456\"}"
+              아직 인증되지 않은 핸드폰 번호:
+                value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
+                  password\":\"1!qweqwe\",\"passwordCheck\":\"1!qweqwe\",\"phoneNumber\"\
+                  :\"01012345678\",\"authCode\":\"123456\"}"
+              이미 가입된 핸드폰 번호:
+                value: "{\"email\":\"test@naver.com\",\"nickname\":\"testnick\",\"\
+                  password\":\"1!qweqwe\",\"passwordCheck\":\"1!qweqwe\",\"phoneNumber\"\
+                  :\"01012345678\",\"authCode\":\"123456\"}"
+      responses:
+        "400":
+          description: "400"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                비밀번호 불일치:
+                  value: "{\"code\":\"WRONG_PASSWORD\",\"message\":\"비밀번호가 일치하지 않습\
+                    니다.\"}"
+                이미 가입된 핸드폰 번호:
+                  value: "{\"code\":\"ALREADY_EXIST_PHONE_NUMBER\",\"message\":\"이\
+                    미 존재하는 핸드폰 번호입니다.\"}"
+        "201":
+          description: "201"
+          headers:
+            Location:
+              description: 회원가입된 회원의 URI
+              schema:
+                type: string
+        "401":
+          description: "401"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                아직 인증되지 않은 핸드폰 번호:
+                  value: "{\"code\":\"PHONE_NUMBER_NOT_VERIFIED\",\"message\":\"핸드\
+                    폰 번호 인증이 완료되지 않았습니다.\"}"
+  /api/meetings/list:
+    get:
+      tags:
+      - meeting
+      summary: 모임 목록 조회
+      description: 모임 목록 조회
+      operationId: 모임 목록 조회
+      parameters:
+      - name: category
+        in: query
+        description: 식당 카테고리
+        required: false
+        schema:
+          type: string
+      - name: region
+        in: query
+        description: 지역
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: 페이지 번호
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                모임 목록 조회:
+                  value: "{\"contents\":[{\"meetingId\":1,\"meetingName\":\"모임 제목\"\
+                    ,\"category\":\"ASIAN_CUISINE\",\"minParticipants\":2,\"maxParticipants\"\
+                    :4,\"currentParticipants\":1,\"startDateTime\":[2024,1,31,19,0],\"\
+                    createdAt\":[2024,1,30,18,0],\"description\":\"모임 설명\",\"status\"\
+                    :\"BEFORE\",\"restaurant\":{\"id\":1,\"name\":\"식당 이름\",\"address\"\
+                    :\"도로명 주소\",\"phoneNumber\":\"01012341234\",\"latitude\":37.123456,\"\
+                    longitude\":127.123456}}],\"pagination\":{\"currentPage\":0,\"\
+                    hasMore\":false}}"
+  /api/meetings/search:
+    get:
+      tags:
+      - meeting
+      summary: 모임 검색
+      description: 모임 검색
+      operationId: 모임 검색
+      parameters:
+      - name: type
+        in: query
+        description: "검색 타입(category, region, restaurantName)"
+        required: true
+        schema:
+          type: string
+      - name: term
+        in: query
+        description: 검색어
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: 페이지 번호
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                모임 검색:
+                  value: "{\"contents\":[{\"id\":1,\"meetingName\":\"모임 제목\",\"restaurantName\"\
+                    :\"식당 이름\",\"restaurantAddress\":\"도로명 주소\",\"category\":\"ASIAN_CUISINE\"\
+                    ,\"startDateTime\":[2024,1,31,19,0],\"minParticipants\":2,\"maxParticipants\"\
+                    :4,\"currentParticipants\":1,\"status\":\"BEFORE\"}],\"pagination\"\
+                    :{\"currentPage\":0,\"hasMore\":false}}"
+  /api/meetings/{meetingId}:
+    put:
+      tags:
+      - meeting
+      summary: 모임 수정
+      description: 모임 수정
+      operationId: 모임 수정 - 시간
+      parameters:
+      - name: meetingId
+        in: path
+        description: 모임 ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/api-regions486549215'
+            examples:
+              모임 수정 - 시간,식당을 선택한 경우:
+                value: "{\"startDate\":\"2024-01-31\",\"startTime\":\"19:00\",\"restaurant\"\
+                  :{\"name\":\"식당 이름\",\"apiId\":\"123123123\",\"category\":\"한식\"\
+                  ,\"phoneNumber\":\"01012341234\",\"roadAddress\":\"도로명 주소\",\"landAddress\"\
+                  :\"지번 주소\",\"latitude\":37.123456,\"longitude\":127.123456,\"restaurantUrl\"\
+                  :\"식당 URL\"}}"
+              모임 수정 - 시간만 선택한 경우:
+                value: "{\"startDate\":\"2024-01-31\",\"startTime\":\"19:00\",\"restaurant\"\
+                  :null}"
+      responses:
+        "200":
+          description: "200"
+  /api/tasty-restaurants/popular:
+    get:
+      tags:
+      - TastyRestaurants
+      summary: 인기 검색어 목록 조회
+      description: 인기 검색어 목록 조회
+      operationId: 인기 검색어
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-tasty-restaurants-popular-211251346'
+              examples:
+                인기 검색어:
+                  value: "{\"contents\":[{\"keyword\":\"돼지국밥\",\"score\":10},{\"keyword\"\
+                    :\"안심\",\"score\":5}]}"
+  /api/tasty-restaurants/search:
+    get:
+      tags:
+      - TastyRestaurants
+      summary: 맛집 검색
+      description: 맛집을 검색한다.
+      operationId: 맛집 검색
+      parameters:
+      - name: keyword
+        in: query
+        description: 키워드
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: 페이지
+        required: false
+        schema:
+          type: string
+      - name: longitude
+        in: query
+        description: 경도(x)
+        required: false
+        schema:
+          type: string
+      - name: latitude
+        in: query
+        description: 위도(y)
+        required: false
+        schema:
+          type: string
+      - name: radius
+        in: query
+        description: 반경
+        required: false
+        schema:
+          type: string
+      - name: sort
+        in: query
+        description: 정렬
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/SearchRestaurantResponse'
+              examples:
+                맛집 검색:
+                  value: |-
+                    {
+                      "contents" : [ {
+                        "apiId" : 123456,
+                        "name" : "삼환소한마리",
+                        "category" : "KOREAN_CUISINE",
+                        "phoneNumber" : "02-545-2429",
+                        "roadAddress" : "도로명",
+                        "landAddress" : "지번",
+                        "latitude" : 37.514322572335935,
+                        "longitude" : 127.06283102249932,
+                        "restaurantUrl" : "http://place.map.kakao.com/8137464"
+                      } ],
+                      "pagination" : {
+                        "currentPage" : 1,
+                        "hasMore" : true,
+                        "totalCount" : 1234
+                      }
+                    }
+  /api/chat/rooms/me:
+    get:
+      tags:
+      - ChatRoom
+      summary: 내 채팅방 목록 조회
+      description: 내 채팅방 목록 조회
+      operationId: 내 채팅방 목록 조회
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                내 채팅방 목록 조회:
+                  value: "{\"contents\":[{\"meetingName\":\"meeting name\",\"category\"\
+                    :\"ASIAN_CUISINE\",\"region\":\"지역\",\"roomId\":1,\"content\"\
+                    :\"recent message\",\"createdAt\":null,\"read\":false}],\"pagination\"\
+                    :{\"currentPage\":0,\"hasMore\":true}}"
+  /api/meetings/detail/{meetingId}:
+    get:
+      tags:
+      - meeting
+      summary: 모임 상세 조회
+      description: 모임 상세 조회
+      operationId: 모임 상세 조회
+      parameters:
+      - name: meetingId
+        in: path
+        description: 모임 ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                모임 상세 조회:
+                  value: "{\"meeting\":{\"id\":1,\"name\":\"모임 제목\",\"category\":null,\"\
+                    minParticipants\":2,\"maxParticipants\":4,\"currentParticipants\"\
+                    :1,\"startDateTime\":[2024,1,31,19,0],\"description\":\"모임 설명\"\
+                    ,\"status\":null,\"genderPreference\":\"ANY\",\"agePreference\"\
+                    :\"ANY\"},\"host\":{\"id\":1,\"nickname\":\"주최자 닉네임\",\"profileImageUrl\"\
+                    :\"주최자 프로필 이미지 URL\"},\"participants\":[{\"id\":2,\"nickname\"\
+                    :\"참가자 닉네임\",\"profileImageUrl\":\"참가자 프로필 이미지 URL\"}],\"restaurant\"\
+                    :{\"id\":1,\"name\":\"식당 이름\",\"address\":\"도로명 주소\",\"phoneNumber\"\
+                    :\"01012341234\",\"latitude\":37.123456,\"longitude\":127.123456},\"\
+                    chatRoomId\":1}"
+  /api/meetings/{meetingId}/cancel:
+    delete:
+      tags:
+      - meeting
+      summary: 모임 취소
+      description: 모임 취소
+      operationId: 모임 시작 1시간 전까지만 취소 가능모임 취소모임이 이미 완료됨모임이 이미 취소됨모임이 존재하지 않음주최자가 아님
+      parameters:
+      - name: meetingId
+        in: path
+        description: 모임 ID
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/api-regions486549215'
+            examples:
+              모임 시작 1시간 전까지만 취소 가능:
+                value: _csrf=SfUUFO-kmCP2R71u3AHhtrk2faHSTygGCdr7EIlhwNyCrBH6fJYsLd6T-hTbcogPuizV1YoHUMPrKR8rbe_Idb1T9--wnSPC
+              모임 취소:
+                value: _csrf=csFR31GxTjUxVdysnGqxnVvFKwVHs2GZtqpIAeNUiGlE26sbE_di52mGL1McN-_Kq0eFqGOhBmR11le0h54tM9sx6Vslusp9
+              모임이 존재하지 않음:
+                value: _csrf=9pEEHmWnNhMcThsS-ynXANb1uvqDcSFQ99FacxwSEgo0QLZPwahhKVzCBXExeip0yATjM7LDl5vlEkV9zuFtEix2dmkMI45_
+              주최자가 아님:
+                value: _csrf=jzgu3tUoZbXKzpdt9FHw-EM8YC1zNrl8zAVVBTrP3O6KNPK6vFxM6bRMV9fn-_ZdxXzEmSFaTRVBBoxR-WBmPQ766NrpVsrY
+              모임이 이미 완료됨:
+                value: _csrf=dNOmMomor8ZoTpKyG2bMsSNWNdyRm4Or-FkjJU_Dur1Mr1sxQOOSV7nLyvFFKqCCfkv41xszGL3zr7CGmW0bEy3yiI0uyzgC
+              모임이 이미 취소됨:
+                value: _csrf=h-w4ODRrTIk56jNbi7aUw1Wq5fIbUHtSq1I5wU--CEFo_D3K5o0OCAZSfL8U2gFqs5ug-mXJyMt_MR5_yDAM8SncPydfml75
+      responses:
+        "400":
+          description: "400"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                모임 시작 1시간 전까지만 취소 가능:
+                  value: "{\"code\":\"CANNOT_CANCEL_MEETING\",\"message\":\"모임 시작\
+                    \ 1시간 전까지만 취소할 수 있습니다.\"}"
+                모임이 존재하지 않음:
+                  value: "{\"code\":\"NOT_FOUND_MEETING\",\"message\":\"존재하지 않는 모임\
+                    입니다.\"}"
+                주최자가 아님:
+                  value: "{\"code\":\"NOT_MEETING_HOST\",\"message\":\"모임의 주최자가 아닙\
+                    니다.\"}"
+                모임이 이미 완료됨:
+                  value: "{\"code\":\"ALREADY_COMPLETED_MEETING\",\"message\":\"이미\
+                    \ 종료된 모임입니다.\"}"
+                모임이 이미 취소됨:
+                  value: "{\"code\":\"ALREADY_CANCELED_MEETING\",\"message\":\"이미\
+                    \ 취소된 모임입니다.\"}"
+        "200":
+          description: "200"
+  /api/chat/rooms/{roomId}/messages:
+    get:
+      tags:
+      - ChatRoom
+      summary: 채팅방 대화 목록 조회
+      description: 채팅방 대화 목록 조회
+      operationId: 채팅방 대화 목록 조회
+      parameters:
+      - name: roomId
+        in: path
+        description: 채팅방 id
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/api-regions486549215'
+              examples:
+                채팅방 대화 목록 조회:
+                  value: "{\"contents\":[{\"sender\":{\"senderId\":1,\"nickname\"\
+                    :\"nick\",\"profile\":\"profile\"},\"content\":\"message 1\",\"\
+                    isRead\":true,\"createdAt\":\"2024-02-05 54:45\"}],\"pagination\"\
+                    :{\"currentPage\":0,\"hasMore\":true}}"
+components:
+  schemas:
+    api-tasty-restaurants-popular-211251346:
+      type: object
+      properties:
+        contents:
+          type: array
+          items:
+            required:
+            - keyword
+            - score
+            type: object
+            properties:
+              score:
+                type: number
+                description: 검색한 횟수
+              keyword:
+                type: string
+                description: 키워드
+    VisitedRestaurantResponse:
+      title: VisitedRestaurantResponse
+      type: object
+      properties:
+        contents:
+          type: array
+          items:
+            required:
+            - category
+            - landAddress
+            - latitude
+            - longitude
+            - name
+            - numberOfUses
+            - phoneNumber
+            - restaurantUrl
+            - roadAddress
+            type: object
+            properties:
+              phoneNumber:
+                type: string
+                description: 전화번호
+              landAddress:
+                type: string
+                description: 지번 주소
+              latitude:
+                type: number
+                description: 경도
+              roadAddress:
+                type: string
+                description: 도로명 주소
+              numberOfUses:
+                type: number
+                description: 방문 횟수
+              restaurantUrl:
+                type: string
+                description: 식당 url
+              name:
+                type: string
+                description: 식당 이름
+              category:
+                type: string
+                description: 카테고리
+              longitude:
+                type: number
+                description: 위도
+    SearchRestaurantResponse:
+      title: SearchRestaurantResponse
+      type: object
+      properties:
+        pagination:
+          required:
+          - currentPage
+          - hasMore
+          - totalCount
+          type: object
+          properties:
+            hasMore:
+              type: boolean
+              description: 다음 페이지 여부
+            totalCount:
+              type: number
+              description: 전체 컨텐츠 개수
+            currentPage:
+              type: number
+              description: 현재 페이지
+        contents:
+          type: array
+          items:
+            required:
+            - apiId
+            - category
+            - landAddress
+            - latitude
+            - longitude
+            - name
+            - phoneNumber
+            - restaurantUrl
+            - roadAddress
+            type: object
+            properties:
+              phoneNumber:
+                type: string
+                description: 전화번호
+              landAddress:
+                type: string
+                description: 지번 주소
+              latitude:
+                type: number
+                description: 경도
+              roadAddress:
+                type: string
+                description: 도로명 주소
+              restaurantUrl:
+                type: string
+                description: 식당 url
+              name:
+                type: string
+                description: 식당 이름
+              category:
+                type: string
+                description: 카테고리
+              apiId:
+                type: number
+                description: 식당 아이디
+              longitude:
+                type: number
+                description: 위도
+    api-regions486549215:
+      type: object
