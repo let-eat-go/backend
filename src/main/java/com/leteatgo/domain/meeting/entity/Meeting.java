@@ -17,10 +17,12 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = {
+        @Index(name = "idx_meeting_createdAt", columnList = "created_at")
+})
 public class Meeting extends BaseEntity {
 
     @Id
@@ -71,6 +76,9 @@ public class Meeting extends BaseEntity {
     @Column(name = "max_participants", nullable = false)
     private Integer maxParticipants;
 
+    @Column(name = "current_participants", nullable = false)
+    private Integer currentParticipants = 1;
+
     @Column(name = "start_date_time", nullable = false)
     private LocalDateTime startDateTime;
 
@@ -108,6 +116,7 @@ public class Meeting extends BaseEntity {
                 .build();
 
         this.meetingParticipants.add(meetingParticipant);
+        this.currentParticipants = this.meetingParticipants.size();
     }
 
     public void update(LocalDateTime startDateTime) {
