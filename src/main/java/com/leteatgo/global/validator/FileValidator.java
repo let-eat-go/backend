@@ -1,7 +1,7 @@
 package com.leteatgo.global.validator;
 
 
-import static com.leteatgo.global.exception.ErrorCode.INTERNAL_ERROR;
+import static com.leteatgo.global.exception.ErrorCode.INVALID_REQUEST;
 
 import com.leteatgo.global.storage.exception.StorageException;
 import com.leteatgo.global.validator.annotation.ValidFile;
@@ -38,7 +38,7 @@ public class FileValidator implements ConstraintValidator<ValidFile, MultipartFi
         try {
             return tika.detect(value.getInputStream());
         } catch (IOException e) {
-            throw new StorageException(INTERNAL_ERROR, "get mime type failed");
+            throw new StorageException(INVALID_REQUEST, "get mime type failed");
         }
     }
 
