@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
-import com.leteatgo.domain.member.dto.response.MyInfoResponse;
+import com.leteatgo.domain.member.dto.response.MemberProfileResponse;
 import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
 import com.leteatgo.domain.member.dto.response.MyMeetingsResponse.Restaurant;
 import com.leteatgo.domain.member.service.MemberService;
@@ -79,15 +79,15 @@ class MemberControllerTest {
         // given
         String authId = "1";
 
-        MyInfoResponse myInfoResponse = MyInfoResponse.builder()
+        MemberProfileResponse memberProfileResponse = MemberProfileResponse.builder()
                 .nickname("nick")
                 .profile("profile url")
                 .introduce("introduce")
                 .mannerTemperature(36.5)
                 .build();
 
-        given(memberService.myInformation(Long.parseLong(authId)))
-                .willReturn(myInfoResponse);
+        given(memberService.getProfile(Long.parseLong(authId)))
+                .willReturn(memberProfileResponse);
 
         // when
         // then
@@ -382,5 +382,34 @@ class MemberControllerTest {
                                     .summary("내 모임 목록 조회 실패")
                                     .build())));
         }
+    }
+
+    @Test
+    @DisplayName("타 회원 조회")
+    void memberProfile() throws Exception {
+        // given
+        Long memberId = 1L;
+        MemberProfileResponse memberProfileResponse = MemberProfileResponse.builder()
+                .nickname("nick")
+                .profile("profile url")
+                .introduce("introduce")
+                .mannerTemperature(36.5)
+                .build();
+
+        given(memberService.getProfile(memberId))
+                .willReturn(memberProfileResponse);
+
+        // when
+        // then
+        mockMvc.perform(get(URI + "/{memberId}", memberId)
+                .cookie(new Cookie("access_token", "token"))
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("타 회원 조회",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag(TAG)
+                                .summary("타 회원 조회")
+                                .build())));
     }
 }

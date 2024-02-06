@@ -11,7 +11,7 @@ import static org.mockito.Mockito.doNothing;
 
 import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
-import com.leteatgo.domain.member.dto.response.MyInfoResponse;
+import com.leteatgo.domain.member.dto.response.MemberProfileResponse;
 import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
 import com.leteatgo.domain.member.dto.response.MyMeetingsResponse.Restaurant;
 import com.leteatgo.domain.member.entity.Member;
@@ -75,10 +75,10 @@ class MemberServiceTest {
                     .willReturn(Optional.of(member));
 
             // when
-            MyInfoResponse myInfoResponse = memberService.myInformation(memberId);
+            MemberProfileResponse memberProfileResponse = memberService.getProfile(memberId);
 
             // then
-            assertEquals("nick", myInfoResponse.nickname());
+            assertEquals("nick", memberProfileResponse.nickname());
         }
 
         @Test
@@ -91,7 +91,7 @@ class MemberServiceTest {
             // when
             // then
             assertThatThrownBy(() ->
-                    memberService.myInformation(memberId))
+                    memberService.getProfile(memberId))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(NOT_FOUND_MEMBER.getErrorMessage());
         }
@@ -108,7 +108,7 @@ class MemberServiceTest {
             // when
             // then
             assertThatThrownBy(() ->
-                    memberService.myInformation(memberId))
+                    memberService.getProfile(memberId))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(ALREADY_DELETED_MEMBER.getErrorMessage());
         }
