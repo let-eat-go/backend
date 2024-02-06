@@ -126,13 +126,4 @@ public class MeetingController {
         return ResponseEntity.ok().build();
     }
 
-    // 모임 참여자 목록 조회
-//    @GetMapping("/{meetingId}/participants")
-//    public ResponseEntity<SliceResponse<MeetingSearchResponse>> getParticipants(
-//            @PathVariable Long meetingId,
-//            @Valid CustomPageRequest request
-//    ) {
-//        Slice<MeetingSearchResponse> response = meetingService.getParticipants(meetingId, request);
-//        return ResponseEntity.ok(new SliceResponse<>(response));
-//    }
 }
