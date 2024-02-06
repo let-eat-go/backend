@@ -1,0 +1,67 @@
+package com.leteatgo.domain.member.service;
+
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_DELETED_MEMBER;
+import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+
+import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
+import com.leteatgo.domain.member.dto.response.MyInfoResponse;
+import com.leteatgo.domain.member.entity.Member;
+import com.leteatgo.domain.member.exception.MemberException;
+import com.leteatgo.domain.member.repository.MemberRepository;
+import com.leteatgo.global.storage.FileDto;
+import com.leteatgo.global.storage.StorageService;
+import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
+@Service
+public class MemberService {
+
+    private final MemberRepository memberRepository;
+    private final StorageService storageService;
+
+    public MyInfoResponse myInformation(Long memberId) {
+        Member member = getMemberOrThrow(memberId);
+        validateMember(member);
+
+        return MyInfoResponse.fromEntity(member);
+    }
+
+    @Transactional
+    public void updateInfo(UpdateInfoRequest request, MultipartFile profile,
+            Long memberId) {
+        Member member = getMemberOrThrow(memberId);
+        validateMember(member);
+
+        member.updateInfo(request.nickname(), request.introduce());
+
+        if (!ObjectUtils.isEmpty(profile)) {
+            FileDto fileDto = storageService.uploadFile(profile);
+            member.addProfile(fileDto.getUrl(), fileDto.getFilename());
+        }
+    }
+
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = getMemberOrThrow(memberId);
+        validateMember(member);
+        member.setDeletedAt(LocalDateTime.now());
+        storageService.deleteFile(member.getProfileFilename());
+    }
+
+    private static void validateMember(Member member) {
+        if (!ObjectUtils.isEmpty(member.getDeletedAt())) {
+            throw new MemberException(ALREADY_DELETED_MEMBER);
+        }
+    }
+
+    private Member getMemberOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+    }
+}

@@ -40,6 +40,7 @@ public enum ErrorCode {
 
     // member
     NOT_FOUND_MEMBER(BAD_REQUEST, "존재하지 않는 회원입니다."),
+    ALREADY_DELETED_MEMBER(BAD_REQUEST, "이미 삭제된 회원입니다."),
 
     // tastyRestaurant
     NOT_FOUND_CATEGORY(NOT_FOUND, "존재하지 않는 카테고리입니다."),
