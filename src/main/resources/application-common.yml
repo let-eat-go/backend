@@ -37,3 +37,22 @@ spring:
       enabled: false
     jdbc:
       initialize-schema: always
+
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS}
+        secret-key: ${AWS_SECRET}
+      region:
+        static: ap-northeast-2
+
+  servlet:
+    multipart:
+      file-size-threshold: 2MB
+      location: /tmp/s3
+      max-file-size: 2MB
+      max-request-size: 2MB
+
+aws:
+  s3:
+    bucket: ${S3_BUCKET}
