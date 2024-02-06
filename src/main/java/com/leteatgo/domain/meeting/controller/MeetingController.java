@@ -115,7 +115,7 @@ public class MeetingController {
         return ResponseEntity.ok().build();
     }
 
-    // 모임 참여 취소
+    // 모임 나가기
     @DeleteMapping("/{meetingId}/leave")
     @RoleUser
     public ResponseEntity<Void> cancelJoinMeeting(

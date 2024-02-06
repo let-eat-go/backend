@@ -698,4 +698,56 @@ class MeetingControllerTest {
                     );
         }
     }
+
+    @Test
+    @DisplayName("[성공] 모임 참가")
+    void joinMeeting() throws Exception {
+        // given
+        doNothing().when(meetingService).joinMeeting(1L, 1L);
+        // when
+        // then
+        mockMvc.perform(post("/api/meetings/{meetingId}/join", 1L)
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf())
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("모임 참가",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("meeting")
+                                .summary("모임 참가")
+                                .pathParameters(
+                                        parameterWithName("meetingId")
+                                                .description("모임 ID")
+                                )
+                                .build()
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("[성공] 모임 나가기")
+    void leaveMeeting() throws Exception {
+        // given
+        doNothing().when(meetingService).cancelJoinMeeting(1L, 1L);
+        // when
+        // then
+        mockMvc.perform(delete("/api/meetings/{meetingId}/leave", 1L)
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf())
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("모임 나가기",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("meeting")
+                                .summary("모임 나가기")
+                                .pathParameters(
+                                        parameterWithName("meetingId")
+                                                .description("모임 ID")
+                                )
+                                .build()
+                        )
+                ));
+    }
 }
