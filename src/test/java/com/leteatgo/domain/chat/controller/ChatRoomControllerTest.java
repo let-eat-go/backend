@@ -6,6 +6,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,6 +20,7 @@ import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
 import com.leteatgo.global.type.RestaurantCategory;
+import jakarta.servlet.http.Cookie;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -88,7 +90,9 @@ class ChatRoomControllerTest {
 
         // when
         // then
-        mockMvc.perform(get(URI + "/{roomId}/messages", roomId))
+        mockMvc.perform(get(URI + "/{roomId}/messages", roomId)
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("채팅방 대화 목록 조회",
@@ -124,7 +128,9 @@ class ChatRoomControllerTest {
 
         // when
         // then
-        mockMvc.perform(get(URI + "/me"))
+        mockMvc.perform(get(URI + "/me")
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("내 채팅방 목록 조회",
