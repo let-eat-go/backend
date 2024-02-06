@@ -4,6 +4,8 @@ import static com.leteatgo.domain.meeting.type.MeetingStatus.CANCELED;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.COMPLETED;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.CANNOT_CANCEL_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
@@ -18,11 +20,14 @@ import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.MeetingResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.ParticipantResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.exception.MeetingException;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
+import com.leteatgo.domain.meeting.type.MeetingStatus;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
 import com.leteatgo.domain.member.repository.MemberRepository;
@@ -32,7 +37,10 @@ import com.leteatgo.domain.region.repository.RegionRepository;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
+import com.leteatgo.global.exception.ErrorCode;
+import com.leteatgo.global.lock.annotation.DistributedLock;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -176,5 +184,59 @@ public class MeetingService {
     ) {
         return meetingRepository.searchMeetings(
                 type, term, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
+    }
+
+    /**
+     * [모임 참여] 모임 참여 시 이미 참여한 모임이면 참여할 수 없음
+     * <p>
+     * - 참여자가 모임을 참여하면 채팅방에 참여자를 추가하고, 참여자 목록에 추가
+     * <p>
+     * - 최대 인원이 다 찼으면 참여할 수 없음
+     */
+    @Transactional
+    @DistributedLock(key = "'joinMeeting:' + #meetingId")
+    public void joinMeeting(Long memberId, Long meetingId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+
+        checkCanJoin(member, meeting);
+
+        meeting.addMeetingParticipant(member);
+        meetingRepository.save(meeting);
+    }
+
+    private void checkCanJoin(
+            Member member, Meeting meeting) {
+        // 취소된 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == CANCELED) {
+            throw new MeetingException(ALREADY_CANCELED_MEETING);
+        }
+
+        // 완료된 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == COMPLETED) {
+            throw new MeetingException(ALREADY_COMPLETED_MEETING);
+        }
+
+        // 이미 참여한 모임인지 확인
+        if (meeting.getMeetingParticipants().stream()
+                .anyMatch(participant -> participant.getMember().getId().equals(member.getId()))) {
+            throw new MeetingException(ALREADY_JOINED_MEETING);
+        }
+
+        // 최대 인원이 다 찼는지 확인
+        if (meeting.getCurrentParticipants() >= meeting.getMaxParticipants()) {
+            throw new MeetingException(ALREADY_FULL_PARTICIPANT);
+        }
+    }
+
+    /**
+     * [모임 참여 취소] 모임 참여 취소 시 이미 참여 취소한 모임이면 참여 취소할 수 없음
+     * <p>
+     * - 참여자가 모임 참여 취소하면 채팅방에서 참여자를 제거하고, 참여자 목록에서 제거
+     */
+    @Transactional
+    public void cancelJoinMeeting(Long memberId, Long meetingId) {
     }
 }
