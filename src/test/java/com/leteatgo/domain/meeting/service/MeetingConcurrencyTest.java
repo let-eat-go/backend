@@ -1,5 +1,6 @@
 package com.leteatgo.domain.meeting.service;
 
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import com.leteatgo.domain.meeting.entity.Meeting;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -118,6 +120,7 @@ public class MeetingConcurrencyTest {
         ExecutorService service = Executors.newFixedThreadPool(numberOfThreads);
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         Long meetingId = 1L;
+        AtomicReference<String> exceptionMessage = new AtomicReference<>();
 
         // when
         for (long i = 2; i <= 4; i++) { // 2,3,4번 회원이 동시에 모임 참가 신청을 합니다.
@@ -126,6 +129,8 @@ public class MeetingConcurrencyTest {
                 try {
                     Long memberId = idx;
                     meetingService.joinMeeting(memberId, meetingId);
+                } catch (Exception e) {
+                    exceptionMessage.set(e.getMessage());
                 } finally {
                     latch.countDown();
                 }
@@ -146,6 +151,9 @@ public class MeetingConcurrencyTest {
             softly.assertThat(meeting.getCurrentParticipants()).isEqualTo(3);
             // participants의 size는 3이어야 합니다.
             softly.assertThat(participants.size()).isEqualTo(3);
+            // 모임 정원 초과로 참가 신청이 실패했어야 합니다.
+            softly.assertThat(exceptionMessage.get())
+                    .isEqualTo(ALREADY_FULL_PARTICIPANT.getErrorMessage());
         });
     }
 
