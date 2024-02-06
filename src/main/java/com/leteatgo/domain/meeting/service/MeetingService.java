@@ -10,6 +10,7 @@ import static com.leteatgo.global.exception.ErrorCode.CANNOT_CANCEL_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_REGION;
+import static com.leteatgo.global.exception.ErrorCode.NOT_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_MEETING_HOST;
 
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
@@ -20,14 +21,13 @@ import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.MeetingResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.ParticipantResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
+import com.leteatgo.domain.meeting.entity.MeetingParticipant;
 import com.leteatgo.domain.meeting.exception.MeetingException;
+import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
-import com.leteatgo.domain.meeting.type.MeetingStatus;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
 import com.leteatgo.domain.member.repository.MemberRepository;
@@ -37,10 +37,8 @@ import com.leteatgo.domain.region.repository.RegionRepository;
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
-import com.leteatgo.global.exception.ErrorCode;
 import com.leteatgo.global.lock.annotation.DistributedLock;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +58,7 @@ public class MeetingService {
     private final RegionRepository regionRepository;
     private final MeetingRepository meetingRepository;
     private final TastyRestaurantRepository tastyRestaurantRepository;
+    private final MeetingParticipantRepository meetingParticipantRepository;
     private final ChatRoomEventPublisher chatRoomEventPublisher;
 
 
@@ -186,13 +185,7 @@ public class MeetingService {
                 type, term, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
     }
 
-    /**
-     * [모임 참여] 모임 참여 시 이미 참여한 모임이면 참여할 수 없음
-     * <p>
-     * - 참여자가 모임을 참여하면 채팅방에 참여자를 추가하고, 참여자 목록에 추가
-     * <p>
-     * - 최대 인원이 다 찼으면 참여할 수 없음
-     */
+    /* [모임 참여] 동시성 제어를 위해 분산 락을 사용하여 동시에 참여할 수 없도록 함 */
     @Transactional
     @DistributedLock(key = "'joinMeeting:' + #meetingId")
     public void joinMeeting(Long memberId, Long meetingId) {
@@ -231,12 +224,50 @@ public class MeetingService {
         }
     }
 
-    /**
-     * [모임 참여 취소] 모임 참여 취소 시 이미 참여 취소한 모임이면 참여 취소할 수 없음
-     * <p>
-     * - 참여자가 모임 참여 취소하면 채팅방에서 참여자를 제거하고, 참여자 목록에서 제거
-     */
+    /* [모임 참여 취소] 참여자는 참여 취소를 할 수 있음, 모임 하루 전에 취소하면 매너온도 감소
+     * 동시성 제어를 위해 분산 락을 사용하여 동시에 참여 취소할 수 없도록 함
+     * */
     @Transactional
+    @DistributedLock(key = "'cancelJoinMeeting:' + #meetingId")
     public void cancelJoinMeeting(Long memberId, Long meetingId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+        MeetingParticipant meetingParticipant = meeting.getMeetingParticipants().stream()
+                .filter(participant -> participant.getMember().getId().equals(member.getId()))
+                .findFirst()
+                .orElseThrow(() -> new MeetingException(NOT_JOINED_MEETING));
+
+        checkCanLeave(meeting);
+        checkCancelTimeForMemberMannerTemperature(member, meeting);
+
+        meeting.removeMeetingParticipant(meetingParticipant);
+        meetingParticipantRepository.delete(meetingParticipant);
+        meetingRepository.save(meeting);
+    }
+
+    private void checkCanLeave(Meeting meeting) {
+        // 취소된 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == CANCELED) {
+            throw new MeetingException(ALREADY_CANCELED_MEETING);
+        }
+
+        // 완료된 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == COMPLETED) {
+            throw new MeetingException(ALREADY_COMPLETED_MEETING);
+        }
+    }
+
+    private void checkCancelTimeForMemberMannerTemperature(Member member, Meeting meeting) {
+        LocalDateTime nowDateTime = LocalDateTime.now();
+        LocalDateTime startDateTime = meeting.getStartDateTime();
+
+        // 모임 시작 1시간 이내에 취소하면 매너온도 감소
+        if (nowDateTime.isAfter(startDateTime.minusHours(1))
+                && nowDateTime.isBefore(startDateTime)) {
+            member.decreaseMannerTemperature();
+            memberRepository.save(member);
+        }
     }
 }

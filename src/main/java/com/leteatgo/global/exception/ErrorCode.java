@@ -58,6 +58,7 @@ public enum ErrorCode {
     NOT_FOUND_SEARCH_TYPE(BAD_REQUEST, "존재하지 않는 검색 타입입니다."),
     ALREADY_FULL_PARTICIPANT(BAD_REQUEST, "이미 참가인원이 가득 찬 모임입니다."),
     ALREADY_JOINED_MEETING(BAD_REQUEST, "이미 참가한 모임입니다."),
+    NOT_JOINED_MEETING(BAD_REQUEST, "참가하지 않은 모임입니다."),
 
     // region
     NOT_FOUND_REGION(BAD_REQUEST, "존재하지 않는 지역입니다.");

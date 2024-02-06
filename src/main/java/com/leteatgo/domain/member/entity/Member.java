@@ -80,4 +80,8 @@ public class Member extends BaseEntity {
         this.loginType = loginType;
         this.role = role;
     }
+
+    public void decreaseMannerTemperature() {
+        this.mannerTemperature -= 3.0; // 3.0은 임시로 설정한 값입니다.
+    }
 }
