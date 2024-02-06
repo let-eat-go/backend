@@ -2,11 +2,14 @@ package com.leteatgo.domain.member.controller;
 
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static com.leteatgo.global.type.RestaurantCategory.ASIAN_CUISINE;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestPartBody;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -16,11 +19,16 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
 import com.leteatgo.domain.member.dto.response.MyInfoResponse;
+import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
+import com.leteatgo.domain.member.dto.response.MyMeetingsResponse.Restaurant;
 import com.leteatgo.domain.member.service.MemberService;
+import com.leteatgo.domain.member.type.SearchType;
+import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
 import jakarta.servlet.http.Cookie;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,9 +39,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
@@ -105,7 +114,7 @@ class MemberControllerTest {
         MockMultipartFile profile;
 
         MockMultipartHttpServletRequestBuilder builder =
-                RestDocumentationRequestBuilders.multipart(URI);
+                multipart(URI);
 
         @BeforeEach
         void setup() throws IOException {
@@ -300,5 +309,78 @@ class MemberControllerTest {
                                 .summary("회원 삭제")
                                 .build())
                 ));
+    }
+
+    @Nested
+    @DisplayName("내 모임 목록 조회")
+    class MyMeetingsMethod {
+
+        String authId = "1";
+        SearchType type = SearchType.CREATED;
+        CustomPageRequest request = new CustomPageRequest(1);
+
+        MyMeetingsResponse response = MyMeetingsResponse.builder()
+                .meetingId(1L)
+                .meetingName("모여라 참깨")
+                .category(ASIAN_CUISINE)
+                .maxParticipants(3)
+                .restaurant(Restaurant.builder()
+                        .id(1L)
+                        .name("어머니대성집")
+                        .address("서울 동대문구 왕산로11길 4")
+                        .phoneNumber("02-123-1234")
+                        .build())
+                .build();
+
+        List<MyMeetingsResponse> contents = List.of(response);
+        SliceImpl<MyMeetingsResponse> slice = new SliceImpl<>(contents,
+                PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE), true);
+
+        @Test
+        @DisplayName("성공")
+        void myMeetings() throws Exception {
+            // given
+            given(memberService.myMeetings(type, request, Long.parseLong(authId)))
+                    .willReturn(slice);
+
+            // when
+            // then
+            mockMvc.perform(get(URI + "/meetings/me")
+                            .param("type", type.name())
+                            .param("page", request.page().toString())
+                            .cookie(new Cookie("access_token", "token"))
+                            .with(csrf()))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andDo(document("내 모임 목록 조회",
+                            resource(ResourceSnippetParameters.builder()
+                                    .tag(TAG)
+                                    .summary("내 모임 목록 조회")
+                                    .build())));
+        }
+
+        @Test
+        @DisplayName("실패 - 잘못된 조회 타입")
+        void myMeetings_() throws Exception {
+            // given
+            String invalidType = "before";
+            given(memberService.myMeetings(any(), any(), any()))
+                    .willReturn(slice);
+
+            // when
+            // then
+            mockMvc.perform(get(URI + "/meetings/me")
+                            .param("type", invalidType)
+                            .param("page", request.page().toString())
+                            .cookie(new Cookie("access_token", "token"))
+                            .with(csrf()))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andDo(document("내 모임 목록 조회",
+                            resource(ResourceSnippetParameters.builder()
+                                    .tag(TAG)
+                                    .summary("내 모임 목록 조회 실패")
+                                    .build())));
+        }
     }
 }
