@@ -5,6 +5,7 @@ import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.CANNOT_CANCEL_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.HOST_CANNOT_LEAVE_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_MEETING_HOST;
@@ -896,6 +897,44 @@ class MeetingServiceTest {
         }
 
         @Test
+        @DisplayName("[성공] 모임 시작 1시간 이내에 취소하면 매너온도 점수가 감소한다.")
+        void cancelJoinMeetingBeforeOneHour() {
+            // given
+            existingMeeting.addMeetingParticipant(mockmember1);
+            existingMeeting.update(LocalDateTime.now().plusMinutes(1)); // 1분 후로 설정
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            meetingService.cancelJoinMeeting(mockmember1.getId(), existingMeeting.getId());
+
+            // then
+            verify(memberRepository, times(1)).save(mockmember1);
+            // 기본값인 36.5보다 낮다
+            assertThat(mockmember1.getMannerTemperature()).isLessThan(36.5);
+        }
+
+        @Test
+        @DisplayName("[실패] 주최자는 모임 참가를 취소할 수 없다.")
+        void cancelJoinMeetingWithHost() {
+            // given
+            existingMeeting.addMeetingParticipant(host);
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.cancelJoinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(HOST_CANNOT_LEAVE_MEETING.getErrorMessage());
+        }
+
+        @Test
         @DisplayName("[실패] 참가하지 않은 모임에 참가 취소하면 예외가 발생한다.")
         void cancelJoinNotJoinedMeeting() {
             // given
@@ -967,24 +1006,6 @@ class MeetingServiceTest {
                     .hasMessageContaining(ALREADY_COMPLETED_MEETING.getErrorMessage());
         }
 
-        @Test
-        @DisplayName("[실패] 모임 시작 1시간 이내에 취소하면 매너온도 점수가 감소한다.")
-        void cancelJoinMeetingBeforeOneHour() {
-            // given
-            existingMeeting.addMeetingParticipant(mockmember1);
-            existingMeeting.update(LocalDateTime.now().plusMinutes(1)); // 1분 후로 설정
-            given(memberRepository.findById(mockmember1.getId())).willReturn(
-                    Optional.of(mockmember1));
-            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
-                    Optional.of(existingMeeting));
 
-            // when
-            meetingService.cancelJoinMeeting(mockmember1.getId(), existingMeeting.getId());
-
-            // then
-            verify(memberRepository, times(1)).save(mockmember1);
-            // 기본값인 36.5보다 낮다
-            assertThat(mockmember1.getMannerTemperature()).isLessThan(36.5);
-        }
     }
 }

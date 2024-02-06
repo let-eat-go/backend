@@ -7,6 +7,7 @@ import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.CANNOT_CANCEL_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.HOST_CANNOT_LEAVE_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_REGION;
@@ -239,7 +240,7 @@ public class MeetingService {
                 .findFirst()
                 .orElseThrow(() -> new MeetingException(NOT_JOINED_MEETING));
 
-        checkCanLeave(meeting);
+        checkCanLeave(member, meeting);
         checkCancelTimeForMemberMannerTemperature(member, meeting);
 
         meeting.removeMeetingParticipant(meetingParticipant);
@@ -247,7 +248,12 @@ public class MeetingService {
         meetingRepository.save(meeting);
     }
 
-    private void checkCanLeave(Meeting meeting) {
+    private void checkCanLeave(Member member, Meeting meeting) {
+        // 주최자는 참여 취소할 수 없음
+        if (meeting.getHost().getId().equals(member.getId())) {
+            throw new MeetingException(HOST_CANNOT_LEAVE_MEETING);
+        }
+
         // 취소된 모임인지 확인
         if (meeting.getMeetingOptions().getStatus() == CANCELED) {
             throw new MeetingException(ALREADY_CANCELED_MEETING);
