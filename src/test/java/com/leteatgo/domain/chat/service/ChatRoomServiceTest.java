@@ -18,6 +18,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.leteatgo.domain.chat.dto.response.ChatMessageResponse;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
+import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse.Chat;
 import com.leteatgo.domain.chat.entity.ChatMessage;
 import com.leteatgo.domain.chat.entity.ChatRoom;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
@@ -113,6 +114,7 @@ class ChatRoomServiceTest {
     @Nested
     @DisplayName("채팅방 종료 메서드는")
     class CloseChatRoomMethod {
+
         Long meetingId = 1L;
         Meeting meeting = Meeting.builder().build();
         ChatRoom chatRoom = new ChatRoom(OPEN, meeting);
@@ -169,6 +171,7 @@ class ChatRoomServiceTest {
     @Nested
     @DisplayName("채팅방 대화 목록 조회 메서드는")
     class RoomMessagesMethod {
+
         String authId = "1";
         Long roomId = 1L;
         CustomPageRequest customPageRequest = new CustomPageRequest(1);
@@ -262,18 +265,23 @@ class ChatRoomServiceTest {
     @Nested
     @DisplayName("내 채팅방 목록 조회 메서드는")
     class MyChatRoomMethod {
+
         String authId = "1";
         CustomPageRequest customPageRequest = new CustomPageRequest(1);
         Member member = Member.builder().build();
         Pageable pageable = PageRequest.of(customPageRequest.page(), 10);
 
+        Chat chat = Chat.builder()
+                .roomId(1L)
+                .content("recent message")
+                .isRead(false)
+                .build();
+
         List<MyChatRoomResponse> contents = List.of(MyChatRoomResponse.builder()
                 .meetingName("meeting name")
                 .category(RestaurantCategory.ASIAN_CUISINE)
                 .region("지역")
-                .roomId(1L)
-                .content("recent message")
-                .isRead(false)
+                .chat(chat)
                 .build());
 
         @Test

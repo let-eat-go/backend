@@ -6,6 +6,7 @@ import static com.leteatgo.domain.meeting.entity.QMeeting.meeting;
 import static com.leteatgo.domain.meeting.entity.QMeetingParticipant.meetingParticipant;
 
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
+import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse.Chat;
 import com.leteatgo.domain.chat.entity.QChatMessage;
 import com.leteatgo.domain.chat.type.RoomStatus;
 import com.leteatgo.domain.meeting.repository.CustomMeetingParticipantRepository;
@@ -34,30 +35,32 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
         DatePath<LocalDateTime> createdAt =
                 Expressions.datePath(LocalDateTime.class, "createdAt");
 
-        QChatMessage cm2 = new QChatMessage("cm2");
+        QChatMessage cm = new QChatMessage("cm");
 
-        JPQLQuery<Long> maxId = JPAExpressions.select(cm2.id.max())
-                .from(cm2)
-                .where(cm2.chatRoom.eq(chatRoom));
+        JPQLQuery<Long> maxId = JPAExpressions.select(cm.id.max())
+                .from(cm)
+                .where(cm.chatRoom.eq(chatRoom));
 
         List<MyChatRoomResponse> contents = queryFactory
-                .select(Projections.fields(MyChatRoomResponse.class,
-                        meeting.name.as("meetingName"),
-                        meeting.restaurantCategory.as("category"),
-                        meeting.region.name.as("region"),
-                        chatRoom.id.as("roomId"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select(cm2.isRead)
-                                        .from(cm2)
-                                        .where(cm2.id.eq(maxId)), "isRead"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select(cm2.content)
-                                        .from(cm2)
-                                        .where(cm2.id.eq(maxId)), "content"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select(cm2.createdAt)
-                                        .from(cm2)
-                                        .where(cm2.id.eq(maxId)), "createdAt")
+                .select(Projections.constructor(MyChatRoomResponse.class,
+                        meeting.name,
+                        meeting.restaurantCategory,
+                        meeting.region.name,
+                        Projections.constructor(Chat.class,
+                                chatRoom.id,
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(cm.content)
+                                                .from(cm)
+                                                .where(cm.id.eq(maxId)), "content"),
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(cm.isRead)
+                                                .from(cm)
+                                                .where(cm.id.eq(maxId)), "read"),
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(cm.createdAt)
+                                                .from(cm)
+                                                .where(cm.id.eq(maxId)), "createdAt")
+                        )
                 ))
                 .from(meetingParticipant)
                 .join(meetingParticipant.meeting, meeting)
