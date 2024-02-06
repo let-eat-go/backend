@@ -49,6 +49,9 @@ public class Member extends BaseEntity {
     @Column(name = "profile_image", nullable = false)
     private String profileImage;
 
+    @Column(name = "profile_filename")
+    private String profileFilename;
+
     @Column(name = "introduce", nullable = false)
     private String introduce;
 
@@ -78,5 +81,19 @@ public class Member extends BaseEntity {
         this.introduce = introduce == null ? DEFAULT_INTRODUCE : introduce;
         this.loginType = loginType;
         this.role = role;
+    }
+
+    public void addProfile(String url, String filename) {
+        this.profileImage = url;
+        this.profileFilename = filename;
+    }
+
+    public void updateInfo(String nickname, String introduce) {
+        this.nickname = nickname;
+        this.introduce = introduce;
+    }
+
+    public void setDeletedAt(LocalDateTime localDateTime) {
+        deletedAt = localDateTime;
     }
 }
