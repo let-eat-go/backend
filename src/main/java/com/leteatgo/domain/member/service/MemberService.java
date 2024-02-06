@@ -5,7 +5,7 @@ import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
-import com.leteatgo.domain.member.dto.response.MyInfoResponse;
+import com.leteatgo.domain.member.dto.response.MemberProfileResponse;
 import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
@@ -32,11 +32,11 @@ public class MemberService {
     private final StorageService storageService;
     private final MeetingParticipantRepository meetingParticipantRepository;
 
-    public MyInfoResponse myInformation(Long memberId) {
+    public MemberProfileResponse getProfile(Long memberId) {
         Member member = getMemberOrThrow(memberId);
         validateMember(member);
 
-        return MyInfoResponse.fromEntity(member);
+        return MemberProfileResponse.fromEntity(member);
     }
 
     @Transactional
@@ -67,15 +67,15 @@ public class MemberService {
         }
     }
 
-    private Member getMemberOrThrow(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
-    }
-
     public Slice<MyMeetingsResponse> myMeetings(SearchType searchType,
             CustomPageRequest request, Long memberId) {
         Member member = getMemberOrThrow(memberId);
         return meetingParticipantRepository.findAllMyMeetings(member, searchType,
                 PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
+    }
+
+    private Member getMemberOrThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
     }
 }

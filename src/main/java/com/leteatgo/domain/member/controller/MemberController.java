@@ -1,7 +1,7 @@
 package com.leteatgo.domain.member.controller;
 
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
-import com.leteatgo.domain.member.dto.response.MyInfoResponse;
+import com.leteatgo.domain.member.dto.response.MemberProfileResponse;
 import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
 import com.leteatgo.domain.member.service.MemberService;
 import com.leteatgo.domain.member.type.SearchType;
@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -35,9 +36,9 @@ public class MemberController {
 
     @RoleUser
     @GetMapping("/me")
-    public ResponseEntity<MyInfoResponse> myInformation(
+    public ResponseEntity<MemberProfileResponse> myInformation(
             @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(memberService.myInformation(
+        return ResponseEntity.ok(memberService.getProfile(
                 Long.parseLong(userDetails.getUsername())));
     }
 
@@ -68,5 +69,12 @@ public class MemberController {
         return ResponseEntity.ok(new SliceResponse<>(
                 memberService.myMeetings(type, request,
                         Long.parseLong(userDetails.getUsername()))));
+    }
+
+    @RoleUser
+    @GetMapping("/{memberId}")
+    public ResponseEntity<MemberProfileResponse> memberProfile(
+            @PathVariable Long memberId) {
+        return ResponseEntity.ok(memberService.getProfile(memberId));
     }
 }
