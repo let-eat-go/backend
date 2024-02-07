@@ -1,7 +1,10 @@
 package com.leteatgo.domain.notification.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.notification.dto.NotificationDto;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.FanoutExchange;
@@ -14,10 +17,12 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RabbitMQService {
 
     private static final String NOTIFICATION_QUEUE = "notification.queue";
 
+    private final ObjectMapper objectMapper;
     private final SimpleMessageListenerContainer container;
     private final SseEmitterService sseEmitterService;
     private final RabbitAdmin rabbitAdmin;
@@ -28,8 +33,13 @@ public class RabbitMQService {
         String queueName = createQueue(userId);
         container.setQueueNames(queueName);
         container.setMessageListener((message) -> {
-            String data = new String(message.getBody());
-            sseEmitterService.send(data, userId, sseEmitter);
+            try {
+                NotificationDto notificationDto = objectMapper.readValue(message.getBody(),
+                        NotificationDto.class);
+                sseEmitterService.send(notificationDto, userId, sseEmitter);
+            } catch (IOException e) {
+                log.error("IOException is occurred. ", e);
+            }
         });
 
         container.start();

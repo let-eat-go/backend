@@ -1,12 +1,17 @@
 package com.leteatgo.global.batch.meeting;
 
 import static com.leteatgo.global.constants.BeanPrefix.CANCEL_UNMATCHED_MEETING;
+import static com.leteatgo.global.constants.NotificationMessage.MEETING_CANCEL;
 
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.meeting.entity.Meeting;
+import com.leteatgo.domain.meeting.entity.MeetingParticipant;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
+import com.leteatgo.domain.notification.event.NotificationEvent;
+import com.leteatgo.domain.notification.event.NotificationEventPublisher;
+import com.leteatgo.domain.notification.type.NotificationType;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +39,7 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
 
     private final MeetingRepository meetingRepository;
     private final ChatRoomEventPublisher chatRoomEventPublisher;
+    private final NotificationEventPublisher notificationEventPublisher;
 
     @Bean(CANCEL_UNMATCHED_MEETING + "Job")
     public Job job() {
@@ -81,9 +87,25 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
         return meeting -> {
             meeting.cancel();
             chatRoomEventPublisher.publishCloseChatRoom(new CloseChatRoomEvent(meeting.getId()));
-            // TODO: 취소 알림
+            publishNotificationForCancelMeeting(meeting);
             return meeting;
         };
+    }
+
+    private void publishNotificationForCancelMeeting(Meeting meeting) {
+        List<MeetingParticipant> participants = meeting.getMeetingParticipants();
+
+        for (MeetingParticipant participant : participants) {
+            String message = String.format(MEETING_CANCEL, meeting.getName());
+            NotificationEvent event = NotificationEvent.builder()
+                    .userId(participant.getMember().getId().toString())
+                    .message(message)
+                    .type(NotificationType.CANCEL)
+                    .relatedUrl("/api/meetings/detail/" + meeting.getId()) // TODO: 프론트 URL로 변경
+                    .build();
+            notificationEventPublisher.publishEvent(event);
+            log.info("NotificationEvent published: {}", event);
+        }
     }
 
     @Bean(CANCEL_UNMATCHED_MEETING + "Writer")
