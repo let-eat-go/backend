@@ -134,6 +134,10 @@ public class Meeting extends BaseEntity {
         this.meetingOptions.cancel();
     }
 
+    public void inProgress() {
+        this.meetingOptions.inProgress();
+    }
+
     public void complete() {
         this.meetingOptions.complete();
     }

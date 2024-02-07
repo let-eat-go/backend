@@ -1,5 +1,6 @@
 package com.leteatgo.domain.meeting.service;
 
+import static com.leteatgo.global.exception.ErrorCode.ALERTY_STARTED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
@@ -787,6 +788,24 @@ class MeetingServiceTest {
         }
 
         @Test
+        @DisplayName("[실패] 이미 진행 중인 모임에 참가 신청하면 예외가 발생한다.")
+        void joinBeforeMeeting() {
+            // given
+            existingMeeting.inProgress();
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.joinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALERTY_STARTED_MEETING.getErrorMessage());
+        }
+
+        @Test
         @DisplayName("[실패] 이미 완료된 모임에 참가 신청하면 예외가 발생한다.")
         void joinCompletedMeeting() {
             // given
@@ -985,6 +1004,25 @@ class MeetingServiceTest {
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(ALREADY_CANCELED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 모임이 이미 진행 중인 상태이면 참가 취소할 수 없다.")
+        void cancelJoinBeforeMeeting() {
+            // given
+            existingMeeting.addMeetingParticipant(mockmember1);
+            existingMeeting.inProgress();
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.cancelJoinMeeting(mockmember1.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALERTY_STARTED_MEETING.getErrorMessage());
         }
 
         @Test

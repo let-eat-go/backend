@@ -2,6 +2,8 @@ package com.leteatgo.domain.meeting.service;
 
 import static com.leteatgo.domain.meeting.type.MeetingStatus.CANCELED;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.COMPLETED;
+import static com.leteatgo.domain.meeting.type.MeetingStatus.IN_PROGRESS;
+import static com.leteatgo.global.exception.ErrorCode.ALERTY_STARTED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
@@ -208,6 +210,11 @@ public class MeetingService {
             throw new MeetingException(ALREADY_CANCELED_MEETING);
         }
 
+        // 진행 중인 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == IN_PROGRESS) {
+            throw new MeetingException(ALERTY_STARTED_MEETING);
+        }
+
         // 완료된 모임인지 확인
         if (meeting.getMeetingOptions().getStatus() == COMPLETED) {
             throw new MeetingException(ALREADY_COMPLETED_MEETING);
@@ -225,7 +232,7 @@ public class MeetingService {
         }
     }
 
-    /* [모임 참여 취소] 참여자는 참여 취소를 할 수 있음, 모임 하루 전에 취소하면 매너온도 감소
+    /* [모임 나가기] 참여자는 모임을 나갈 수 있음, 모임 하루 전에 취소하면 매너온도 감소
      * 동시성 제어를 위해 분산 락을 사용하여 동시에 참여 취소할 수 없도록 함
      * */
     @Transactional
@@ -249,7 +256,7 @@ public class MeetingService {
     }
 
     private void checkCanLeave(Member member, Meeting meeting) {
-        // 주최자는 참여 취소할 수 없음
+        // 주최자는 나갈 수 없음
         if (meeting.getHost().getId().equals(member.getId())) {
             throw new MeetingException(HOST_CANNOT_LEAVE_MEETING);
         }
@@ -257,6 +264,11 @@ public class MeetingService {
         // 취소된 모임인지 확인
         if (meeting.getMeetingOptions().getStatus() == CANCELED) {
             throw new MeetingException(ALREADY_CANCELED_MEETING);
+        }
+
+        // 진행 중인 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == IN_PROGRESS) {
+            throw new MeetingException(ALERTY_STARTED_MEETING);
         }
 
         // 완료된 모임인지 확인
