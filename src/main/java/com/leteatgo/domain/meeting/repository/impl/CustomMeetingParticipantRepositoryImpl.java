@@ -4,16 +4,22 @@ import static com.leteatgo.domain.chat.entity.QChatMessage.chatMessage;
 import static com.leteatgo.domain.chat.entity.QChatRoom.chatRoom;
 import static com.leteatgo.domain.meeting.entity.QMeeting.meeting;
 import static com.leteatgo.domain.meeting.entity.QMeetingParticipant.meetingParticipant;
+import static com.leteatgo.domain.tastyrestaurant.entity.QTastyRestaurant.tastyRestaurant;
 
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse.Chat;
 import com.leteatgo.domain.chat.entity.QChatMessage;
 import com.leteatgo.domain.chat.type.RoomStatus;
 import com.leteatgo.domain.meeting.repository.CustomMeetingParticipantRepository;
+import com.leteatgo.domain.meeting.type.MeetingStatus;
+import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
+import com.leteatgo.domain.member.dto.response.MyMeetingsResponse.Restaurant;
 import com.leteatgo.domain.member.entity.Member;
+import com.leteatgo.domain.member.type.SearchType;
 import com.leteatgo.global.util.SliceUtil;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.DatePath;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -75,5 +81,51 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                 .fetch();
 
         return new SliceUtil<>(contents, pageable).getSlice();
+    }
+
+    @Override
+    public Slice<MyMeetingsResponse> findAllMyMeetings(Member member, SearchType searchType,
+            Pageable pageable) {
+        List<MyMeetingsResponse> contents = queryFactory.select(
+                        Projections.constructor(MyMeetingsResponse.class,
+                                meeting.id,
+                                meeting.name,
+                                meeting.restaurantCategory,
+                                meeting.startDateTime,
+                                meeting.maxParticipants,
+                                Projections.constructor(Restaurant.class,
+                                        tastyRestaurant.id,
+                                        tastyRestaurant.name,
+                                        tastyRestaurant.roadAddress,
+                                        tastyRestaurant.phoneNumber)
+                        ))
+                .from(meetingParticipant)
+                .join(meetingParticipant.meeting, meeting)
+                .leftJoin(meeting.tastyRestaurant, tastyRestaurant)
+                .where(meetingParticipant.member.eq(member),
+                        filterMeetingType(searchType, member))
+                .orderBy(meeting.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return new SliceUtil<>(contents, pageable).getSlice();
+    }
+
+    private BooleanExpression filterMeetingType(SearchType searchType, Member member) {
+        switch (searchType) {
+            case SCHEDULED -> {
+                return meeting.meetingOptions.status.eq(MeetingStatus.BEFORE);
+            }
+            case COMPLETED -> {
+                return meeting.meetingOptions.status.eq(MeetingStatus.COMPLETED);
+            }
+            case CREATED -> { // 내가 생성한 모임
+                return meeting.host.eq(member);
+            }
+            default -> {
+                return null;
+            }
+        }
     }
 }

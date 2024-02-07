@@ -4,15 +4,15 @@ import com.leteatgo.domain.member.entity.Member;
 import lombok.Builder;
 
 @Builder
-public record MyInfoResponse(
+public record MemberProfileResponse(
         String nickname,
         String profile,
         String introduce,
         Double mannerTemperature
 ) {
 
-    public static MyInfoResponse fromEntity(Member member) {
-        return MyInfoResponse.builder()
+    public static MemberProfileResponse fromEntity(Member member) {
+        return MemberProfileResponse.builder()
                 .nickname(member.getNickname())
                 .profile(member.getProfileImage())
                 .introduce(member.getIntroduce())
