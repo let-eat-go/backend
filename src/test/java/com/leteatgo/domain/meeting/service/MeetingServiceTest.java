@@ -1,12 +1,18 @@
 package com.leteatgo.domain.meeting.service;
 
+import static com.leteatgo.global.exception.ErrorCode.ALERTY_STARTED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.CANNOT_CANCEL_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.HOST_CANNOT_LEAVE_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.NOT_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_MEETING_HOST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -25,7 +31,9 @@ import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.entity.MeetingOptions;
+import com.leteatgo.domain.meeting.entity.MeetingParticipant;
 import com.leteatgo.domain.meeting.exception.MeetingException;
+import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.meeting.type.AgePreference;
 import com.leteatgo.domain.meeting.type.AlcoholPreference;
@@ -46,6 +54,7 @@ import com.leteatgo.global.util.SliceUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -70,6 +79,8 @@ class MeetingServiceTest {
     RegionRepository regionRepository;
     @Mock
     MeetingRepository meetingRepository;
+    @Mock
+    MeetingParticipantRepository meetingParticipantRepository;
     @Mock
     TastyRestaurantRepository tastyRestaurantRepository;
     @Mock
@@ -685,5 +696,354 @@ class MeetingServiceTest {
         ReflectionTestUtils.setField(member, "id", id);
 
         return member;
+    }
+
+    @Nested
+    @DisplayName("joinMeeting 메서드는")
+    class joinedMeetingMethod {
+
+        Member host = createTestMember(1L, "test@naver.com", "testnick", "1!qweqwe",
+                "01012345678", LoginType.LOCAL, MemberRole.ROLE_USER);
+        Member mockmember1 = createTestMember(2L, "test2@naver.com", "testnick2", "1!qweqwe",
+                "01012345671", LoginType.LOCAL, MemberRole.ROLE_USER);
+        Member mockmember2 = createTestMember(3L, "test3@naver.com", "testnick3", "1!qweqwe",
+                "01012345672", LoginType.LOCAL, MemberRole.ROLE_USER);
+
+        MeetingOptions options = MeetingOptionsRequest.toEntiy(
+                new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
+                        MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+        Meeting existingMeeting = Meeting.builder()
+                .host(host)
+                .name("모임 제목")
+                .restaurantCategory(RestaurantCategory.from("한식"))
+                .region(new Region("강남구"))
+                .maxParticipants(2)
+                .minParticipants(2)
+                .startDateTime(LocalDateTime.of(2025, 1, 31, 19, 0))
+                .description("모임 설명")
+                .meetingOptions(options)
+                .build();
+
+        @Test
+        @DisplayName("[성공] 모임 참가 신청을 성공하면 현재 참가자 수가 증가한다.")
+        void joinMeeting() {
+            // given
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+            List<MeetingParticipant> mockParticipants = Arrays.asList(
+                    new MeetingParticipant(existingMeeting, host),
+                    new MeetingParticipant(existingMeeting, mockmember1));
+            existingMeeting.addMeetingParticipant(mockmember1);
+            given(meetingParticipantRepository.findAll()).willReturn(mockParticipants);
+
+            // when
+            meetingService.joinMeeting(host.getId(), existingMeeting.getId());
+
+            // then
+            verify(meetingRepository, times(1)).save(existingMeeting);
+            List<MeetingParticipant> participants = meetingParticipantRepository.findAll();
+            assertSoftly(softly -> {
+                softly.assertThat(existingMeeting.getCurrentParticipants()).isEqualTo(2);
+                softly.assertThat(participants.stream()
+                        .anyMatch(p -> p.getMember().getId().equals(mockmember1.getId()))).isTrue();
+            });
+        }
+
+        @Test
+        @DisplayName("[실패] 이미 참가한 모임에 다시 참가 신청하면 예외가 발생한다.")
+        void joinMeetingWithAlreadyJoinedMeeting() {
+            // given
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+            existingMeeting.addMeetingParticipant(host);
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.joinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALREADY_JOINED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 이미 취소된 모임에 참가 신청하면 예외가 발생한다.")
+        void joinCanceledMeeting() {
+            // given
+            existingMeeting.cancel();
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.joinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALREADY_CANCELED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 이미 진행 중인 모임에 참가 신청하면 예외가 발생한다.")
+        void joinBeforeMeeting() {
+            // given
+            existingMeeting.inProgress();
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.joinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALERTY_STARTED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 이미 완료된 모임에 참가 신청하면 예외가 발생한다.")
+        void joinCompletedMeeting() {
+            // given
+            existingMeeting.complete();
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.joinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALREADY_COMPLETED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 모임이 존재하지 않으면 참가 신청할 수 없다.")
+        void joinNotExistingMeeting() {
+            // given
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.empty());
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.joinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(NOT_FOUND_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 최대 인원이 다 찬 모임에 참가 신청하면 예외가 발생한다.")
+        void joinFullMeeting() {
+            // given
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+            existingMeeting.addMeetingParticipant(mockmember1);
+            existingMeeting.addMeetingParticipant(mockmember2);
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.joinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALREADY_FULL_PARTICIPANT.getErrorMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("cancelJoinMeeting 메서드는")
+    class cancelJoinMeetingMethod {
+
+        Member host = createTestMember(1L, "test@naver.com", "testnick", "1!qweqwe",
+                "01012345678", LoginType.LOCAL, MemberRole.ROLE_USER);
+        Member mockmember1 = createTestMember(2L, "test2@naver.com", "testnick2", "1!qweqwe",
+                "01012345671", LoginType.LOCAL, MemberRole.ROLE_USER);
+
+        MeetingOptions options = MeetingOptionsRequest.toEntiy(
+                new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
+                        MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+        Meeting existingMeeting = Meeting.builder()
+                .host(host)
+                .name("모임 제목")
+                .restaurantCategory(RestaurantCategory.from("한식"))
+                .region(new Region("강남구"))
+                .maxParticipants(2)
+                .minParticipants(2)
+                .startDateTime(LocalDateTime.of(2025, 1, 31, 19, 0))
+                .description("모임 설명")
+                .meetingOptions(options)
+                .build();
+
+        @Test
+        @DisplayName("[성공] 모임 참가를 취소하면 현재 참가자 수가 감소한다.")
+        void cancelJoinMeeting() {
+            // given
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+            existingMeeting.addMeetingParticipant(host);
+            existingMeeting.addMeetingParticipant(mockmember1);
+            List<MeetingParticipant> mockParticipants = Arrays.asList(
+                    new MeetingParticipant(existingMeeting, host),
+                    new MeetingParticipant(existingMeeting, mockmember1));
+            existingMeeting.removeMeetingParticipant(mockParticipants.get(1));
+            given(meetingParticipantRepository.findAll()).willReturn(
+                    mockParticipants.subList(0, 1)); // mockParticipants에서 mockmember1을 제외한 리스트
+
+            // when
+            meetingService.cancelJoinMeeting(mockmember1.getId(), existingMeeting.getId());
+
+            // then
+            verify(meetingRepository, times(1)).save(existingMeeting);
+            List<MeetingParticipant> participants = meetingParticipantRepository.findAll();
+            assertSoftly(softly -> {
+                softly.assertThat(existingMeeting.getCurrentParticipants()).isEqualTo(1);
+                softly.assertThat(participants.stream()
+                                .noneMatch(p -> p.getMember().getId().equals(mockmember1.getId())))
+                        .isTrue();
+            });
+        }
+
+        @Test
+        @DisplayName("[성공] 모임 시작 1시간 이내에 취소하면 매너온도 점수가 감소한다.")
+        void cancelJoinMeetingBeforeOneHour() {
+            // given
+            existingMeeting.addMeetingParticipant(mockmember1);
+            existingMeeting.update(LocalDateTime.now().plusMinutes(1)); // 1분 후로 설정
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            meetingService.cancelJoinMeeting(mockmember1.getId(), existingMeeting.getId());
+
+            // then
+            verify(memberRepository, times(1)).save(mockmember1);
+            // 기본값인 36.5보다 낮다
+            assertThat(mockmember1.getMannerTemperature()).isLessThan(36.5);
+        }
+
+        @Test
+        @DisplayName("[실패] 주최자는 모임 참가를 취소할 수 없다.")
+        void cancelJoinMeetingWithHost() {
+            // given
+            existingMeeting.addMeetingParticipant(host);
+            given(memberRepository.findById(host.getId())).willReturn(
+                    Optional.of(host));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.cancelJoinMeeting(host.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(HOST_CANNOT_LEAVE_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 참가하지 않은 모임에 참가 취소하면 예외가 발생한다.")
+        void cancelJoinNotJoinedMeeting() {
+            // given
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.cancelJoinMeeting(mockmember1.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(NOT_JOINED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 모임이 존재하지 않으면 예외가 발생한다.")
+        void cancelJoinNotExistingMeeting() {
+            // given
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.empty());
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.cancelJoinMeeting(mockmember1.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(NOT_FOUND_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 모임이 이미 취소된 상태이면 참가 취소할 수 없다.")
+        void cancelJoinCanceledMeeting() {
+            // given
+            existingMeeting.addMeetingParticipant(mockmember1);
+            existingMeeting.cancel();
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.cancelJoinMeeting(mockmember1.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALREADY_CANCELED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 모임이 이미 진행 중인 상태이면 참가 취소할 수 없다.")
+        void cancelJoinBeforeMeeting() {
+            // given
+            existingMeeting.addMeetingParticipant(mockmember1);
+            existingMeeting.inProgress();
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.cancelJoinMeeting(mockmember1.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALERTY_STARTED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("[실패] 모임이 이미 완료된 상태이면 참가 취소할 수 없다.")
+        void cancelJoinCompletedMeeting() {
+            // given
+            existingMeeting.addMeetingParticipant(mockmember1);
+            existingMeeting.complete();
+            given(memberRepository.findById(mockmember1.getId())).willReturn(
+                    Optional.of(mockmember1));
+            given(meetingRepository.findById(existingMeeting.getId())).willReturn(
+                    Optional.of(existingMeeting));
+
+            // when
+            // then
+            assertThatThrownBy(() -> meetingService.cancelJoinMeeting(mockmember1.getId(),
+                    existingMeeting.getId()))
+                    .isInstanceOf(MeetingException.class)
+                    .hasMessageContaining(ALREADY_COMPLETED_MEETING.getErrorMessage());
+        }
+
+
     }
 }

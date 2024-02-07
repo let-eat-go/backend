@@ -40,7 +40,8 @@ dependencies {
     // DB
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
+    // redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.23.1'
     // Batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
 

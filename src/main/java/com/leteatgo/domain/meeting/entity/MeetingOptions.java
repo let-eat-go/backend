@@ -44,6 +44,10 @@ public class MeetingOptions {
         this.status = MeetingStatus.CANCELED;
     }
 
+    public void inProgress() {
+        this.status = MeetingStatus.IN_PROGRESS;
+    }
+
     public void complete() {
         this.status = MeetingStatus.COMPLETED;
     }

@@ -109,13 +109,18 @@ public class Meeting extends BaseEntity {
         this.tastyRestaurant = tastyRestaurant;
     }
 
-    public void addMeetingParticipant(Member host) {
+    public void addMeetingParticipant(Member member) {
         MeetingParticipant meetingParticipant = MeetingParticipant.builder()
                 .meeting(this)
-                .member(host)
+                .member(member)
                 .build();
 
         this.meetingParticipants.add(meetingParticipant);
+        this.currentParticipants = this.meetingParticipants.size();
+    }
+
+    public void removeMeetingParticipant(MeetingParticipant meetingParticipant) {
+        this.meetingParticipants.remove(meetingParticipant);
         this.currentParticipants = this.meetingParticipants.size();
     }
 
@@ -127,6 +132,10 @@ public class Meeting extends BaseEntity {
 
     public void cancel() {
         this.meetingOptions.cancel();
+    }
+
+    public void inProgress() {
+        this.meetingOptions.inProgress();
     }
 
     public void complete() {

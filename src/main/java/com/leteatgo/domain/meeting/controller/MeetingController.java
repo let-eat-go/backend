@@ -103,4 +103,27 @@ public class MeetingController {
         Slice<MeetingSearchResponse> response = meetingService.searchMeetings(type, term, request);
         return ResponseEntity.ok(new SliceResponse<>(response));
     }
+
+    // 모임 참여
+    @PostMapping("/{meetingId}/join")
+    @RoleUser
+    public ResponseEntity<Void> joinMeeting(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long meetingId
+    ) {
+        meetingService.joinMeeting(Long.parseLong(userDetails.getUsername()), meetingId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 모임 나가기
+    @DeleteMapping("/{meetingId}/leave")
+    @RoleUser
+    public ResponseEntity<Void> cancelJoinMeeting(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long meetingId
+    ) {
+        meetingService.cancelJoinMeeting(Long.parseLong(userDetails.getUsername()), meetingId);
+        return ResponseEntity.ok().build();
+    }
+
 }
