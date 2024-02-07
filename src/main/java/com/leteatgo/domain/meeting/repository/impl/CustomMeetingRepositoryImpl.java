@@ -161,7 +161,7 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
         return Optional.ofNullable(queryFactory
                 .selectFrom(meeting)
                 .join(meeting.meetingParticipants, meetingParticipant).fetchJoin()
-                .join(meetingParticipant.member, member).fetchJoin()
+                .leftJoin(meetingParticipant.member, member).fetchJoin()
                 .where(meeting.id.eq(meetingId))
                 .fetchOne());
     }
