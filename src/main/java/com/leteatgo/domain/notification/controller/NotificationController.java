@@ -41,6 +41,7 @@ public class NotificationController {
 
     // 알림 읽음 처리
     @PatchMapping("/{notificationId}")
+    @RoleUser
     public ResponseEntity<Void> markAsRead(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long notificationId
@@ -52,6 +53,7 @@ public class NotificationController {
 
     // 알림 목록 조회
     @GetMapping("/list")
+    @RoleUser
     public ResponseEntity<SliceResponse<NotificationDto>> getNotificationList(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid CustomPageRequest request
