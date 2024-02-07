@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/signout",
                                 "/api/auth/oauth/success").hasRole("USER")
                         .requestMatchers("/api/meetings/**").hasRole("USER")
+                        .requestMatchers("/api/notification/**").hasRole("USER")
 
                         .anyRequest().authenticated())
 

@@ -34,4 +34,16 @@ public class Notification {
 
     @Column(name = "related_url", nullable = false)
     private String relatedUrl;
+
+    @Builder
+    public Notification(String content, Member receiver, NotificationType type, String relatedUrl) {
+        this.content = content;
+        this.receiver = receiver;
+        this.type = type;
+        this.relatedUrl = relatedUrl;
+    }
+
+    public void addReceiver(Member receiver) {
+        this.receiver = receiver;
+    }
 }
