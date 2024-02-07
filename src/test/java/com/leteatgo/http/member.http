@@ -1,0 +1,24 @@
+### my information
+GET {{host}}/api/members/me
+
+### update info
+PATCH {{host}}/api/members
+Content-Type: multipart/form-data; boundary=updateInfo
+
+--updateInfo
+Content-Disposition: form-data; name="request"
+Content-Type: application/json
+
+{
+  "nickname": "별명 수정",
+  "introduce": "소개 수정"
+}
+
+--updateInfo
+Content-Disposition: form-data; name="profile"; filename="profile.jpeg"
+Content-Type: multipart/form-data
+
+< ../../src/test/resources/img/profile.jpeg
+
+### delete member
+DELETE {{host}}/api/members

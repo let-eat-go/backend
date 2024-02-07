@@ -6,6 +6,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,11 +15,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.chat.dto.response.ChatMessageResponse;
 import com.leteatgo.domain.chat.dto.response.ChatMessageResponse.Sender;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
+import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse.Chat;
 import com.leteatgo.domain.chat.service.ChatRoomService;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
 import com.leteatgo.global.type.RestaurantCategory;
+import jakarta.servlet.http.Cookie;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -88,7 +91,9 @@ class ChatRoomControllerTest {
 
         // when
         // then
-        mockMvc.perform(get(URI + "/{roomId}/messages", roomId))
+        mockMvc.perform(get(URI + "/{roomId}/messages", roomId)
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("채팅방 대화 목록 조회",
@@ -109,13 +114,17 @@ class ChatRoomControllerTest {
         String authId = "1";
         CustomPageRequest customPageRequest = new CustomPageRequest(1);
 
+        Chat chat = Chat.builder()
+                .roomId(1L)
+                .content("recent message")
+                .isRead(false)
+                .build();
+
         List<MyChatRoomResponse> contents = List.of(MyChatRoomResponse.builder()
                 .meetingName("meeting name")
                 .category(RestaurantCategory.ASIAN_CUISINE)
                 .region("지역")
-                .roomId(1L)
-                .content("recent message")
-                .isRead(false)
+                .chat(chat)
                 .build());
 
         given(chatRoomService.myChatRooms(authId, customPageRequest))
@@ -124,7 +133,9 @@ class ChatRoomControllerTest {
 
         // when
         // then
-        mockMvc.perform(get(URI + "/me"))
+        mockMvc.perform(get(URI + "/me")
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(document("내 채팅방 목록 조회",

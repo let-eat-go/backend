@@ -49,11 +49,14 @@ public class Member extends BaseEntity {
     @Column(name = "profile_image", nullable = false)
     private String profileImage;
 
+    @Column(name = "profile_filename")
+    private String profileFilename;
+
     @Column(name = "introduce", nullable = false)
     private String introduce;
 
     @Column(name = "manner_temperature", nullable = false)
-    private Double mannerTemperature;
+    private final Double mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
 
     @Column(name = "login_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -68,20 +71,32 @@ public class Member extends BaseEntity {
 
     @Builder
     protected Member(String email, String nickname, String password, String phoneNumber,
-            String profileImage, LoginType loginType, MemberRole role
+            String profileImage, LoginType loginType, MemberRole role, String introduce
     ) {
         this.email = email;
         this.nickname = nickname;
         this.password = password == null ? DEFAULT_PASSWORD : password;
         this.phoneNumber = phoneNumber == null ? DEFAULT_PHONE_NUMBER : phoneNumber;
         this.profileImage = profileImage == null ? DEFAULT_PROFILE_IMAGE : profileImage;
-        this.introduce = DEFAULT_INTRODUCE;
-        this.mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
+        this.introduce = introduce == null ? DEFAULT_INTRODUCE : introduce;
         this.loginType = loginType;
         this.role = role;
     }
 
     public void decreaseMannerTemperature() {
         this.mannerTemperature -= 3.0; // 3.0은 임시로 설정한 값입니다.
+
+    public void addProfile(String url, String filename) {
+        this.profileImage = url;
+        this.profileFilename = filename;
+    }
+
+    public void updateInfo(String nickname, String introduce) {
+        this.nickname = nickname;
+        this.introduce = introduce;
+    }
+
+    public void setDeletedAt(LocalDateTime localDateTime) {
+        deletedAt = localDateTime;
     }
 }
