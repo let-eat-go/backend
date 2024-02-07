@@ -56,7 +56,7 @@ public class Member extends BaseEntity {
     private String introduce;
 
     @Column(name = "manner_temperature", nullable = false)
-    private final Double mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
+    private Double mannerTemperature = DEFAULT_MANNER_TEMPERATURE;
 
     @Column(name = "login_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -85,6 +85,7 @@ public class Member extends BaseEntity {
 
     public void decreaseMannerTemperature() {
         this.mannerTemperature -= 3.0; // 3.0은 임시로 설정한 값입니다.
+    }
 
     public void addProfile(String url, String filename) {
         this.profileImage = url;
