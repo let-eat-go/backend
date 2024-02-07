@@ -1,7 +1,9 @@
 package com.leteatgo.domain.notification.service;
 
 import static com.leteatgo.global.constants.NotificationMessage.SUBSCRIBE;
+import static com.leteatgo.global.exception.ErrorCode.CANNOT_READ_NOTIFICATION;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
+import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_NOTIFICATION;
 
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
@@ -9,9 +11,13 @@ import com.leteatgo.domain.member.repository.MemberRepository;
 import com.leteatgo.domain.notification.dto.NotificationDto;
 import com.leteatgo.domain.notification.entity.Notification;
 import com.leteatgo.domain.notification.event.NotificationEvent;
+import com.leteatgo.domain.notification.exception.NotificationException;
 import com.leteatgo.domain.notification.repository.NotificationRepository;
+import com.leteatgo.global.dto.CustomPageRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -56,5 +62,24 @@ public class NotificationService {
         notificationRepository.save(notification);
 
         rabbitMQService.publish(event.userId(), NotificationDto.fromEntity(notification));
+    }
+
+    @Transactional
+    public void markAsRead(Long memberId, Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new NotificationException(NOT_FOUND_NOTIFICATION));
+        if (!notification.getReceiver().getId().equals(memberId)) {
+            throw new NotificationException(CANNOT_READ_NOTIFICATION);
+        }
+        notification.readNotification();
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<NotificationDto> getNotificationList(String memberId, CustomPageRequest request) {
+        Member member = memberRepository.findById(Long.parseLong(memberId))
+                .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+        return notificationRepository.findAllByReceiverOrderByCreatedAtDesc(
+                        member, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE))
+                .map(NotificationDto::fromEntity);
     }
 }

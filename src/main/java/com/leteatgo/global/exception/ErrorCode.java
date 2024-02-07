@@ -66,7 +66,11 @@ public enum ErrorCode {
     HOST_CANNOT_LEAVE_MEETING(BAD_REQUEST, "주최자는 모임에서 나갈 수 없습니다."),
 
     // region
-    NOT_FOUND_REGION(BAD_REQUEST, "존재하지 않는 지역입니다.");
+    NOT_FOUND_REGION(BAD_REQUEST, "존재하지 않는 지역입니다."),
+
+    // notification
+    NOT_FOUND_NOTIFICATION(BAD_REQUEST, "존재하지 않는 알림입니다."),
+    CANNOT_READ_NOTIFICATION(BAD_REQUEST, "해당 알림을 읽을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorMessage;
