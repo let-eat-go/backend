@@ -162,6 +162,7 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
                 .selectFrom(meeting)
                 .join(meeting.meetingParticipants, meetingParticipant).fetchJoin()
                 .leftJoin(meetingParticipant.member, member).fetchJoin()
+                .join(meeting.chatRoom, chatRoom).fetchJoin()
                 .where(meeting.id.eq(meetingId))
                 .fetchOne());
     }
