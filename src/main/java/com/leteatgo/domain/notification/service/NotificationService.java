@@ -1,5 +1,6 @@
 package com.leteatgo.domain.notification.service;
 
+import static com.leteatgo.global.constants.NotificationMessage.SUBSCRIBE;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 
 import com.leteatgo.domain.member.entity.Member;
@@ -27,7 +28,7 @@ public class NotificationService {
 
     public SseEmitter subscribe(String memberId) {
         SseEmitter sseEmitter = sseEmitterService.createSseEmitter(memberId);
-        sseEmitterService.send("Dummy Data", memberId, sseEmitter);
+        sseEmitterService.send(SUBSCRIBE, memberId, sseEmitter);
 
         rabbitMQService.subscribe(memberId, sseEmitter);
 
