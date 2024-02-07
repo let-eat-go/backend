@@ -155,4 +155,14 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
 
         return new SliceUtil<>(meetingSearchResponses, pageable).getSlice();
     }
+
+    @Override
+    public Optional<Meeting> findMeetingFetch(Long meetingId) {
+        return Optional.ofNullable(queryFactory
+                .selectFrom(meeting)
+                .join(meeting.meetingParticipants, meetingParticipant).fetchJoin()
+                .join(meetingParticipant.member, member).fetchJoin()
+                .where(meeting.id.eq(meetingId))
+                .fetchOne());
+    }
 }

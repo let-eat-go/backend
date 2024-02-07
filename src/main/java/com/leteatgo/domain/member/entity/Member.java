@@ -100,4 +100,8 @@ public class Member extends BaseEntity {
     public void setDeletedAt(LocalDateTime localDateTime) {
         deletedAt = localDateTime;
     }
+
+    public void updateMannerTemperature(Double score) {
+        this.mannerTemperature -= -1 * score;
+    }
 }

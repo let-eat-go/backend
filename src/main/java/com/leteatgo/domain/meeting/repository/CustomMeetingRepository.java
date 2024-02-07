@@ -20,4 +20,6 @@ public interface CustomMeetingRepository {
     List<Meeting> findMeetingsForCancel(LocalDateTime startDateTime, MeetingStatus status);
 
     Slice<MeetingSearchResponse> searchMeetings(String type, String term, Pageable pageable);
+
+    Optional<Meeting> findMeetingFetch(Long meetingId);
 }
