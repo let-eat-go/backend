@@ -14,11 +14,11 @@ import com.leteatgo.domain.review.dto.request.ReviewRequest;
 import com.leteatgo.domain.review.exception.ReviewException;
 import com.leteatgo.domain.review.repository.ReviewRepository;
 import com.leteatgo.global.exception.ErrorCode;
+import com.leteatgo.global.lock.annotation.DistributedLock;
 import com.leteatgo.global.security.CustomUserDetailService;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -28,7 +28,7 @@ public class ReviewService {
     private final CustomUserDetailService userDetailService;
     private final MeetingRepository meetingRepository;
 
-    @Transactional
+    @DistributedLock(key = "'reviewParticipant:' + #reviewerId")
     public void reviewParticipant(ReviewRequest request, Long reviewerId) {
         Member reviewer = userDetailService.findByIdOrThrow(reviewerId);
         Member reviewee = userDetailService.findByIdOrThrow(request.revieweeId());
