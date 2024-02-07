@@ -4,6 +4,7 @@ import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.notification.type.NotificationType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,10 +26,12 @@ public class Notification {
     private Member receiver;
 
     @Column(name = "is_read", nullable = false)
-    private Boolean isRead;
+    private Boolean isRead = false;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
+    @Column(name = "related_url", nullable = false)
+    private String relatedUrl;
 }
