@@ -55,7 +55,7 @@ dependencies {
 //    implementation 'org.springframework.security:spring-security-messaging'
 
     // rabbitmq
-//    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
     // Driver
     runtimeOnly 'com.h2database:h2'
