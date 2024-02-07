@@ -3,15 +3,21 @@ package com.leteatgo.domain.member.service;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_DELETED_MEMBER;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 
+import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
-import com.leteatgo.domain.member.dto.response.MyInfoResponse;
+import com.leteatgo.domain.member.dto.response.MemberProfileResponse;
+import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
 import com.leteatgo.domain.member.repository.MemberRepository;
+import com.leteatgo.domain.member.type.SearchType;
+import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.storage.FileDto;
 import com.leteatgo.global.storage.StorageService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -24,12 +30,13 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final StorageService storageService;
+    private final MeetingParticipantRepository meetingParticipantRepository;
 
-    public MyInfoResponse myInformation(Long memberId) {
+    public MemberProfileResponse getProfile(Long memberId) {
         Member member = getMemberOrThrow(memberId);
         validateMember(member);
 
-        return MyInfoResponse.fromEntity(member);
+        return MemberProfileResponse.fromEntity(member);
     }
 
     @Transactional
@@ -58,6 +65,13 @@ public class MemberService {
         if (!ObjectUtils.isEmpty(member.getDeletedAt())) {
             throw new MemberException(ALREADY_DELETED_MEMBER);
         }
+    }
+
+    public Slice<MyMeetingsResponse> myMeetings(SearchType searchType,
+            CustomPageRequest request, Long memberId) {
+        Member member = getMemberOrThrow(memberId);
+        return meetingParticipantRepository.findAllMyMeetings(member, searchType,
+                PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
     }
 
     private Member getMemberOrThrow(Long memberId) {
