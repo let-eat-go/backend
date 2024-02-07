@@ -3,9 +3,7 @@ package com.leteatgo.domain.notification.controller;
 import static org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE;
 
 import com.leteatgo.domain.notification.dto.NotificationDto;
-import com.leteatgo.domain.notification.event.NotificationEvent;
 import com.leteatgo.domain.notification.service.NotificationService;
-import com.leteatgo.domain.notification.type.NotificationType;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.dto.SliceResponse;
 import com.leteatgo.global.security.annotation.RoleUser;
@@ -18,7 +16,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -42,11 +39,11 @@ public class NotificationController {
     // 알림 읽음 처리
     @PatchMapping("/{notificationId}")
     @RoleUser
-    public ResponseEntity<Void> markAsRead(
+    public ResponseEntity<Void> readNotification(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long notificationId
     ) {
-        notificationService.markAsRead(
+        notificationService.readNotification(
                 Long.parseLong(userDetails.getUsername()), notificationId);
         return ResponseEntity.ok().build();
     }
@@ -61,20 +58,5 @@ public class NotificationController {
         Slice<NotificationDto> response = notificationService.getNotificationList(
                 userDetails.getUsername(), request);
         return ResponseEntity.ok(new SliceResponse<>(response));
-    }
-
-    @PostMapping("/send")
-    public ResponseEntity<Void> sendNotification(
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        String message = "Test Message";
-        NotificationEvent event = NotificationEvent.builder()
-                .userId(userDetails.getUsername())
-                .message(message)
-                .type(NotificationType.REMIND)
-                .relatedUrl("/test")
-                .build();
-        notificationService.sendNotification(event);
-        return ResponseEntity.ok().build();
     }
 }

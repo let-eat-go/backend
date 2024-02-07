@@ -65,7 +65,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAsRead(Long memberId, Long notificationId) {
+    public void readNotification(Long memberId, Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new NotificationException(NOT_FOUND_NOTIFICATION));
         if (!notification.getReceiver().getId().equals(memberId)) {
