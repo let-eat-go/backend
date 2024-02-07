@@ -11,6 +11,10 @@ import static com.leteatgo.global.util.QuerydslUtil.meetingListProjection;
 import static com.leteatgo.global.util.QuerydslUtil.meetingSearchProjection;
 
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.HostResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.MeetingResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.ParticipantResponse;
+import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.RestaurantResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
@@ -46,16 +50,44 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
     @Override
     public Optional<MeetingDetailResponse> findMeetingDetail(Long meetingId) {
 
-        MeetingDetailResponse meetingDetailResponse = queryFactory.select(meetingDetailProjection())
+        List<MeetingDetailResponse> meetingDetailResponses = queryFactory.select(
+                        meetingDetailProjection())
                 .from(meeting)
                 .join(meeting.host, member)
                 .join(meeting.chatRoom, chatRoom)
                 .leftJoin(meeting.tastyRestaurant, tastyRestaurant)
                 .leftJoin(meeting.meetingParticipants, meetingParticipant)
                 .where(meeting.id.eq(meetingId))
-                .fetchOne();
+                .fetch();
 
-        return Optional.ofNullable(meetingDetailResponse);
+        if (meetingDetailResponses.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(mergeMeetingDetailResponse(meetingDetailResponses));
+    }
+
+    private MeetingDetailResponse mergeMeetingDetailResponse(
+            List<MeetingDetailResponse> meetingDetailResponses
+    ) {
+        MeetingResponse meetingResponse = meetingDetailResponses.get(0).meeting();
+        HostResponse hostResponse = meetingDetailResponses.get(0).host();
+        List<ParticipantResponse> participantResponses =
+                meetingDetailResponses.stream()
+                        .flatMap(response -> response.participants().stream())
+                        .distinct()
+                        .toList();
+        RestaurantResponse restaurantResponse = meetingDetailResponses.get(0)
+                .restaurant();
+        int chatRoomId = meetingDetailResponses.get(0).chatRoomId();
+
+        return new MeetingDetailResponse(
+                meetingResponse,
+                hostResponse,
+                participantResponses,
+                restaurantResponse,
+                chatRoomId
+        );
     }
 
     @Override

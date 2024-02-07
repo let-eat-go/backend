@@ -83,6 +83,9 @@ public class Member extends BaseEntity {
         this.role = role;
     }
 
+    public void decreaseMannerTemperature() {
+        this.mannerTemperature -= 3.0; // 3.0은 임시로 설정한 값입니다.
+
     public void addProfile(String url, String filename) {
         this.profileImage = url;
         this.profileFilename = filename;

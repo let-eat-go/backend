@@ -1,5 +1,8 @@
 package com.leteatgo.global.config;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +28,16 @@ public class RedisConfig {
         configuration.setHostName(host);
         configuration.setPort(port);
         return new LettuceConnectionFactory(configuration);
+    }
+
+    @Bean
+    public RedissonClient redissonClient() {
+        RedissonClient redisson;
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://" + host + ":" + port);
+        redisson = Redisson.create(config);
+        return redisson;
     }
 
     @Bean
