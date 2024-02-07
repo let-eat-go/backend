@@ -101,7 +101,7 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                         ))
                 .from(meetingParticipant)
                 .join(meetingParticipant.meeting, meeting)
-                .join(meeting.tastyRestaurant, tastyRestaurant)
+                .leftJoin(meeting.tastyRestaurant, tastyRestaurant)
                 .where(meetingParticipant.member.eq(member),
                         filterMeetingType(searchType, member))
                 .orderBy(meeting.id.desc())
