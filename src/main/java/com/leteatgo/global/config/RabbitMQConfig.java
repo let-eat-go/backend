@@ -1,6 +1,6 @@
 package com.leteatgo.global.config;
 
-import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -26,7 +26,7 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.password}")
     private String password;
 
-    private static final String FANOUT_EXCHANGE_NAME = "fanout.exchange";
+    private static final String TOPIC_EXCHANGE_NAME = "topic.exchange";
 
     @Bean
     public ConnectionFactory connectionFactory() {
@@ -63,8 +63,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public FanoutExchange pubsubExchange() {
-        return new FanoutExchange(FANOUT_EXCHANGE_NAME);
+    public TopicExchange pubsubExchange() {
+        return new TopicExchange(TOPIC_EXCHANGE_NAME);
     }
 
 }

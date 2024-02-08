@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -27,7 +27,7 @@ public class RabbitMQService {
     private final SseEmitterService sseEmitterService;
     private final RabbitAdmin rabbitAdmin;
     private final RabbitTemplate rabbitTemplate;
-    private final FanoutExchange fanoutExchange;
+    private final TopicExchange topicExchange;
 
     public void subscribe(String userId, SseEmitter sseEmitter) {
         String queueName = createQueue(userId);
@@ -51,18 +51,20 @@ public class RabbitMQService {
         Queue queue = new Queue(queueName, false);
         rabbitAdmin.declareQueue(queue);
 
-        Binding binding = BindingBuilder.bind(queue).to(fanoutExchange);
+        Binding binding = BindingBuilder.bind(queue).to(topicExchange).with(queueName);
         rabbitAdmin.declareBinding(binding);
 
         return queueName;
     }
 
     public void removeSubscribe(String memberId) {
-        container.removeQueueNames(NOTIFICATION_QUEUE + memberId);
+        String queueName = NOTIFICATION_QUEUE + memberId;
+        container.removeQueueNames(queueName);
+        rabbitAdmin.deleteQueue(queueName);
     }
 
     public void publish(String userId, NotificationDto notificationDto) {
-        String queueName = NOTIFICATION_QUEUE + userId;
-        rabbitTemplate.convertAndSend(queueName, notificationDto);
+        String routingKey = NOTIFICATION_QUEUE + userId;
+        rabbitTemplate.convertAndSend(topicExchange.getName(), routingKey, notificationDto);
     }
 }
