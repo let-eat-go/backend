@@ -1,0 +1,8 @@
+POST {{host}}/api/review
+Content-Type: application/json
+
+{
+  "meetingId": 1,
+  "revieweeId": 2,
+  "score": 2.0
+}
