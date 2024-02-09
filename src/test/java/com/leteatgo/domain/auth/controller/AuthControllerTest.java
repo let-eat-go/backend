@@ -12,7 +12,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -36,8 +35,7 @@ import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.exception.AuthException;
 import com.leteatgo.domain.auth.service.AuthService;
 import com.leteatgo.domain.auth.service.SmsSender;
-import com.leteatgo.domain.meeting.controller.MeetingController;
-import com.leteatgo.domain.notification.service.RabbitMQService;
+import com.leteatgo.global.rabbitmq.service.RabbitMQService;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.Cookie;
@@ -52,7 +50,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -447,9 +444,9 @@ class AuthControllerTest {
     @DisplayName("[성공] 로그아웃")
     void signOut() throws Exception {
         // given
-        UserDetails userDetails = mock(UserDetails.class);
-        doNothing().when(authService).signOut(userDetails);
-        doNothing().when(rabbitMQService).removeSubscribe("1");
+        String queueName = "notification-queue";
+        doNothing().when(authService).signOut(1L);
+        doNothing().when(rabbitMQService).removeSubscribe(queueName, "1");
         // when
         // then
         mockMvc.perform(delete("/api/auth/signout")
