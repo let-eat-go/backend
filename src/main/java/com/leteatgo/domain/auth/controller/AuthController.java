@@ -12,6 +12,7 @@ import com.leteatgo.domain.auth.dto.response.SignInResponse;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.service.AuthService;
 import com.leteatgo.domain.auth.service.SmsSender;
+import com.leteatgo.domain.notification.service.RabbitMQService;
 import com.leteatgo.global.security.annotation.RoleUser;
 import com.leteatgo.global.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +39,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final SmsSender smsSender;
+    private final RabbitMQService rabbitMQService;
 
     // 회원가입 (로컬)
     @PostMapping("/signup")
@@ -71,6 +73,7 @@ public class AuthController {
     ) {
         authService.signOut(userDetails);
         CookieUtil.deleteCookie(request, response, COOKIE_NAME);
+        rabbitMQService.removeSubscribe(userDetails.getUsername());
         return ResponseEntity.ok().build();
     }
 

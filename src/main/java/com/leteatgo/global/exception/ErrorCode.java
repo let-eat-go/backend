@@ -70,7 +70,11 @@ public enum ErrorCode {
 
     // review
     NOT_MEETING_PARTICIPANT(BAD_REQUEST, "해당 모임의 참여자가 아닙니다."),
-    NOT_COMPLETED_MEETING(BAD_REQUEST, "완료된 모임이 아닙니다.");
+    NOT_COMPLETED_MEETING(BAD_REQUEST, "완료된 모임이 아닙니다."),
+
+    // notification
+    NOT_FOUND_NOTIFICATION(BAD_REQUEST, "존재하지 않는 알림입니다."),
+    CANNOT_READ_NOTIFICATION(BAD_REQUEST, "해당 알림을 읽을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorMessage;
