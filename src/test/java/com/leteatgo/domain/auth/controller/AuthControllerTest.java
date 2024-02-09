@@ -36,6 +36,9 @@ import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.exception.AuthException;
 import com.leteatgo.domain.auth.service.AuthService;
 import com.leteatgo.domain.auth.service.SmsSender;
+import com.leteatgo.domain.meeting.controller.MeetingController;
+import com.leteatgo.domain.notification.service.RabbitMQService;
+import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Disabled;
@@ -46,14 +49,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+@WithMockUser(username = "1", roles = "USER")
 @AutoConfigureRestDocs
-@WebMvcTest(AuthController.class)
-@WithMockUser(username = "mockUser", roles = "USER")
+@WebMvcTest(
+        controllers = AuthController.class,
+        excludeFilters = {
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        classes = {
+                                JwtAuthenticationFilter.class
+                        })
+        }
+)
+@ActiveProfiles("test")
 class AuthControllerTest {
 
     @MockBean
@@ -61,6 +77,9 @@ class AuthControllerTest {
 
     @MockBean
     SmsSender smsSender;
+
+    @MockBean
+    RabbitMQService rabbitMQService;
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
@@ -429,8 +448,9 @@ class AuthControllerTest {
     void signOut() throws Exception {
         // given
         UserDetails userDetails = mock(UserDetails.class);
-        // when
         doNothing().when(authService).signOut(userDetails);
+        doNothing().when(rabbitMQService).removeSubscribe("1");
+        // when
         // then
         mockMvc.perform(delete("/api/auth/signout")
                         .cookie(new Cookie("access_token", "token"))

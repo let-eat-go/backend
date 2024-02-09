@@ -189,7 +189,6 @@ public class MeetingService {
     }
 
     /* [모임 참여] 동시성 제어를 위해 분산 락을 사용하여 동시에 참여할 수 없도록 함 */
-    @Transactional
     @DistributedLock(key = "'joinMeeting:' + #meetingId")
     public void joinMeeting(Long memberId, Long meetingId) {
         Member member = memberRepository.findById(memberId)
@@ -235,7 +234,6 @@ public class MeetingService {
     /* [모임 나가기] 참여자는 모임을 나갈 수 있음, 모임 하루 전에 취소하면 매너온도 감소
      * 동시성 제어를 위해 분산 락을 사용하여 동시에 참여 취소할 수 없도록 함
      * */
-    @Transactional
     @DistributedLock(key = "'cancelJoinMeeting:' + #meetingId")
     public void cancelJoinMeeting(Long memberId, Long meetingId) {
         Member member = memberRepository.findById(memberId)

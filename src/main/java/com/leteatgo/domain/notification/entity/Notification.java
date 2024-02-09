@@ -2,15 +2,17 @@ package com.leteatgo.domain.notification.entity;
 
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.notification.type.NotificationType;
+import com.leteatgo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notification {
+public class Notification extends BaseEntity {
 
     @Id
     @Column(name = "id")
@@ -25,10 +27,28 @@ public class Notification {
     private Member receiver;
 
     @Column(name = "is_read", nullable = false)
-    private Boolean isRead;
+    private Boolean isRead = false;
 
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
+    @Column(name = "related_url", nullable = false)
+    private String relatedUrl;
+
+    @Builder
+    public Notification(String content, Member receiver, NotificationType type, String relatedUrl) {
+        this.content = content;
+        this.receiver = receiver;
+        this.type = type;
+        this.relatedUrl = relatedUrl;
+    }
+
+    public void addReceiver(Member receiver) {
+        this.receiver = receiver;
+    }
+
+    public void readNotification() {
+        this.isRead = true;
+    }
 }
