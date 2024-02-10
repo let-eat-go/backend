@@ -285,7 +285,7 @@ class AuthServiceTest {
         given(userDetails.getUsername()).willReturn("1");
 
         // when
-        authService.signOut(userDetails);
+        authService.signOut(Long.valueOf(userDetails.getUsername()));
 
         // then
         verify(tokenService, times(1)).deleteToken(Long.valueOf(userDetails.getUsername()));

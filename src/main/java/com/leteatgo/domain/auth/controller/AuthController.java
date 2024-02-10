@@ -1,5 +1,6 @@
 package com.leteatgo.domain.auth.controller;
 
+import static com.leteatgo.global.constants.Notification.NOTIFICATION_QUEUE;
 import static com.leteatgo.global.util.CookieUtil.COOKIE_MAX_AGE;
 import static com.leteatgo.global.util.CookieUtil.COOKIE_NAME;
 
@@ -12,7 +13,7 @@ import com.leteatgo.domain.auth.dto.response.SignInResponse;
 import com.leteatgo.domain.auth.dto.response.SignUpResponse;
 import com.leteatgo.domain.auth.service.AuthService;
 import com.leteatgo.domain.auth.service.SmsSender;
-import com.leteatgo.domain.notification.service.RabbitMQService;
+import com.leteatgo.global.rabbitmq.service.RabbitMQService;
 import com.leteatgo.global.security.annotation.RoleUser;
 import com.leteatgo.global.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -71,9 +72,9 @@ public class AuthController {
             HttpServletResponse response,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        authService.signOut(userDetails);
+        authService.signOut(Long.parseLong(userDetails.getUsername()));
         CookieUtil.deleteCookie(request, response, COOKIE_NAME);
-        rabbitMQService.removeSubscribe(userDetails.getUsername());
+        rabbitMQService.removeSubscribe(NOTIFICATION_QUEUE, userDetails.getUsername());
         return ResponseEntity.ok().build();
     }
 

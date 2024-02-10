@@ -1,6 +1,7 @@
 package com.leteatgo.domain.notification.service;
 
-import static com.leteatgo.global.constants.NotificationMessage.SUBSCRIBE;
+import static com.leteatgo.global.constants.Notification.NOTIFICATION_QUEUE;
+import static com.leteatgo.global.constants.Notification.SUBSCRIBE;
 import static com.leteatgo.global.exception.ErrorCode.CANNOT_READ_NOTIFICATION;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_NOTIFICATION;
@@ -14,6 +15,7 @@ import com.leteatgo.domain.notification.event.NotificationEvent;
 import com.leteatgo.domain.notification.exception.NotificationException;
 import com.leteatgo.domain.notification.repository.NotificationRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
+import com.leteatgo.global.rabbitmq.service.RabbitMQService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -36,13 +38,14 @@ public class NotificationService {
         SseEmitter sseEmitter = sseEmitterService.createSseEmitter(memberId);
         sseEmitterService.send(SUBSCRIBE, memberId, sseEmitter);
 
-        rabbitMQService.subscribe(memberId, sseEmitter);
+        String queue = rabbitMQService.createQueue(NOTIFICATION_QUEUE, memberId);
+        rabbitMQService.subscribe(queue);
 
         sseEmitter.onTimeout(sseEmitter::complete);
         sseEmitter.onError((e) -> sseEmitter.complete());
         sseEmitter.onCompletion(() -> {
             sseEmitterService.deleteSseEmitter(memberId);
-            rabbitMQService.removeSubscribe(memberId);
+            rabbitMQService.removeSubscribe(NOTIFICATION_QUEUE, memberId);
         });
 
         return sseEmitter;
@@ -61,7 +64,8 @@ public class NotificationService {
         notification.addReceiver(receiver);
         notificationRepository.save(notification);
 
-        rabbitMQService.publish(event.userId(), NotificationDto.fromEntity(notification));
+        rabbitMQService.publish(NOTIFICATION_QUEUE, event.userId(),
+                NotificationDto.fromEntity(notification));
     }
 
     @Transactional

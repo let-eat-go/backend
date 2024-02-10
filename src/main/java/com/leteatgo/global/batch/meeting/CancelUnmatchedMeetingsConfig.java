@@ -1,7 +1,7 @@
 package com.leteatgo.global.batch.meeting;
 
 import static com.leteatgo.global.constants.BeanPrefix.CANCEL_UNMATCHED_MEETING;
-import static com.leteatgo.global.constants.NotificationMessage.MEETING_CANCEL;
+import static com.leteatgo.global.constants.Notification.MEETING_CANCEL;
 
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;

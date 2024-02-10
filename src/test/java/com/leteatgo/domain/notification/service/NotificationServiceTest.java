@@ -1,5 +1,6 @@
 package com.leteatgo.domain.notification.service;
 
+import static com.leteatgo.global.constants.Notification.NOTIFICATION_QUEUE;
 import static com.leteatgo.global.exception.ErrorCode.CANNOT_READ_NOTIFICATION;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_NOTIFICATION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,7 +12,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.repository.MemberRepository;
@@ -24,7 +24,7 @@ import com.leteatgo.domain.notification.exception.NotificationException;
 import com.leteatgo.domain.notification.repository.NotificationRepository;
 import com.leteatgo.domain.notification.type.NotificationType;
 import com.leteatgo.global.dto.CustomPageRequest;
-import java.time.LocalDateTime;
+import com.leteatgo.global.rabbitmq.service.RabbitMQService;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -75,9 +75,11 @@ class NotificationServiceTest {
     public void subscribe() {
         // given
         String memberId = "1";
+        String queueName = "notification";
         SseEmitter mockEmitter = new SseEmitter();
 
         given(sseEmitterService.createSseEmitter(memberId)).willReturn(mockEmitter);
+        given(rabbitMQService.createQueue(NOTIFICATION_QUEUE, memberId)).willReturn(queueName);
 
         // when
         SseEmitter sseEmitter = notificationService.subscribe(memberId);
@@ -86,7 +88,7 @@ class NotificationServiceTest {
         assertNotNull(sseEmitter);
         verify(sseEmitterService, times(1)).createSseEmitter(memberId);
         verify(sseEmitterService, times(1)).send(anyString(), eq(memberId), eq(mockEmitter));
-        verify(rabbitMQService, times(1)).subscribe(eq(memberId), eq(mockEmitter));
+        verify(rabbitMQService, times(1)).subscribe(queueName);
     }
 
     @Test
@@ -112,7 +114,8 @@ class NotificationServiceTest {
         notificationService.sendNotification(event);
 
         // then
-        verify(rabbitMQService, times(1)).publish(member.getId().toString(), notificationDto);
+        verify(rabbitMQService, times(1)).publish(anyString(), eq(event.userId()),
+                eq(notificationDto));
     }
 
     @Nested

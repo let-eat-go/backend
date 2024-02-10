@@ -2,6 +2,7 @@ package com.leteatgo.domain.notification.service;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+import com.leteatgo.domain.notification.dto.NotificationDto;
 import com.leteatgo.domain.notification.repository.SseEmitterRepository;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,13 @@ public class SseEmitterService {
         } catch (IOException | IllegalStateException e) {
             log.error("IOException | IllegalStateException is occurred. ", e);
             sseEmitterRepository.deleteByEmitterId(emitterId);
+        }
+    }
+
+    public void sendNotification(String emitterId, NotificationDto notificationDto) {
+        SseEmitter sseEmitter = sseEmitterRepository.findByEmitterId(emitterId);
+        if (sseEmitter != null) {
+            send(notificationDto, emitterId, sseEmitter);
         }
     }
 }
