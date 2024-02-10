@@ -3,9 +3,7 @@ package com.leteatgo.domain.auth.service;
 import static com.leteatgo.domain.member.type.LoginType.LOCAL;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_EXIST_EMAIL;
 import static com.leteatgo.global.exception.ErrorCode.EXPIRED_AUTH_CODE;
-import static com.leteatgo.global.exception.ErrorCode.PHONE_NUMBER_NOT_VERIFIED;
 import static com.leteatgo.global.exception.ErrorCode.WRONG_PASSWORD;
-import static com.leteatgo.global.exception.ErrorCode.WRONG_PHONE_NUMBER;
 
 import com.leteatgo.domain.auth.dto.request.EmailCheckRequest;
 import com.leteatgo.domain.auth.dto.request.SignInRequest;
@@ -128,8 +126,8 @@ public class AuthService {
 
     /* [로그아웃] 레디스에 저장된 토큰 삭제 */
     @Transactional
-    public void signOut(UserDetails userDetails) {
-        tokenService.deleteToken(Long.valueOf(userDetails.getUsername()));
+    public void signOut(Long memberId) {
+        tokenService.deleteToken(memberId);
     }
 
 }

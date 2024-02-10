@@ -18,4 +18,8 @@ public class SseEmitterRepository {
     public void deleteByEmitterId(String emitterId) {
         emitters.remove(emitterId);
     }
+
+    public SseEmitter findByEmitterId(String emitterId) {
+        return emitters.get(emitterId);
+    }
 }
