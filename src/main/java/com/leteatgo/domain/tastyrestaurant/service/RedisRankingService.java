@@ -2,8 +2,6 @@ package com.leteatgo.domain.tastyrestaurant.service;
 
 import static com.leteatgo.global.constants.RedisKey.KEYWORD_RANKING;
 import static com.leteatgo.global.constants.RedisKey.TOP_COUNT;
-import static java.lang.Double.NEGATIVE_INFINITY;
-import static java.lang.Double.POSITIVE_INFINITY;
 
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse;
 import com.leteatgo.domain.tastyrestaurant.dto.response.PopularKeywordsResponse.Keywords;
@@ -29,15 +27,7 @@ public class RedisRankingService {
         return new PopularKeywordsResponse(Objects.requireNonNull(zSetOperations
                         .reverseRangeWithScores(KEYWORD_RANKING, 0, TOP_COUNT - 1))
                 .stream()
-                .map(Keywords::of)
+                .map(Keywords::from)
                 .toList());
-    }
-
-    public Long getTotalCount() {
-        return zSetOperations.count(KEYWORD_RANKING, NEGATIVE_INFINITY, POSITIVE_INFINITY);
-    }
-
-    public void deleteAllExcludingTopKeywords(Long totalCount) {
-        zSetOperations.removeRange(KEYWORD_RANKING, 0, totalCount - TOP_COUNT - 1);
     }
 }

@@ -9,9 +9,6 @@ external:
   kakao:
     key: ${KAKAO_KEY}
 
-scheduler:
-  keyword-ranking: 0 0 0 * * *
-
 coolsms:
   key: ${COOLSMS_API_KEY}
   secret: ${COOLSMS_API_SECRET}
