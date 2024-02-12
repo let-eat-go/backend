@@ -19,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -126,4 +127,14 @@ public class MeetingController {
         return ResponseEntity.ok().build();
     }
 
+    // 모임 확정
+    @PatchMapping("/{meetingId}/confirm")
+    @RoleUser
+    public ResponseEntity<Void> confirmMeeting(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long meetingId
+    ) {
+        meetingService.confirmMeeting(Long.parseLong(userDetails.getUsername()), meetingId);
+        return ResponseEntity.ok().build();
+    }
 }

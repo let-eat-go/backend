@@ -51,4 +51,8 @@ public class MeetingOptions {
     public void complete() {
         this.status = MeetingStatus.COMPLETED;
     }
+
+    public void confirm() {
+        this.status = MeetingStatus.IN_PROGRESS;
+    }
 }
