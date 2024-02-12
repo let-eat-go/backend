@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   leteatgo-server:
-    image: kingseungil/leteatgo-backend-dev:latest
+    image: ${DOCKER_REPO}/leteatgo-backend-dev:latest
     container_name: leteatgo-server
     expose:
       - "8080"
@@ -14,7 +14,7 @@ services:
       - leteatgo
 
   leteatgo-nginx:
-    image: kingseungil/leteatgo-nginx-dev:latest
+    image: ${DOCKER_REPO}/leteatgo-nginx-dev:latest
     container_name: leteatgo-nginx
     restart: always
     ports:
@@ -25,21 +25,18 @@ services:
   leteatgo-redis:
     image: redis:alpine
     container_name: leteatgo-redis
-    environment:
-      - appendonly=yes
-      - appendfsync=everysec
-      - auto-aof-rewrite-percentage=100
-      - auto-aof-rewrite-min-size=64mb
     volumes:
-      - ./redis-data:/data
+      - ~/redis-data:/data
+      - ./redis/redis.conf:/etc/redis.conf
     ports:
       - "6379:6379"
     networks:
       - leteatgo
     restart: always
+    command: redis-server /etc/redis.conf
 
   leteatgo-rabbitmq:
-    image: kingseungil/leteatgo-rabbitmq-dev:latest
+    image: ${DOCKER_REPO}/leteatgo-rabbitmq-dev:latest
     ports:
       - "5672:5672"
       - "15672:15672"
