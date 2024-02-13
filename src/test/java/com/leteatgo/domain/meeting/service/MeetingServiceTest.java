@@ -30,7 +30,6 @@ import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.entity.MeetingOptions;
 import com.leteatgo.domain.meeting.entity.MeetingParticipant;
@@ -605,24 +604,36 @@ class MeetingServiceTest {
     @DisplayName("searchMeetings 메서드는")
     class searchMeetingsMethod {
 
-        MeetingSearchResponse meetingSearchResponse() {
-            return new MeetingSearchResponse(
+        MeetingListResponse meetingListResponse() {
+            return new MeetingListResponse(
                     1L,
                     "모임 제목",
-                    "식당 이름",
-                    "도로명 주소",
-                    RestaurantCategory.ASIAN_CUISINE,
-                    LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
+                    RestaurantCategory.KOREAN_CUISINE,
                     2,
                     4,
                     1,
-                    MeetingStatus.BEFORE
+                    LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
+                    LocalDate.of(2024, 1, 30).atTime(LocalTime.of(18, 0)),
+                    "모임 설명",
+                    MeetingStatus.BEFORE,
+                    restaurantResponse()
             );
         }
 
-        List<MeetingSearchResponse> meetingSearchResponses = List.of(meetingSearchResponse());
+        MeetingDetailResponse.RestaurantResponse restaurantResponse() {
+            return new MeetingDetailResponse.RestaurantResponse(
+                    1L,
+                    "식당 이름",
+                    "도로명 주소",
+                    "01012341234",
+                    37.123456,
+                    127.123456
+            );
+        }
+
+        List<MeetingListResponse> meetingListResponses = List.of(meetingListResponse());
         CustomPageRequest pageRequest = new CustomPageRequest(1);
-        Slice<MeetingSearchResponse> response = new SliceUtil<>(meetingSearchResponses,
+        Slice<MeetingListResponse> response = new SliceUtil<>(meetingListResponses,
                 PageRequest.of(0, 10)).getSlice();
 
         @Test
@@ -636,12 +647,12 @@ class MeetingServiceTest {
                     .willReturn(response);
 
             // when
-            Slice<MeetingSearchResponse> response = meetingService.searchMeetings(type, term,
+            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
                     pageRequest);
 
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
-            assertThat(response.getContent().get(0)).isEqualTo(meetingSearchResponse());
+            assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
         }
 
         @Test
@@ -655,12 +666,12 @@ class MeetingServiceTest {
                     .willReturn(response);
 
             // when
-            Slice<MeetingSearchResponse> response = meetingService.searchMeetings(type, term,
+            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
                     pageRequest);
 
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
-            assertThat(response.getContent().get(0)).isEqualTo(meetingSearchResponse());
+            assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
         }
 
         @Test
@@ -674,13 +685,33 @@ class MeetingServiceTest {
                     .willReturn(response);
 
             // when
-            Slice<MeetingSearchResponse> response = meetingService.searchMeetings(type, term,
+            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
                     pageRequest);
 
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
-            assertThat(response.getContent().get(0)).isEqualTo(meetingSearchResponse());
+            assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
         }
+
+        @Test
+        @DisplayName("[성공] 모임 이름으로 모임을 검색할 수 있다.")
+        void searchMeetingsWithMeetingName() {
+            // given
+            String type = "meetingName";
+            String term = "모임 제목";
+            given(meetingRepository.searchMeetings(type, term,
+                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
+                    .willReturn(response);
+
+            // when
+            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
+                    pageRequest);
+
+            // then
+            assertThat(response.getContent().size()).isEqualTo(1);
+            assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
+        }
+
     }
 
 

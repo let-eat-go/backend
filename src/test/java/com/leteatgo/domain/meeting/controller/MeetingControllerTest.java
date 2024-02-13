@@ -33,7 +33,6 @@ import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.exception.MeetingException;
 import com.leteatgo.domain.meeting.service.MeetingService;
 import com.leteatgo.domain.meeting.type.AgePreference;
@@ -644,24 +643,36 @@ class MeetingControllerTest {
     @DisplayName("모임 검색")
     class SearchMeetings {
 
-        MeetingSearchResponse meetingSearchResponse() {
-            return new MeetingSearchResponse(
+        MeetingListResponse meetingListResponse() {
+            return new MeetingListResponse(
                     1L,
                     "모임 제목",
-                    "식당 이름",
-                    "도로명 주소",
                     RestaurantCategory.ASIAN_CUISINE,
-                    LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
                     2,
                     4,
                     1,
-                    MeetingStatus.BEFORE
+                    LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
+                    LocalDate.of(2024, 1, 30).atTime(LocalTime.of(18, 0)),
+                    "모임 설명",
+                    MeetingStatus.BEFORE,
+                    restaurantResponse()
             );
         }
 
-        List<MeetingSearchResponse> meetingSearchResponses = List.of(meetingSearchResponse());
+        MeetingDetailResponse.RestaurantResponse restaurantResponse() {
+            return new MeetingDetailResponse.RestaurantResponse(
+                    1L,
+                    "식당 이름",
+                    "도로명 주소",
+                    "01012341234",
+                    37.123456,
+                    127.123456
+            );
+        }
+
+        List<MeetingListResponse> meetingListResponses = List.of(meetingListResponse());
         CustomPageRequest pageRequest = new CustomPageRequest(1);
-        Slice<MeetingSearchResponse> response = new SliceUtil<>(meetingSearchResponses,
+        Slice<MeetingListResponse> response = new SliceUtil<>(meetingListResponses,
                 PageRequest.of(0, 10)).getSlice();
 
         @Test

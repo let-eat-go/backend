@@ -6,7 +6,6 @@ import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.MeetingRes
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.ParticipantResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.RestaurantResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.querydsl.core.types.ConstructorExpression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.NumberExpression;
@@ -87,19 +86,5 @@ public class QuerydslUtil {
                 restaurantProjection()
         );
     }
-
-    public static ConstructorExpression<MeetingSearchResponse> meetingSearchProjection() {
-        return Projections.constructor(MeetingSearchResponse.class,
-                meeting.id,
-                meeting.name,
-                tastyRestaurant.name,
-                tastyRestaurant.roadAddress,
-                meeting.restaurantCategory,
-                meeting.startDateTime,
-                meeting.minParticipants,
-                meeting.maxParticipants,
-                meeting.currentParticipants,
-                meeting.meetingOptions.status
-        );
-    }
+    
 }

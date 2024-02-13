@@ -8,7 +8,6 @@ import static com.leteatgo.domain.region.entity.QRegion.region;
 import static com.leteatgo.domain.tastyrestaurant.entity.QTastyRestaurant.tastyRestaurant;
 import static com.leteatgo.global.util.QuerydslUtil.meetingDetailProjection;
 import static com.leteatgo.global.util.QuerydslUtil.meetingListProjection;
-import static com.leteatgo.global.util.QuerydslUtil.meetingSearchProjection;
 
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.HostResponse;
@@ -16,7 +15,6 @@ import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.MeetingRes
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.ParticipantResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse.RestaurantResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.CustomMeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
@@ -125,7 +123,7 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
     }
 
     @Override
-    public Slice<MeetingSearchResponse> searchMeetings(
+    public Slice<MeetingListResponse> searchMeetings(
             String type, String term, Pageable pageable) {
 
         SearchType searchType = SearchType.getSearchTypeIgnoringCase(type);
@@ -139,12 +137,13 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
                                     .from(region)
                                     .where(region.name.eq(term))
                     );
+                    case MEETINGNAME -> meeting.name.containsIgnoreCase(term); // LIKE %term%
                     case RESTAURANTNAME ->
                             tastyRestaurant.name.containsIgnoreCase(term); // LIKE %term%
                 });
 
-        List<MeetingSearchResponse> meetingSearchResponses = queryFactory
-                .select(meetingSearchProjection())
+        List<MeetingListResponse> meetingSearchResponses = queryFactory
+                .select(meetingListProjection())
                 .from(meeting)
                 .leftJoin(meeting.tastyRestaurant, tastyRestaurant)
                 .where(condition)
