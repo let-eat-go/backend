@@ -1,6 +1,5 @@
 package com.leteatgo.domain.chat.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.leteatgo.global.type.RestaurantCategory;
 import java.time.LocalDateTime;
 import lombok.Builder;
