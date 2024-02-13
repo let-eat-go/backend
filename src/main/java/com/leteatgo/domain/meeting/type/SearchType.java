@@ -12,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 public enum SearchType {
     REGION("지역"),
     CATEGORY("식당 카테고리"),
-    RESTAURANTNAME("식당 이름");
+    RESTAURANTNAME("식당 이름"),
+    MEETINGNAME("모임 이름");
 
     private final String description;
 

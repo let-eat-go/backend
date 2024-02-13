@@ -2,7 +2,6 @@ package com.leteatgo.domain.meeting.repository;
 
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
 import java.time.LocalDateTime;
@@ -19,7 +18,7 @@ public interface CustomMeetingRepository {
 
     List<Meeting> findMeetingsForCancel(LocalDateTime startDateTime, MeetingStatus status);
 
-    Slice<MeetingSearchResponse> searchMeetings(String type, String term, Pageable pageable);
+    Slice<MeetingListResponse> searchMeetings(String type, String term, Pageable pageable);
 
     Optional<Meeting> findMeetingFetch(Long meetingId);
 }

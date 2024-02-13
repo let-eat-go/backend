@@ -3,11 +3,11 @@ package com.leteatgo.domain.meeting.service;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.CANCELED;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.COMPLETED;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.IN_PROGRESS;
-import static com.leteatgo.global.exception.ErrorCode.ALREADY_STARTED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_JOINED_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_STARTED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.CANNOT_CANCEL_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.CAN_CONFIRM_MEETING_BEFORE_START_TIME;
 import static com.leteatgo.global.exception.ErrorCode.HOST_CANNOT_LEAVE_MEETING;
@@ -27,7 +27,6 @@ import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingDetailResponse;
 import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
-import com.leteatgo.domain.meeting.dto.response.MeetingSearchResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.entity.MeetingParticipant;
 import com.leteatgo.domain.meeting.exception.MeetingException;
@@ -183,7 +182,7 @@ public class MeetingService {
     }
 
     /* [모임 검색] 지역, 카테고리, 식당 이름으로 검색 */
-    public Slice<MeetingSearchResponse> searchMeetings(
+    public Slice<MeetingListResponse> searchMeetings(
             String type, String term, CustomPageRequest request
     ) {
         return meetingRepository.searchMeetings(
