@@ -12,6 +12,8 @@ import com.leteatgo.domain.chat.type.RoomStatus;
 import com.leteatgo.domain.meeting.dto.request.MeetingOptionsRequest;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.entity.MeetingOptions;
+import com.leteatgo.domain.meeting.entity.MeetingParticipant;
+import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.meeting.type.AgePreference;
 import com.leteatgo.domain.meeting.type.AlcoholPreference;
@@ -31,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -52,7 +55,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @SpringBootTest
 @ActiveProfiles("test")
 @Sql(scripts = "classpath:sql/batch-schema-h2.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class CancelUnmatchedMeetingsConfigTest {
+class UpdateMeetingsStatusConfigTest {
 
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
@@ -64,6 +67,9 @@ class CancelUnmatchedMeetingsConfigTest {
     MeetingRepository meetingRepository;
 
     @Autowired
+    MeetingParticipantRepository meetingParticipantRepository;
+
+    @Autowired
     MemberRepository memberRepository;
 
     @Autowired
@@ -73,7 +79,7 @@ class CancelUnmatchedMeetingsConfigTest {
     ChatRoomRepository chatRoomRepository;
 
     @Autowired
-    CancelUnmatchedMeetingsConfig cancelUnmatchedMeetingsConfig;
+    UpdateMeetingsStatusConfig updateMeetingsStatusConfig;
 
     @MockBean
     ChatRoomEventPublisher chatRoomEventPublisher;
@@ -93,13 +99,14 @@ class CancelUnmatchedMeetingsConfigTest {
 
 
     @Test
-    void cancelUnmatchedMeetingsJobTest() throws Exception {
+    @DisplayName("모임 취소 배치 테스트")
+    void cancelMeetingsJobTest() throws Exception {
         // given
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())
                 .toJobParameters();
         // when
-        jobLauncherTestUtils.setJob(cancelUnmatchedMeetingsConfig.job());
+        jobLauncherTestUtils.setJob(updateMeetingsStatusConfig.job());
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
         // then
         assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
@@ -145,6 +152,13 @@ class CancelUnmatchedMeetingsConfigTest {
             meetings.add(meeting);
         }
         meetingRepository.saveAll(meetings);
+
+        // 모임원 추가
+        for (int i = 0; i < 10; i++) {
+            Meeting meeting = meetings.get(i);
+            meetingParticipantRepository.save(
+                    MeetingParticipant.builder().meeting(meeting).member(mockMember).build());
+        }
 
         // 채팅방 생성
         for (int i = 0; i < 10; i++) {

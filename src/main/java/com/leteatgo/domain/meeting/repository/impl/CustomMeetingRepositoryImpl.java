@@ -37,10 +37,14 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Meeting> findMeetingsForCancel(LocalDateTime startDateTime, MeetingStatus status) {
+    public List<Meeting> findMeetingsForUpdateStatus(LocalDateTime now,
+            MeetingStatus status) {
         return queryFactory
                 .selectFrom(meeting)
-                .where(meeting.startDateTime.loe(startDateTime)
+                .join(meeting.meetingParticipants, meetingParticipant).fetchJoin()
+                .join(meetingParticipant.member, member).fetchJoin()
+                .join(meeting.chatRoom, chatRoom).fetchJoin()
+                .where(meeting.startDateTime.loe(now)
                         .and(meeting.meetingOptions.status.eq(status)))
                 .fetch();
     }
@@ -164,5 +168,18 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
                 .join(meeting.chatRoom, chatRoom).fetchJoin()
                 .where(meeting.id.eq(meetingId))
                 .fetchOne());
+    }
+
+    @Override
+    public List<Meeting> findMeetingsForRemind(LocalDateTime localDateTime,
+            LocalDateTime otherDateTime, MeetingStatus status) {
+        return queryFactory
+                .selectFrom(meeting)
+                .join(meeting.meetingParticipants, meetingParticipant).fetchJoin()
+                .join(meetingParticipant.member, member).fetchJoin()
+                .join(meeting.chatRoom, chatRoom).fetchJoin()
+                .where(meeting.startDateTime.between(localDateTime, otherDateTime)
+                        .and(meeting.meetingOptions.status.eq(status)))
+                .fetch();
     }
 }
