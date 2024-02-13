@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -742,6 +743,32 @@ class MeetingControllerTest {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("meeting")
                                 .summary("모임 나가기")
+                                .pathParameters(
+                                        parameterWithName("meetingId")
+                                                .description("모임 ID")
+                                )
+                                .build()
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("[성공] 모임 확정")
+    void confirmMeeting() throws Exception {
+        // given
+        doNothing().when(meetingService).confirmMeeting(1L, 1L);
+        // when
+        // then
+        mockMvc.perform(patch("/api/meetings/{meetingId}/confirm", 1L)
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf())
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("모임 확정",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("meeting")
+                                .summary("모임 확정")
                                 .pathParameters(
                                         parameterWithName("meetingId")
                                                 .description("모임 ID")

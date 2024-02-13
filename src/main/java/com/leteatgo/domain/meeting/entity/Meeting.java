@@ -142,4 +142,7 @@ public class Meeting extends BaseEntity {
         this.meetingOptions.complete();
     }
 
+    public void confirm() {
+        this.meetingOptions.confirm();
+    }
 }

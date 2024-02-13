@@ -3,18 +3,20 @@ package com.leteatgo.domain.meeting.service;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.CANCELED;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.COMPLETED;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.IN_PROGRESS;
-import static com.leteatgo.global.exception.ErrorCode.ALERTY_STARTED_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_STARTED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.CANNOT_CANCEL_MEETING;
+import static com.leteatgo.global.exception.ErrorCode.CAN_CONFIRM_MEETING_BEFORE_START_TIME;
 import static com.leteatgo.global.exception.ErrorCode.HOST_CANNOT_LEAVE_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_REGION;
 import static com.leteatgo.global.exception.ErrorCode.NOT_JOINED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_MEETING_HOST;
+import static com.leteatgo.global.exception.ErrorCode.PARTICIPANT_NOT_ENOUGH;
 
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
@@ -211,7 +213,7 @@ public class MeetingService {
 
         // 진행 중인 모임인지 확인
         if (meeting.getMeetingOptions().getStatus() == IN_PROGRESS) {
-            throw new MeetingException(ALERTY_STARTED_MEETING);
+            throw new MeetingException(ALREADY_STARTED_MEETING);
         }
 
         // 완료된 모임인지 확인
@@ -266,7 +268,7 @@ public class MeetingService {
 
         // 진행 중인 모임인지 확인
         if (meeting.getMeetingOptions().getStatus() == IN_PROGRESS) {
-            throw new MeetingException(ALERTY_STARTED_MEETING);
+            throw new MeetingException(ALREADY_STARTED_MEETING);
         }
 
         // 완료된 모임인지 확인
@@ -284,6 +286,45 @@ public class MeetingService {
                 && nowDateTime.isBefore(startDateTime)) {
             member.decreaseMannerTemperature();
             memberRepository.save(member);
+        }
+    }
+
+    /* [모임 확정] 주최자는 모임을 확정할 수 있음 */
+    @Transactional
+    public void confirmMeeting(Long memberId, Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+        checkHost(memberId, meeting);
+        checkCanConfirm(meeting);
+
+        meeting.confirm();
+        meetingRepository.save(meeting);
+    }
+
+    private void checkCanConfirm(Meeting meeting) {
+        // 취소된 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == CANCELED) {
+            throw new MeetingException(ALREADY_CANCELED_MEETING);
+        }
+
+        // 진행 중인 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == IN_PROGRESS) {
+            throw new MeetingException(ALREADY_STARTED_MEETING);
+        }
+
+        // 완료된 모임인지 확인
+        if (meeting.getMeetingOptions().getStatus() == COMPLETED) {
+            throw new MeetingException(ALREADY_COMPLETED_MEETING);
+        }
+
+        // 최소 인원 이상이 참여한 경우에만 확정 가능
+        if (meeting.getCurrentParticipants() < meeting.getMinParticipants()) {
+            throw new MeetingException(PARTICIPANT_NOT_ENOUGH);
+        }
+
+        // 이미 시작 시간이 지났으면 확정 불가능
+        if (LocalDateTime.now().isAfter(meeting.getStartDateTime())) {
+            throw new MeetingException(CAN_CONFIRM_MEETING_BEFORE_START_TIME);
         }
     }
 }
