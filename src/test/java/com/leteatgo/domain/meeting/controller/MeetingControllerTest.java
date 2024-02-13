@@ -698,7 +698,7 @@ class MeetingControllerTest {
                                             .queryParameters(
                                                     parameterWithName("type")
                                                             .description(
-                                                                    "검색 타입(category, region, restaurantName)"),
+                                                                    "검색 타입(category, region, restaurantName, meetingName)"),
                                                     parameterWithName("term")
                                                             .description("검색어"),
                                                     parameterWithName("page")
