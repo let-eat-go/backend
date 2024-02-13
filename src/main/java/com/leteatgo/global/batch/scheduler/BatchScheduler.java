@@ -1,6 +1,9 @@
 package com.leteatgo.global.batch.scheduler;
 
-import com.leteatgo.global.batch.meeting.CancelUnmatchedMeetingsConfig;
+import com.leteatgo.global.batch.meeting.CompleteMeetingsConfig;
+import com.leteatgo.global.batch.meeting.RemindMeetingsBeforeOneDayConfig;
+import com.leteatgo.global.batch.meeting.RemindUpcomingMeetingsConfig;
+import com.leteatgo.global.batch.meeting.UpdateMeetingsStatusConfig;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,19 +19,68 @@ import org.springframework.stereotype.Component;
 public class BatchScheduler {
 
     private final JobLauncher jobLauncher;
-    private final CancelUnmatchedMeetingsConfig cancelUnmatchedMeetingsConfig;
+    private final UpdateMeetingsStatusConfig updateMeetingsStatusConfig;
+    private final CompleteMeetingsConfig completeMeetingsConfig;
+    private final RemindMeetingsBeforeOneDayConfig remindMeetingsBeforeOneDayConfig;
+    private final RemindUpcomingMeetingsConfig remindUpcomingMeetingsConfig;
 
-    @Scheduled(cron = "0 0 0/2 * * *")
-    public void run() {
+    // 30분마다 실행
+    @Scheduled(cron = "0 0/30 * * * *")
+    public void runUpdateMeetingsStatusJob() {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())
                 .toJobParameters();
 
         try {
-            log.info("BatchScheduler.run()");
-            jobLauncher.run(cancelUnmatchedMeetingsConfig.job(), jobParameters);
+            log.info("UpdateMeetingsStatusConfig.run() start");
+            jobLauncher.run(updateMeetingsStatusConfig.job(), jobParameters);
         } catch (Exception e) {
-            log.error("BatchScheduler.run() error", e);
+            log.error("UpdateMeetingsStatusConfig.run() error", e);
+        }
+    }
+
+    // 매일 자정에 실행
+    @Scheduled(cron = "0 0 0 * * *")
+    public void runCompleteMeetingsJob() {
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addDate("date", new Date())
+                .toJobParameters();
+
+        try {
+            log.info("CompleteMeetingsConfig.run() start");
+            jobLauncher.run(completeMeetingsConfig.job(), jobParameters);
+        } catch (Exception e) {
+            log.error("CompleteMeetingsConfig.run() error", e);
+        }
+    }
+
+    // 매일 저녁 8시에 실행
+    @Scheduled(cron = "0 0 20 * * *")
+    public void runRemindMeetingsBeforeOneDayJob() {
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addDate("date", new Date())
+                .toJobParameters();
+
+        try {
+            log.info("RemindMeetingsConfig.run() start");
+            jobLauncher.run(remindMeetingsBeforeOneDayConfig.job(), jobParameters);
+        } catch (Exception e) {
+            log.error("RemindMeetingsConfig.run() error", e);
+        }
+    }
+
+    // 한시간마다 실행
+    @Scheduled(cron = "0 0 0/1 * * *")
+    public void runUpcomingMeetingsNotificationJob() {
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addDate("date", new Date())
+                .toJobParameters();
+
+        try {
+            log.info("UpcomingMeetingsNotificationConfig.run() start");
+            jobLauncher.run(remindUpcomingMeetingsConfig.job(), jobParameters);
+        } catch (Exception e) {
+            log.error("UpcomingMeetingsNotificationConfig.run() error", e);
         }
     }
 }
