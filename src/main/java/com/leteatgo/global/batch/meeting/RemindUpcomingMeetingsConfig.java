@@ -106,7 +106,7 @@ public class RemindUpcomingMeetingsConfig extends DefaultBatchConfiguration {
                     .userId(participant.getMember().getId().toString())
                     .message(message)
                     .type(NotificationType.REMIND)
-                    .relatedUrl("/api/meetings/detail/" + meeting.getId()) // TODO: 프론트 URL로 변경
+                    .relatedUrl("/" + meeting.getId())
                     .build();
             notificationEventPublisher.publishEvent(event);
             log.info("NotificationEvent published: {}", event);

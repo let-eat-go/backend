@@ -106,7 +106,7 @@ public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
                     .userId(participant.getMember().getId().toString())
                     .message(message)
                     .type(NotificationType.CANCEL)
-                    .relatedUrl("/api/meetings/detail/" + meeting.getId()) // TODO: 프론트 URL로 변경
+                    .relatedUrl("/" + meeting.getId())
                     .build();
             notificationEventPublisher.publishEvent(event);
             log.info("NotificationEvent published: {}", event);
