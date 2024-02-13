@@ -1,10 +1,8 @@
 package com.leteatgo.global.batch.meeting;
 
-import static com.leteatgo.global.constants.BeanPrefix.UPDATE_MEETING_STATUS;
-import static com.leteatgo.global.constants.Notification.MEETING_CANCEL;
+import static com.leteatgo.global.constants.BeanPrefix.REMIND_MEETING_COMING_SOON;
+import static com.leteatgo.global.constants.Notification.MEETING_REMIND_SOON;
 
-import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
-import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.entity.MeetingParticipant;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
@@ -13,13 +11,13 @@ import com.leteatgo.domain.notification.event.NotificationEvent;
 import com.leteatgo.domain.notification.event.NotificationEventPublisher;
 import com.leteatgo.domain.notification.type.NotificationType;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -33,26 +31,24 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 @Configuration
 @Slf4j
-public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
+public class RemindUpcomingMeetingsConfig extends DefaultBatchConfiguration {
 
     private final static Integer CHUNK_SIZE = 100;
 
     private final MeetingRepository meetingRepository;
-    private final ChatRoomEventPublisher chatRoomEventPublisher;
     private final NotificationEventPublisher notificationEventPublisher;
 
-    @Bean(UPDATE_MEETING_STATUS + "Job")
+    @Bean(REMIND_MEETING_COMING_SOON + "Job")
     public Job job() {
-        return new JobBuilder(UPDATE_MEETING_STATUS + "Job", jobRepository())
+        return new JobBuilder(REMIND_MEETING_COMING_SOON + "Job", jobRepository())
                 .incrementer(new RunIdIncrementer())
-                .start(updateMeetingStatusStep())
+                .start(remindUpcomingMeetingsStep())
                 .build();
     }
 
-    @Bean(UPDATE_MEETING_STATUS + "Step")
-    @JobScope
-    public Step updateMeetingStatusStep() {
-        return new StepBuilder(UPDATE_MEETING_STATUS + "Step", jobRepository())
+    @Bean(REMIND_MEETING_COMING_SOON + "Step")
+    public Step remindUpcomingMeetingsStep() {
+        return new StepBuilder(REMIND_MEETING_COMING_SOON + "Step", jobRepository())
                 .<Meeting, Meeting>chunk(CHUNK_SIZE, getTransactionManager())
                 .reader(reader())
                 .processor(processor())
@@ -60,7 +56,7 @@ public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
                 .build();
     }
 
-    @Bean(UPDATE_MEETING_STATUS + "Reader")
+    @Bean(REMIND_MEETING_COMING_SOON + "Reader")
     public ItemReader<Meeting> reader() {
         return new ItemReader<>() {
             private Iterator<Meeting> meetingIterator;
@@ -69,8 +65,9 @@ public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
             public Meeting read() {
                 if (meetingIterator == null) {
                     LocalDateTime now = LocalDateTime.now();
-                    meetingIterator = meetingRepository.findMeetingsForUpdateStatus(
-                            now, MeetingStatus.BEFORE).iterator();
+                    LocalDateTime oneHourLater = now.plusHours(1);
+                    meetingIterator = meetingRepository.findMeetingsForRemind(now, oneHourLater,
+                            MeetingStatus.IN_PROGRESS).iterator();
                 }
 
                 if (meetingIterator.hasNext()) {
@@ -82,42 +79,37 @@ public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
         };
     }
 
-    @Bean(UPDATE_MEETING_STATUS + "Processor")
+    @Bean(REMIND_MEETING_COMING_SOON + "Processor")
     public ItemProcessor<Meeting, Meeting> processor() {
-        return meeting -> {
-            if (meeting.getCurrentParticipants() < meeting.getMinParticipants()) {
-                meeting.cancel();
-                chatRoomEventPublisher.publishCloseChatRoom(
-                        new CloseChatRoomEvent(meeting.getId()));
-                publishNotificationForCancelMeeting(meeting);
-            } else {
-                meeting.inProgress();
+        return meeting -> meeting;
+    }
+
+
+    @Bean(REMIND_MEETING_COMING_SOON + "Writer")
+    public ItemWriter<Meeting> writer() {
+        return meetings -> {
+            for (Meeting meeting : meetings) {
+                publishNotificationForRemindMeeting(meeting);
             }
-            return meeting;
         };
     }
 
-    private void publishNotificationForCancelMeeting(Meeting meeting) {
+    private void publishNotificationForRemindMeeting(Meeting meeting) {
         List<MeetingParticipant> participants = meeting.getMeetingParticipants();
 
         for (MeetingParticipant participant : participants) {
-            String message = String.format(MEETING_CANCEL, meeting.getName());
+            long minutesUntilMeeting = ChronoUnit.MINUTES.between(LocalDateTime.now(),
+                    meeting.getStartDateTime());
+            String message = String.format(MEETING_REMIND_SOON, meeting.getName(),
+                    minutesUntilMeeting);
             NotificationEvent event = NotificationEvent.builder()
                     .userId(participant.getMember().getId().toString())
                     .message(message)
-                    .type(NotificationType.CANCEL)
+                    .type(NotificationType.REMIND)
                     .relatedUrl("/api/meetings/detail/" + meeting.getId()) // TODO: 프론트 URL로 변경
                     .build();
             notificationEventPublisher.publishEvent(event);
             log.info("NotificationEvent published: {}", event);
         }
-    }
-
-    @Bean(UPDATE_MEETING_STATUS + "Writer")
-    public ItemWriter<Meeting> writer() {
-        return chunk -> {
-            List<? extends Meeting> meetings = chunk.getItems();
-            meetingRepository.saveAll(meetings);
-        };
     }
 }

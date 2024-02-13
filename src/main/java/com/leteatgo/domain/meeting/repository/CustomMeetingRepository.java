@@ -17,9 +17,12 @@ public interface CustomMeetingRepository {
 
     Slice<MeetingListResponse> findMeetingList(String category, String region, Pageable pageable);
 
-    List<Meeting> findMeetingsForUpdateStatus(LocalDateTime startDateTime, MeetingStatus status);
-    
+    List<Meeting> findMeetingsForUpdateStatus(LocalDateTime now, MeetingStatus status);
+
     Slice<MeetingSearchResponse> searchMeetings(String type, String term, Pageable pageable);
 
     Optional<Meeting> findMeetingFetch(Long meetingId);
+
+    List<Meeting> findMeetingsForRemind(LocalDateTime now, LocalDateTime otherDateTime,
+            MeetingStatus status);
 }

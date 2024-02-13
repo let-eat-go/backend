@@ -1,10 +1,8 @@
 package com.leteatgo.global.batch.meeting;
 
-import static com.leteatgo.global.constants.BeanPrefix.UPDATE_MEETING_STATUS;
-import static com.leteatgo.global.constants.Notification.MEETING_CANCEL;
+import static com.leteatgo.global.constants.BeanPrefix.REMIND_MEETING_BEFORE_ONE_DAY;
+import static com.leteatgo.global.constants.Notification.MEETING_REMIND_ONE_DAY_BEFORE;
 
-import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
-import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.entity.MeetingParticipant;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
@@ -19,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -33,26 +30,24 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 @Configuration
 @Slf4j
-public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
+public class RemindMeetingsBeforeOneDayConfig extends DefaultBatchConfiguration {
 
     private final static Integer CHUNK_SIZE = 100;
 
     private final MeetingRepository meetingRepository;
-    private final ChatRoomEventPublisher chatRoomEventPublisher;
     private final NotificationEventPublisher notificationEventPublisher;
 
-    @Bean(UPDATE_MEETING_STATUS + "Job")
+    @Bean(REMIND_MEETING_BEFORE_ONE_DAY + "Job")
     public Job job() {
-        return new JobBuilder(UPDATE_MEETING_STATUS + "Job", jobRepository())
+        return new JobBuilder(REMIND_MEETING_BEFORE_ONE_DAY + "Job", jobRepository())
                 .incrementer(new RunIdIncrementer())
-                .start(updateMeetingStatusStep())
+                .start(remindMeetingBeforeOneDayStep())
                 .build();
     }
 
-    @Bean(UPDATE_MEETING_STATUS + "Step")
-    @JobScope
-    public Step updateMeetingStatusStep() {
-        return new StepBuilder(UPDATE_MEETING_STATUS + "Step", jobRepository())
+    @Bean(REMIND_MEETING_BEFORE_ONE_DAY + "Step")
+    public Step remindMeetingBeforeOneDayStep() {
+        return new StepBuilder(REMIND_MEETING_BEFORE_ONE_DAY + "Step", jobRepository())
                 .<Meeting, Meeting>chunk(CHUNK_SIZE, getTransactionManager())
                 .reader(reader())
                 .processor(processor())
@@ -60,7 +55,7 @@ public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
                 .build();
     }
 
-    @Bean(UPDATE_MEETING_STATUS + "Reader")
+    @Bean(REMIND_MEETING_BEFORE_ONE_DAY + "Reader")
     public ItemReader<Meeting> reader() {
         return new ItemReader<>() {
             private Iterator<Meeting> meetingIterator;
@@ -69,8 +64,10 @@ public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
             public Meeting read() {
                 if (meetingIterator == null) {
                     LocalDateTime now = LocalDateTime.now();
-                    meetingIterator = meetingRepository.findMeetingsForUpdateStatus(
-                            now, MeetingStatus.BEFORE).iterator();
+                    LocalDateTime oneDayLater = now.plusDays(1)
+                            .plusHours(4); // 매일 저녁 8시에 배치가 수행되기 때문에 4시간을 더함
+                    meetingIterator = meetingRepository.findMeetingsForRemind(
+                            now, oneDayLater, MeetingStatus.IN_PROGRESS).iterator();
                 }
 
                 if (meetingIterator.hasNext()) {
@@ -82,42 +79,34 @@ public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
         };
     }
 
-    @Bean(UPDATE_MEETING_STATUS + "Processor")
+    @Bean(REMIND_MEETING_BEFORE_ONE_DAY + "Processor")
     public ItemProcessor<Meeting, Meeting> processor() {
-        return meeting -> {
-            if (meeting.getCurrentParticipants() < meeting.getMinParticipants()) {
-                meeting.cancel();
-                chatRoomEventPublisher.publishCloseChatRoom(
-                        new CloseChatRoomEvent(meeting.getId()));
-                publishNotificationForCancelMeeting(meeting);
-            } else {
-                meeting.inProgress();
+        return meeting -> meeting;
+    }
+
+
+    @Bean(REMIND_MEETING_BEFORE_ONE_DAY + "Writer")
+    public ItemWriter<Meeting> writer() {
+        return meetings -> {
+            for (Meeting meeting : meetings) {
+                publishNotificationForRemindMeeting(meeting);
             }
-            return meeting;
         };
     }
 
-    private void publishNotificationForCancelMeeting(Meeting meeting) {
+    private void publishNotificationForRemindMeeting(Meeting meeting) {
         List<MeetingParticipant> participants = meeting.getMeetingParticipants();
 
         for (MeetingParticipant participant : participants) {
-            String message = String.format(MEETING_CANCEL, meeting.getName());
+            String message = String.format(MEETING_REMIND_ONE_DAY_BEFORE, meeting.getName());
             NotificationEvent event = NotificationEvent.builder()
                     .userId(participant.getMember().getId().toString())
                     .message(message)
-                    .type(NotificationType.CANCEL)
+                    .type(NotificationType.REMIND)
                     .relatedUrl("/api/meetings/detail/" + meeting.getId()) // TODO: 프론트 URL로 변경
                     .build();
             notificationEventPublisher.publishEvent(event);
             log.info("NotificationEvent published: {}", event);
         }
-    }
-
-    @Bean(UPDATE_MEETING_STATUS + "Writer")
-    public ItemWriter<Meeting> writer() {
-        return chunk -> {
-            List<? extends Meeting> meetings = chunk.getItems();
-            meetingRepository.saveAll(meetings);
-        };
     }
 }
