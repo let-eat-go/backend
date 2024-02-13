@@ -1,6 +1,6 @@
 package com.leteatgo.global.batch.meeting;
 
-import static com.leteatgo.global.constants.BeanPrefix.CANCEL_UNMATCHED_MEETING;
+import static com.leteatgo.global.constants.BeanPrefix.UPDATE_MEETING_STATUS;
 import static com.leteatgo.global.constants.Notification.MEETING_CANCEL;
 
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 @Configuration
 @Slf4j
-public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
+public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
 
     private final static Integer CHUNK_SIZE = 100;
 
@@ -41,18 +41,18 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
     private final ChatRoomEventPublisher chatRoomEventPublisher;
     private final NotificationEventPublisher notificationEventPublisher;
 
-    @Bean(CANCEL_UNMATCHED_MEETING + "Job")
+    @Bean(UPDATE_MEETING_STATUS + "Job")
     public Job job() {
-        return new JobBuilder(CANCEL_UNMATCHED_MEETING + "Job", jobRepository())
+        return new JobBuilder(UPDATE_MEETING_STATUS + "Job", jobRepository())
                 .incrementer(new RunIdIncrementer())
-                .start(cancelMeetingStep())
+                .start(updateMeetingStatusStep())
                 .build();
     }
 
-    @Bean(CANCEL_UNMATCHED_MEETING + "Step")
+    @Bean(UPDATE_MEETING_STATUS + "Step")
     @JobScope
-    public Step cancelMeetingStep() {
-        return new StepBuilder(CANCEL_UNMATCHED_MEETING + "Step", jobRepository())
+    public Step updateMeetingStatusStep() {
+        return new StepBuilder(UPDATE_MEETING_STATUS + "Step", jobRepository())
                 .<Meeting, Meeting>chunk(CHUNK_SIZE, getTransactionManager())
                 .reader(reader())
                 .processor(processor())
@@ -60,7 +60,7 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
                 .build();
     }
 
-    @Bean(CANCEL_UNMATCHED_MEETING + "Reader")
+    @Bean(UPDATE_MEETING_STATUS + "Reader")
     public ItemReader<Meeting> reader() {
         return new ItemReader<>() {
             private Iterator<Meeting> meetingIterator;
@@ -69,7 +69,7 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
             public Meeting read() {
                 if (meetingIterator == null) {
                     LocalDateTime startDateTime = LocalDateTime.now();
-                    meetingIterator = meetingRepository.findMeetingsForCancel(
+                    meetingIterator = meetingRepository.findMeetingsForUpdateStatus(
                             startDateTime, MeetingStatus.BEFORE).iterator();
                 }
 
@@ -82,12 +82,17 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
         };
     }
 
-    @Bean(CANCEL_UNMATCHED_MEETING + "Processor")
+    @Bean(UPDATE_MEETING_STATUS + "Processor")
     public ItemProcessor<Meeting, Meeting> processor() {
         return meeting -> {
-            meeting.cancel();
-            chatRoomEventPublisher.publishCloseChatRoom(new CloseChatRoomEvent(meeting.getId()));
-            publishNotificationForCancelMeeting(meeting);
+            if (meeting.getCurrentParticipants() < meeting.getMinParticipants()) {
+                meeting.cancel();
+                chatRoomEventPublisher.publishCloseChatRoom(
+                        new CloseChatRoomEvent(meeting.getId()));
+                publishNotificationForCancelMeeting(meeting);
+            } else {
+                meeting.inProgress();
+            }
             return meeting;
         };
     }
@@ -108,7 +113,7 @@ public class CancelUnmatchedMeetingsConfig extends DefaultBatchConfiguration {
         }
     }
 
-    @Bean(CANCEL_UNMATCHED_MEETING + "Writer")
+    @Bean(UPDATE_MEETING_STATUS + "Writer")
     public ItemWriter<Meeting> writer() {
         return chunk -> {
             List<? extends Meeting> meetings = chunk.getItems();

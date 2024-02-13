@@ -1,6 +1,6 @@
 package com.leteatgo.global.batch.scheduler;
 
-import com.leteatgo.global.batch.meeting.CancelUnmatchedMeetingsConfig;
+import com.leteatgo.global.batch.meeting.UpdateMeetingsStatusConfig;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,19 +16,20 @@ import org.springframework.stereotype.Component;
 public class BatchScheduler {
 
     private final JobLauncher jobLauncher;
-    private final CancelUnmatchedMeetingsConfig cancelUnmatchedMeetingsConfig;
+    private final UpdateMeetingsStatusConfig updateMeetingsStatusConfig;
 
-    @Scheduled(cron = "0 0 0/2 * * *")
-    public void run() {
+    // 30분마다 실행
+    @Scheduled(cron = "0 0/30 * * * *")
+    public void runUpdateMeetingsStatusJob() {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())
                 .toJobParameters();
 
         try {
-            log.info("BatchScheduler.run()");
-            jobLauncher.run(cancelUnmatchedMeetingsConfig.job(), jobParameters);
+            log.info("UpdateMeetingsStatusConfig.run() start");
+            jobLauncher.run(updateMeetingsStatusConfig.job(), jobParameters);
         } catch (Exception e) {
-            log.error("BatchScheduler.run() error", e);
+            log.error("UpdateMeetingsStatusConfig.run() error", e);
         }
     }
 }

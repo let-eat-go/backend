@@ -39,7 +39,8 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Meeting> findMeetingsForCancel(LocalDateTime startDateTime, MeetingStatus status) {
+    public List<Meeting> findMeetingsForUpdateStatus(LocalDateTime startDateTime,
+            MeetingStatus status) {
         return queryFactory
                 .selectFrom(meeting)
                 .where(meeting.startDateTime.loe(startDateTime)

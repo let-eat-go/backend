@@ -17,8 +17,8 @@ public interface CustomMeetingRepository {
 
     Slice<MeetingListResponse> findMeetingList(String category, String region, Pageable pageable);
 
-    List<Meeting> findMeetingsForCancel(LocalDateTime startDateTime, MeetingStatus status);
-
+    List<Meeting> findMeetingsForUpdateStatus(LocalDateTime startDateTime, MeetingStatus status);
+    
     Slice<MeetingSearchResponse> searchMeetings(String type, String term, Pageable pageable);
 
     Optional<Meeting> findMeetingFetch(Long meetingId);

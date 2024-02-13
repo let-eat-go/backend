@@ -52,7 +52,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 @SpringBootTest
 @ActiveProfiles("test")
 @Sql(scripts = "classpath:sql/batch-schema-h2.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class CancelUnmatchedMeetingsConfigTest {
+class UpdateMeetingsStatusConfigTest {
 
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
@@ -73,7 +73,7 @@ class CancelUnmatchedMeetingsConfigTest {
     ChatRoomRepository chatRoomRepository;
 
     @Autowired
-    CancelUnmatchedMeetingsConfig cancelUnmatchedMeetingsConfig;
+    UpdateMeetingsStatusConfig updateMeetingsStatusConfig;
 
     @MockBean
     ChatRoomEventPublisher chatRoomEventPublisher;
@@ -93,13 +93,13 @@ class CancelUnmatchedMeetingsConfigTest {
 
 
     @Test
-    void cancelUnmatchedMeetingsJobTest() throws Exception {
+    void updateMeetingsStatusJobTest() throws Exception {
         // given
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())
                 .toJobParameters();
         // when
-        jobLauncherTestUtils.setJob(cancelUnmatchedMeetingsConfig.job());
+        jobLauncherTestUtils.setJob(updateMeetingsStatusConfig.job());
         JobExecution jobExecution = jobLauncherTestUtils.launchJob(jobParameters);
         // then
         assertThat(jobExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
