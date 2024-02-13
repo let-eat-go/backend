@@ -23,6 +23,6 @@ public interface CustomMeetingRepository {
 
     Optional<Meeting> findMeetingFetch(Long meetingId);
 
-    List<Meeting> findMeetingsForRemind(LocalDateTime now, LocalDateTime otherDateTime,
+    List<Meeting> findMeetingsForRemind(LocalDateTime localDateTime, LocalDateTime otherDateTime,
             MeetingStatus status);
 }

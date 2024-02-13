@@ -172,14 +172,14 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
     }
 
     @Override
-    public List<Meeting> findMeetingsForRemind(LocalDateTime now, LocalDateTime otherDateTime,
-            MeetingStatus status) {
+    public List<Meeting> findMeetingsForRemind(LocalDateTime localDateTime,
+            LocalDateTime otherDateTime, MeetingStatus status) {
         return queryFactory
                 .selectFrom(meeting)
                 .join(meeting.meetingParticipants, meetingParticipant).fetchJoin()
                 .join(meetingParticipant.member, member).fetchJoin()
                 .join(meeting.chatRoom, chatRoom).fetchJoin()
-                .where(meeting.startDateTime.between(now, otherDateTime)
+                .where(meeting.startDateTime.between(localDateTime, otherDateTime)
                         .and(meeting.meetingOptions.status.eq(status)))
                 .fetch();
     }

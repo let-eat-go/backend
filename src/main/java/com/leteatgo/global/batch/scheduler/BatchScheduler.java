@@ -40,8 +40,7 @@ public class BatchScheduler {
     }
 
     // 매일 자정에 실행
-//    @Scheduled(cron = "0 0 0 * * *")
-    @Scheduled(cron = "0/30 * * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void runCompleteMeetingsJob() {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addDate("date", new Date())

@@ -63,11 +63,11 @@ public class RemindMeetingsBeforeOneDayConfig extends DefaultBatchConfiguration 
             @Override
             public Meeting read() {
                 if (meetingIterator == null) {
-                    LocalDateTime now = LocalDateTime.now();
-                    LocalDateTime oneDayLater = now.plusDays(1)
-                            .plusHours(4); // 매일 저녁 8시에 배치가 수행되기 때문에 4시간을 더함
+                    // 매일 저녁 8시에 배치가 수행되기 때문에 4시간을 더함
+                    LocalDateTime localDateTime = LocalDateTime.now().plusHours(4);
+                    LocalDateTime oneDayLater = localDateTime.plusDays(1);
                     meetingIterator = meetingRepository.findMeetingsForRemind(
-                            now, oneDayLater, MeetingStatus.IN_PROGRESS).iterator();
+                            localDateTime, oneDayLater, MeetingStatus.IN_PROGRESS).iterator();
                 }
 
                 if (meetingIterator.hasNext()) {
