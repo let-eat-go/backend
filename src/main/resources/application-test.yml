@@ -34,3 +34,10 @@ spring:
     port: 5672
     username: guest
     password: guest
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      searchRestaurants:
+        failure-rate-threshold: 10
+        minimum-number-of-calls: 5
