@@ -104,7 +104,7 @@ jobs:
             git fetch
             git checkout feat/53-deploy-prod
             git pull origin feat/53-deploy-prod
-            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin"
             cd script
             chmod +x deploy-prod.sh
             ./deploy-prod.sh
