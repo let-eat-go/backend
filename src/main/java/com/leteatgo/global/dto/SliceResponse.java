@@ -16,7 +16,7 @@ public class SliceResponse<T> {
         this.contents = ObjectUtils.isEmpty(slice.getContent()) ?
                 new ArrayList<>() : slice.getContent();
 
-        this.pagination = new Pagination(slice.getPageable().getPageNumber(),
+        this.pagination = new Pagination(slice.getPageable().getPageNumber() + 1,
                 slice.hasNext());
     }
 
