@@ -1,0 +1,109 @@
+name: Deploy to GCP (Production)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+
+      - name: Set env.properties
+        run: |
+          cd ./src/main/resources
+          mkdir -p properties
+          cd properties
+          touch ./env.properties
+          echo "${{ secrets.ENV_PROPERTIES }}" > ./env.properties
+
+      - name: Set docker .env
+        run: |
+          cd ./.docker
+          touch .env
+          echo "${{ secrets.DOCKER_ENV }}" > .env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build
+
+      - name: generate SwaggerUI
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: generateSwaggerUI
+
+      - name: Push Springboot Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./.docker/api/Dockerfile-api
+          push: true
+          tags: |
+            kingseungil/leteatgo-backend-prod:latest
+            kingseungil/leteatgo-backend-prod:${{ github.sha }}
+          build-args: |
+            ENV=prod
+
+      - name: Push Nginx Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./.docker/nginx/Dockerfile-nginx
+          push: true
+          tags: |
+            kingseungil/leteatgo-nginx-prod:latest
+            kingseungil/leteatgo-nginx-prod:${{ github.sha }}
+          build-args: |
+            ENV=prod
+
+      - name: Push RabbitMQ Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./.docker/rabbitmq/Dockerfile-rabbitmq
+          push: true
+          tags: |
+            kingseungil/leteatgo-rabbitmq-prod:latest
+            kingseungil/leteatgo-rabbitmq-prod:${{ github.sha }}
+
+  gcp-deploy:
+    name: Deploy to GCP
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: connect ssh
+        uses: appleboy/ssh-action@master
+        with:
+          username: ${{ secrets.GCP_USERNAME }}
+          host: ${{ secrets.GCP_HOST }}
+          key: ${{ secrets.GCP_SSH_KEY }}
+          script: |
+            cd ~/backend
+            git checkout master
+            git pull origin master
+            echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin"
+            cd script
+            chmod +x deploy-prod.sh
+            ./deploy-prod.sh
+            docker image prune -f --filter "until=24h"
