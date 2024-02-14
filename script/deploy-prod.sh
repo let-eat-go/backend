@@ -40,7 +40,7 @@ if [ "$IS_GREEN" -eq 1 ]; then
   sleep 45
 
   echo "2. reload nginx"
-  docker-compose -f docker-compose-prod.yml exec leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-blue.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
+  docker-compose -f docker-compose-prod.yml exec -T leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-blue.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
 
   MAX_ATTEMPTS=10
   ATTEMPTS=0
@@ -59,7 +59,7 @@ if [ "$IS_GREEN" -eq 1 ]; then
 
     if [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; then
       echo "Blue health check failed after $MAX_ATTEMPTS attempts. Reverting Nginx configuration."
-      docker-compose -f docker-compose-prod.yml exec leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-green.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
+      docker-compose -f docker-compose-prod.yml exec -T leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-green.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
       exit 1
     fi
   done
@@ -76,7 +76,7 @@ else
   sleep 45
 
   echo "2. reload nginx"
-  docker-compose -f docker-compose-prod.yml exec leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-green.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
+  docker-compose -f docker-compose-prod.yml exec -T leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-green.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
 
   MAX_ATTEMPTS=10
   ATTEMPTS=0
@@ -95,7 +95,7 @@ else
 
     if [ $ATTEMPTS -eq $MAX_ATTEMPTS ]; then
       echo "Green health check failed after $MAX_ATTEMPTS attempts. Reverting Nginx configuration."
-      docker-compose -f docker-compose-prod.yml exec leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-blue.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
+      docker-compose -f docker-compose-prod.yml exec -T leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-blue.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
       exit 1
     fi
   done
