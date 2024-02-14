@@ -1,4 +1,4 @@
-package com.leteatgo.global.external.searchplace.exception;
+package com.leteatgo.global.external.exception;
 
 import com.leteatgo.global.exception.CustomException;
 import com.leteatgo.global.exception.ErrorCode;

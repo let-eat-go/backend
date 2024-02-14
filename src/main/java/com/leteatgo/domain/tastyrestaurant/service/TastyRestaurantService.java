@@ -7,9 +7,9 @@ import com.leteatgo.domain.tastyrestaurant.dto.response.VisitedRestaurantRespons
 import com.leteatgo.domain.tastyrestaurant.dto.response.VisitedRestaurantResponse.Content;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
-import com.leteatgo.global.external.searchplace.client.RestaurantSearcher;
+import com.leteatgo.global.external.searchplace.RestaurantSearcher;
 import com.leteatgo.global.external.searchplace.dto.RestaurantsResponse;
-import com.leteatgo.global.external.searchplace.exception.ApiException;
+import com.leteatgo.global.external.exception.ApiException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TastyRestaurantService {
 
-    private final RestaurantSearcher RestaurantSearcher;
+    private final RestaurantSearcher restaurantSearcher;
     private final TastyRestaurantRepository tastyRestaurantRepository;
     private final RedisRankingService redisRankingService;
 
@@ -31,7 +31,7 @@ public class TastyRestaurantService {
 
     @CircuitBreaker(name = CB_SEARCH_RESTAURANTS, fallbackMethod = "searchRestaurantsFallback")
     public SearchRestaurantsResponse searchRestaurants(SearchRestaurantsRequest request) {
-        RestaurantsResponse response = RestaurantSearcher.searchRestaurants(
+        RestaurantsResponse response = restaurantSearcher.searchRestaurants(
                 request.keyword(),
                 request.page(),
                 request.longitude(),
