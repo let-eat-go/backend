@@ -3,8 +3,7 @@ name: Deploy to GCP (Production)
 on:
   push:
     branches:
-      #      - master
-      - feat/53-deploy-prod
+      - master
 
 jobs:
   build-and-push:
@@ -101,9 +100,8 @@ jobs:
           key: ${{ secrets.GCP_SSH_KEY }}
           script: |
             cd ~/backend
-            git fetch
-            git checkout feat/53-deploy-prod
-            git pull origin feat/53-deploy-prod
+            git checkout master
+            git pull origin master
             echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin"
             cd script
             chmod +x deploy-prod.sh
