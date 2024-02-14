@@ -1,0 +1,54 @@
+version: '3.7'
+
+services:
+  leteatgo-server-blue:
+    image: ${DOCKER_REPO}/leteatgo-backend-prod:latest
+    container_name: leteatgo-server-blue
+    expose:
+      - "8080"
+    restart: always
+    networks:
+      - leteatgo
+
+  leteatgo-server-green:
+    image: ${DOCKER_REPO}/leteatgo-backend-prod:latest
+    container_name: leteatgo-server-green
+    expose:
+      - "8080"
+    restart: always
+    networks:
+      - leteatgo
+
+  leteatgo-nginx:
+    image: ${DOCKER_REPO}/leteatgo-nginx-prod:latest
+    container_name: leteatgo-nginx
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - leteatgo
+
+  leteatgo-redis:
+    image: redis:alpine
+    container_name: leteatgo-redis
+    volumes:
+      - ~/redis-data:/data
+      - ./redis/redis.conf:/etc/redis.conf
+    ports:
+      - "6379:6379"
+    networks:
+      - leteatgo
+    restart: always
+    command: redis-server /etc/redis.conf
+
+  leteatgo-rabbitmq:
+    image: ${DOCKER_REPO}/leteatgo-rabbitmq-prod:latest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - leteatgo
+
+networks:
+  leteatgo:
+    external: true

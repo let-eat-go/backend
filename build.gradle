@@ -121,8 +121,9 @@ tasks.named('test') {
 // --------restdocs, swagger 설정 ------------
 openapi3 {
     servers = [
-            { url = "http://localhost:8080" },
-            { url = "https://backend-dev.leteatgo.site" }
+            { url = "https://backend-prod.leteatgo.site" },
+            { url = "https://backend-dev.leteatgo.site" },
+            { url = "http://localhost:8080" }
     ]
 
     title 'Let-Eat-Go API'
