@@ -5,7 +5,8 @@ import static com.leteatgo.global.exception.ErrorCode.INVALID_REQUEST;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.leteatgo.global.external.searchplace.client.kakao.client.KakaoApiClient;
-import com.leteatgo.global.external.searchplace.client.kakao.exception.KakaoApiException;
+import com.leteatgo.global.external.searchplace.exception.ApiBadRequestException;
+import com.leteatgo.global.external.searchplace.exception.ApiException;
 import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -30,13 +31,13 @@ public class KakaoApiConfig {
                 .defaultHeader(AUTHORIZATION, key)
                 .defaultStatusHandler(HttpStatusCode::is4xxClientError,
                         (request, response) -> {
-                            throw new KakaoApiException(INVALID_REQUEST);
+                            throw new ApiBadRequestException(INVALID_REQUEST);
                         })
                 .defaultStatusHandler(HttpStatusCode::isError,
                         ((request, response) -> {
                             String body = new String(response.getBody().readAllBytes(),
                                     StandardCharsets.UTF_8);
-                            throw new KakaoApiException(INTERNAL_ERROR, body);
+                            throw new ApiException(INTERNAL_ERROR, body);
                         }))
                 .build();
 
