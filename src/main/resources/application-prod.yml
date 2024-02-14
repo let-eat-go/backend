@@ -9,7 +9,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/$leteatgo?createDatabaseIfNotExist=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&rewriteBatchedStatements=true
+    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/leteatgo?createDatabaseIfNotExist=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&rewriteBatchedStatements=true
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
 
@@ -24,3 +24,14 @@ spring:
         show_sql: true
         default_batch_fetch_size: 500
     defer-datasource-initialization: true
+
+  data:
+    redis:
+      port: 6379
+      host: leteatgo-redis
+
+  rabbitmq:
+    host: leteatgo-rabbitmq
+    port: 5672
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASS}
