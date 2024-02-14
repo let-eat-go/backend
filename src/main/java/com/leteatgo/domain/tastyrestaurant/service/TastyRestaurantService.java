@@ -9,10 +9,12 @@ import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.external.searchplace.client.RestaurantSearcher;
 import com.leteatgo.global.external.searchplace.dto.RestaurantsResponse;
+import com.leteatgo.global.external.searchplace.exception.ApiException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +43,24 @@ public class TastyRestaurantService {
         return SearchRestaurantsResponse.from(response, request.page());
     }
 
+    // fallback method when circuit is open
     public SearchRestaurantsResponse searchRestaurantsFallback(SearchRestaurantsRequest request,
             CallNotPermittedException exception) {
         log.info("fail searchRestaurants cause [{}: {}]", exception.getClass(),
                 exception.getMessage());
+        return searchRestaurantsFromDB(request);
+    }
 
+    // fallback method when error 500 is occurs
+    public SearchRestaurantsResponse searchRestaurantsFallback(SearchRestaurantsRequest request,
+            ApiException exception) {
+        log.info("ApiException is occurred. [{}: {}]", exception.getClass(),
+                exception.getMessage());
+        return searchRestaurantsFromDB(request);
+    }
+
+    @NotNull
+    private SearchRestaurantsResponse searchRestaurantsFromDB(SearchRestaurantsRequest request) {
         return SearchRestaurantsResponse.fromEntity(
                 tastyRestaurantRepository.searchRestaurants(request,
                         PageRequest.of(request.page() - 1, CustomPageRequest.PAGE_SIZE)));
