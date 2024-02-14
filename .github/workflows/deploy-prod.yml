@@ -103,6 +103,9 @@ jobs:
             git checkout master
             git pull origin master
             echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin"
+            docker pull kingseungil/leteatgo-nginx-prod:latest
+            docker pull kingseungil/leteatgo-backend-prod:latest
+            docker pull kingseungil/leteatgo-rabbitmq-prod:latest
             cd script
             chmod +x deploy-prod.sh
             ./deploy-prod.sh
