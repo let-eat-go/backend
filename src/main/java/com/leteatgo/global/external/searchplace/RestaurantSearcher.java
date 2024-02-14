@@ -1,4 +1,4 @@
-package com.leteatgo.global.external.searchplace.client;
+package com.leteatgo.global.external.searchplace;
 
 import com.leteatgo.global.external.searchplace.dto.RestaurantsResponse;
 
