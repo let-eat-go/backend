@@ -57,7 +57,7 @@ public class CustomTastyRestaurantRepositoryImpl implements CustomTastyRestauran
                 .multiply(cos(radians(tastyRestaurant.latitude)))
                 .multiply(cos(radians(tastyRestaurant.longitude).subtract(radians(longitude))))
                 .add(sin(radians(latitude))
-                        .multiply(sin(tastyRestaurant.latitude))))
+                        .multiply(sin(radians(tastyRestaurant.latitude)))))
                 .multiply(6371);
     }
 
