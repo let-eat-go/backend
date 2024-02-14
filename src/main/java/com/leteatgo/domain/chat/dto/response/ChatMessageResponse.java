@@ -1,6 +1,5 @@
 package com.leteatgo.domain.chat.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.leteatgo.domain.chat.entity.ChatMessage;
 import com.leteatgo.domain.member.entity.Member;
 import java.time.LocalDateTime;
@@ -11,7 +10,6 @@ public record ChatMessageResponse(
         Sender sender,
         String content,
         boolean isRead,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt
 ) {
 

@@ -3,6 +3,6 @@ POST {{host}}/api/auth/signin
 Content-Type: application/json
 
 {
-  "email": "test2@naver.com",
+  "email": "test@gmail.com",
   "password": "1!qweqwe"
 }
