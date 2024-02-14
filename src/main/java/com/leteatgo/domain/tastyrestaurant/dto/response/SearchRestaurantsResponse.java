@@ -1,10 +1,12 @@
 package com.leteatgo.domain.tastyrestaurant.dto.response;
 
+import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.global.external.searchplace.dto.RestaurantContent;
 import com.leteatgo.global.external.searchplace.dto.RestaurantsResponse;
 import com.leteatgo.global.type.RestaurantCategory;
 import java.util.List;
 import lombok.Builder;
+import org.springframework.data.domain.Slice;
 
 public record SearchRestaurantsResponse(
         List<Content> contents,
@@ -21,6 +23,18 @@ public record SearchRestaurantsResponse(
                         .currentPage(currentPage)
                         .hasMore(response.getMeta().hasNext())
                         .totalCount(response.getMeta().totalCount())
+                        .build());
+    }
+
+    public static SearchRestaurantsResponse fromEntity(Slice<TastyRestaurant> slice) {
+        return new SearchRestaurantsResponse(
+                slice.getContent().stream()
+                        .map(Content::fromEntity)
+                        .toList(),
+                Pagination.builder()
+                        .currentPage(slice.getPageable().getPageNumber() + 1)
+                        .hasMore(slice.hasNext())
+                        .totalCount(-1) // slice에는 total이 없음
                         .build());
     }
 
@@ -48,6 +62,20 @@ public record SearchRestaurantsResponse(
                     .latitude(content.latitude())
                     .longitude(content.longitude())
                     .restaurantUrl(content.restaurantUrl())
+                    .build();
+        }
+
+        public static Content fromEntity(TastyRestaurant tastyRestaurant) {
+            return Content.builder()
+                    .apiId(tastyRestaurant.getApiId())
+                    .name(tastyRestaurant.getName())
+                    .category(tastyRestaurant.getCategory())
+                    .phoneNumber(tastyRestaurant.getPhoneNumber())
+                    .roadAddress(tastyRestaurant.getRoadAddress())
+                    .landAddress(tastyRestaurant.getLandAddress())
+                    .latitude(tastyRestaurant.getLatitude())
+                    .longitude(tastyRestaurant.getLongitude())
+                    .restaurantUrl(tastyRestaurant.getRestaurantUrl())
                     .build();
         }
     }

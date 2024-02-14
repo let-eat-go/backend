@@ -5,10 +5,10 @@ import java.util.Optional;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TastyRestaurantRepository extends JpaRepository<TastyRestaurant, Long> {
+public interface TastyRestaurantRepository extends JpaRepository<TastyRestaurant, Long>,
+        CustomTastyRestaurantRepository {
 
     List<TastyRestaurant> findTop5ByOrderByNumberOfUsesDesc();
 
-    Optional<TastyRestaurant> findByApiId(Long kakaoId);
-
+    Optional<TastyRestaurant> findByApiId(Long apiId);
 }
