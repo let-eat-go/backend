@@ -46,7 +46,7 @@ public class TastyRestaurantService {
     // fallback method when circuit is open
     public SearchRestaurantsResponse searchRestaurantsFallback(SearchRestaurantsRequest request,
             CallNotPermittedException exception) {
-        log.info("fail searchRestaurants cause [{}: {}]", exception.getClass(),
+        log.error("fail searchRestaurants cause [{}: {}]", exception.getClass(),
                 exception.getMessage());
         return searchRestaurantsFromDB(request);
     }
@@ -54,7 +54,7 @@ public class TastyRestaurantService {
     // fallback method when error 500 is occurs
     public SearchRestaurantsResponse searchRestaurantsFallback(SearchRestaurantsRequest request,
             ApiException exception) {
-        log.info("ApiException is occurred. [{}: {}]", exception.getClass(),
+        log.error("ApiException is occurred. [{}: {}]", exception.getClass(),
                 exception.getMessage());
         return searchRestaurantsFromDB(request);
     }
