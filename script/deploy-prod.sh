@@ -40,8 +40,6 @@ if [ "$IS_GREEN" -eq 1 ]; then
   sleep 45
 
   echo "2. reload nginx"
-  #  cd /home/skditmddlf/backend/.docker/nginx || exit
-#  cd nginx || exit
   docker-compose -f docker-compose-prod.yml exec leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-blue.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
 
   MAX_ATTEMPTS=10
@@ -78,8 +76,6 @@ else
   sleep 45
 
   echo "2. reload nginx"
-  #  cd /home/skditmddlf/backend/.docker/nginx || exit
-#  cd nginx || exit
   docker-compose -f docker-compose-prod.yml exec leteatgo-nginx /bin/bash -c "cp /etc/nginx/nginx-green.conf /etc/nginx/conf.d/default.conf && nginx -s reload"
 
   MAX_ATTEMPTS=10
