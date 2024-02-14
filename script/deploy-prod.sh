@@ -13,7 +13,7 @@ fi
 # redis container가 없으면 실행
 if [ $(docker ps | grep -c "leteatgo-redis") -eq 0 ]; then
   echo "### Starting redis ###"
-  docker-compose up -d docker-compose-prod.yml up -d leteatgo-redis
+  docker-compose -f docker-compose-prod.yml up -d leteatgo-redis
 else
   echo "### Redis already running ###"
 fi
@@ -21,7 +21,7 @@ fi
 # rabbitMQ container가 없으면 실행
 if [ $(docker ps | grep -c "leteatgo-rabbitmq") -eq 0 ]; then
   echo "### Starting rabbitMQ ###"
-  docker-compose up -d docker-compose-prod.yml up -d leteatgo-rabbitmq
+  docker-compose -f docker-compose-prod.yml up -d leteatgo-rabbitmq
 else
   echo "### RabbitMQ already running ###"
 fi
