@@ -32,6 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String[] WHITELIST = {
             "/docs/**", // swagger
+            "/error",
+            "/favicon.ico",
             "/v3/api-docs/**", // swagger
             "/api/auth/signup", // 회원가입
             "/api/auth/signin", // 로그인
@@ -45,7 +47,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/meetings/detail/**", // 모임 상세 조회
             "/api/meetings/list", // 모임 목록 조회
             "/api/meetings/search", // 모임 검색
-            "/ws" // websocket connection
+            "/ws", // websocket connection,
+            "/"
     };
 
     private final JwtTokenProvider jwtTokenProvider;

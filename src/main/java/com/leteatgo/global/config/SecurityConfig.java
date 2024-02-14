@@ -49,7 +49,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorize -> authorize
                         // static
-                        .requestMatchers("/docs/**", "/error", "/favicon.ico",
+                        .requestMatchers("/", "/docs/**", "/error", "/favicon.ico",
                                 "/v3/api-docs/**", "/ws").permitAll()
 
                         // api
