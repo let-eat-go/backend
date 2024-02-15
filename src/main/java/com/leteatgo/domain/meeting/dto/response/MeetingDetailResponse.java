@@ -19,6 +19,7 @@ public record MeetingDetailResponse(
     public record MeetingResponse(
             Long id,
             String name,
+            String region,
             RestaurantCategory category,
             Integer minParticipants,
             Integer maxParticipants,

@@ -470,6 +470,7 @@ class MeetingControllerTest {
             return new MeetingDetailResponse.MeetingResponse(
                     1L,
                     "모임 제목",
+                    "강남구",
                     null,
                     2,
                     4,
@@ -574,6 +575,7 @@ class MeetingControllerTest {
             return new MeetingListResponse(
                     1L,
                     "모임 제목",
+                    "강남구",
                     RestaurantCategory.ASIAN_CUISINE,
                     2,
                     4,
@@ -647,6 +649,7 @@ class MeetingControllerTest {
             return new MeetingListResponse(
                     1L,
                     "모임 제목",
+                    "강남구",
                     RestaurantCategory.ASIAN_CUISINE,
                     2,
                     4,
