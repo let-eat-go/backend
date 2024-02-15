@@ -9,6 +9,7 @@ import com.leteatgo.domain.meeting.service.MeetingService;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.dto.SliceResponse;
 import com.leteatgo.global.security.annotation.RoleUser;
+import com.leteatgo.global.type.RestaurantCategory;
 import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -84,7 +85,7 @@ public class MeetingController {
     // 모임 목록 조회
     @GetMapping("/list")
     public ResponseEntity<SliceResponse<MeetingListResponse>> getMeetingList(
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) RestaurantCategory category,
             @RequestParam(required = false) String region,
             @Valid CustomPageRequest request
     ) {

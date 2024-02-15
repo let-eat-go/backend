@@ -583,7 +583,7 @@ class MeetingServiceTest {
         @DisplayName("[성공] 모임 상태가 BEFORE인 모임 목록을 조회할 수 있다.")
         void getMeetingList() {
             // given
-            String category = "한식";
+            RestaurantCategory category = RestaurantCategory.KOREAN_CUISINE;
             String regionName = "강남구";
             given(meetingRepository.findMeetingList(category, regionName,
                     PageRequest.of(customPageRequest.page(), CustomPageRequest.PAGE_SIZE)))

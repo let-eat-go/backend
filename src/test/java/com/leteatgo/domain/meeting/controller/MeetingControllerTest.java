@@ -607,14 +607,14 @@ class MeetingControllerTest {
         @DisplayName("[성공] 모임 목록 조회")
         void getMeetingList() throws Exception {
             // given
-            String category = "한식";
+            RestaurantCategory category = RestaurantCategory.ASIAN_CUISINE;
             String region = "강남구";
             given(meetingService.getMeetingList(category, region, pageRequest))
                     .willReturn(response);
             // when
             // then
             mockMvc.perform(get("/api/meetings/list")
-                            .param("category", category)
+                            .param("category", category.name())
                             .param("region", region)
                             .param("page", "1")
                     )

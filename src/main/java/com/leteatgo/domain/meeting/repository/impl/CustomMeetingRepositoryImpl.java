@@ -18,7 +18,6 @@ import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.CustomMeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
-import com.leteatgo.domain.meeting.type.SearchType;
 import com.leteatgo.global.type.RestaurantCategory;
 import com.leteatgo.global.util.SliceUtil;
 import com.querydsl.core.BooleanBuilder;
@@ -94,14 +93,14 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
 
     @Override
     public Slice<MeetingListResponse> findMeetingList(
-            String category, String regionName, Pageable pageable
+            RestaurantCategory category, String regionName, Pageable pageable
     ) {
 
         BooleanBuilder condition = new BooleanBuilder();
         condition.and(meeting.meetingOptions.status.eq(MeetingStatus.BEFORE));
 
         if (category != null) {
-            condition.and(meeting.restaurantCategory.eq(RestaurantCategory.from(category)));
+            condition.and(meeting.restaurantCategory.eq(category));
         }
 
         if (regionName != null) {

@@ -42,6 +42,7 @@ import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.lock.annotation.DistributedLock;
+import com.leteatgo.global.type.RestaurantCategory;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -175,7 +176,7 @@ public class MeetingService {
 
     /* [모임 목록 조회] 기본 10개씩 페이징 처리, 카테고리, 지역에 따라 조회 */
     public Slice<MeetingListResponse> getMeetingList(
-            String category, String region, CustomPageRequest request
+            RestaurantCategory category, String region, CustomPageRequest request
     ) {
         return meetingRepository.findMeetingList(
                 category, region, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
