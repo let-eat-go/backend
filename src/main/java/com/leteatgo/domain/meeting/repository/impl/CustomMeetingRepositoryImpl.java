@@ -127,24 +127,11 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
     }
 
     @Override
-    public Slice<MeetingListResponse> searchMeetings(
-            String type, String term, Pageable pageable) {
+    public Slice<MeetingListResponse> searchMeetings(String term, Pageable pageable) {
 
-        SearchType searchType = SearchType.getSearchTypeIgnoringCase(type);
         BooleanBuilder condition = new BooleanBuilder();
-        condition.and(
-                switch (searchType) {
-                    case CATEGORY -> meeting.restaurantCategory.eq(RestaurantCategory.from(term));
-                    case REGION -> meeting.region.id.eq(
-                            JPAExpressions
-                                    .select(region.id)
-                                    .from(region)
-                                    .where(region.name.eq(term))
-                    );
-                    case MEETINGNAME -> meeting.name.containsIgnoreCase(term); // LIKE %term%
-                    case RESTAURANTNAME ->
-                            tastyRestaurant.name.containsIgnoreCase(term); // LIKE %term%
-                });
+        condition.and(meeting.name.containsIgnoreCase(term) // LIKE %term%
+                .or(tastyRestaurant.name.containsIgnoreCase(term))); // LIKE %term%
 
         List<MeetingListResponse> meetingSearchResponses = queryFactory
                 .select(meetingListProjection())

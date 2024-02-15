@@ -96,11 +96,10 @@ public class MeetingController {
     // 모임 검색
     @GetMapping("/search")
     public ResponseEntity<SliceResponse<MeetingListResponse>> searchMeetings(
-            @RequestParam String type,
             @RequestParam String term,
             @Valid CustomPageRequest request
     ) {
-        Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term, request);
+        Slice<MeetingListResponse> response = meetingService.searchMeetings(term, request);
         return ResponseEntity.ok(new SliceResponse<>(response));
     }
 

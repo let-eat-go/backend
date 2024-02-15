@@ -679,14 +679,12 @@ class MeetingControllerTest {
         @DisplayName("[성공] 모임 검색")
         void searchMeetings() throws Exception {
             // given
-            String type = "category";
             String term = "아시아음식";
-            given(meetingService.searchMeetings(type, term, pageRequest))
+            given(meetingService.searchMeetings(term, pageRequest))
                     .willReturn(response);
             // when
             // then
             mockMvc.perform(get("/api/meetings/search")
-                            .param("type", type)
                             .param("term", term)
                             .param("page", "1"))
                     .andExpect(status().isOk())
@@ -696,9 +694,6 @@ class MeetingControllerTest {
                                             .tag("meeting")
                                             .summary("모임 검색")
                                             .queryParameters(
-                                                    parameterWithName("type")
-                                                            .description(
-                                                                    "검색 타입(category, region, restaurantName, meetingName)"),
                                                     parameterWithName("term")
                                                             .description("검색어"),
                                                     parameterWithName("page")

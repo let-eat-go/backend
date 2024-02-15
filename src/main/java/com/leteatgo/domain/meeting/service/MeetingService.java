@@ -182,11 +182,10 @@ public class MeetingService {
     }
 
     /* [모임 검색] 지역, 카테고리, 식당 이름으로 검색 */
-    public Slice<MeetingListResponse> searchMeetings(
-            String type, String term, CustomPageRequest request
+    public Slice<MeetingListResponse> searchMeetings(String term, CustomPageRequest request
     ) {
         return meetingRepository.searchMeetings(
-                type, term, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
+                term, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
     }
 
     /* [모임 참여] 동시성 제어를 위해 분산 락을 사용하여 동시에 참여할 수 없도록 함 */

@@ -636,57 +636,18 @@ class MeetingServiceTest {
         Slice<MeetingListResponse> response = new SliceUtil<>(meetingListResponses,
                 PageRequest.of(0, 10)).getSlice();
 
-        @Test
-        @DisplayName("[성공] 지역별 모임을 검색할 수 있다.")
-        void searchMeetings() {
-            // given
-            String type = "region";
-            String term = "강남구";
-            given(meetingRepository.searchMeetings(type, term,
-                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
-                    .willReturn(response);
-
-            // when
-            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
-                    pageRequest);
-
-            // then
-            assertThat(response.getContent().size()).isEqualTo(1);
-            assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
-        }
-
-        @Test
-        @DisplayName("[성공] 카테고리별 모임을 검색할 수 있다.")
-        void searchMeetingsWithCategory() {
-            // given
-            String type = "category";
-            String term = "한식";
-            given(meetingRepository.searchMeetings(type, term,
-                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
-                    .willReturn(response);
-
-            // when
-            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
-                    pageRequest);
-
-            // then
-            assertThat(response.getContent().size()).isEqualTo(1);
-            assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
-        }
 
         @Test
         @DisplayName("[성공] 식당 이름으로 모임을 검색할 수 있다.")
         void searchMeetingsWithRestaurantName() {
             // given
-            String type = "restaurantName";
             String term = "식당 이름";
-            given(meetingRepository.searchMeetings(type, term,
-                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
+            given(meetingRepository.searchMeetings(
+                    term, PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
                     .willReturn(response);
 
             // when
-            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
-                    pageRequest);
+            Slice<MeetingListResponse> response = meetingService.searchMeetings(term, pageRequest);
 
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
@@ -697,15 +658,13 @@ class MeetingServiceTest {
         @DisplayName("[성공] 모임 이름으로 모임을 검색할 수 있다.")
         void searchMeetingsWithMeetingName() {
             // given
-            String type = "meetingName";
             String term = "모임 제목";
-            given(meetingRepository.searchMeetings(type, term,
-                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
+            given(meetingRepository.searchMeetings(
+                    term, PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
                     .willReturn(response);
 
             // when
-            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
-                    pageRequest);
+            Slice<MeetingListResponse> response = meetingService.searchMeetings(term, pageRequest);
 
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
