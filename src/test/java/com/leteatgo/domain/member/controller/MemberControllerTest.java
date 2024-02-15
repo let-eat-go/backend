@@ -376,10 +376,10 @@ class MemberControllerTest {
                             .with(csrf()))
                     .andExpect(status().isBadRequest())
                     .andDo(print())
-                    .andDo(document("내 모임 목록 조회",
+                    .andDo(document("내 모임 목록 조회 실패 - 잘못된 조회 타입",
                             resource(ResourceSnippetParameters.builder()
                                     .tag(TAG)
-                                    .summary("내 모임 목록 조회 실패")
+                                    .summary("내 모임 목록 조회")
                                     .build())));
         }
     }
