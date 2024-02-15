@@ -249,6 +249,7 @@ class MemberServiceTest {
         MyMeetingsResponse response = MyMeetingsResponse.builder()
                 .meetingId(1L)
                 .meetingName("모여라 참깨")
+                .region("강남구")
                 .category(ASIAN_CUISINE)
                 .maxParticipants(3)
                 .restaurant(Restaurant.builder()
