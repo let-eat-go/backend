@@ -91,6 +91,7 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                         Projections.constructor(MyMeetingsResponse.class,
                                 meeting.id,
                                 meeting.name,
+                                meeting.region.name,
                                 meeting.restaurantCategory,
                                 meeting.startDateTime,
                                 meeting.maxParticipants,
