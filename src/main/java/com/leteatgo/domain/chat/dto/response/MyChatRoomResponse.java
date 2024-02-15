@@ -6,6 +6,7 @@ import lombok.Builder;
 
 @Builder
 public record MyChatRoomResponse(
+        Long meetingId,
         String meetingName,
         RestaurantCategory category,
         String region,

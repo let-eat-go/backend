@@ -49,6 +49,7 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
 
         List<MyChatRoomResponse> contents = queryFactory
                 .select(Projections.constructor(MyChatRoomResponse.class,
+                        meeting.id,
                         meeting.name,
                         meeting.restaurantCategory,
                         meeting.region.name,
@@ -71,7 +72,7 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                 .from(meetingParticipant)
                 .join(meetingParticipant.meeting, meeting)
                 .join(meeting.chatRoom, chatRoom)
-                .join(chatRoom.chatMessages, chatMessage)
+                .leftJoin(chatRoom.chatMessages, chatMessage)
                 .where(meetingParticipant.member.eq(member),
                         chatRoom.status.eq(RoomStatus.OPEN))
                 .groupBy(meeting.id)

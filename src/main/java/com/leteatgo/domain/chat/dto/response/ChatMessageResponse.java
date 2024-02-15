@@ -7,6 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record ChatMessageResponse(
+        Long chatId,
         Sender sender,
         String content,
         boolean isRead,
@@ -15,6 +16,7 @@ public record ChatMessageResponse(
 
     public static ChatMessageResponse fromEntity(ChatMessage chatMessage) {
         return ChatMessageResponse.builder()
+                .chatId(chatMessage.getId())
                 .sender(Sender.fromEntity(chatMessage.getSender()))
                 .content(chatMessage.getContent())
                 .isRead(chatMessage.isRead())

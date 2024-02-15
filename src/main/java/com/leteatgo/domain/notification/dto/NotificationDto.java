@@ -7,6 +7,7 @@ import lombok.Builder;
 
 @Builder
 public record NotificationDto(
+        Long id,
         String message,
         NotificationType type,
         String relatedUrl,
@@ -16,6 +17,7 @@ public record NotificationDto(
 
     public static NotificationDto fromEntity(Notification notification) {
         return NotificationDto.builder()
+                .id(notification.getId())
                 .message(notification.getContent())
                 .type(notification.getType())
                 .relatedUrl(notification.getRelatedUrl())
