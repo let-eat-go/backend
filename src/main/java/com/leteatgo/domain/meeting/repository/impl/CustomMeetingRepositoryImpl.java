@@ -98,6 +98,7 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
     ) {
 
         BooleanBuilder condition = new BooleanBuilder();
+        condition.and(meeting.meetingOptions.status.eq(MeetingStatus.BEFORE));
 
         if (category != null) {
             condition.and(meeting.restaurantCategory.eq(RestaurantCategory.from(category)));

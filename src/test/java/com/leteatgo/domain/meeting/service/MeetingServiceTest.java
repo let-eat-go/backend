@@ -580,7 +580,7 @@ class MeetingServiceTest {
                 PageRequest.of(0, 10)).getSlice();
 
         @Test
-        @DisplayName("[성공] 모임 목록을 조회할 수 있다.")
+        @DisplayName("[성공] 모임 상태가 BEFORE인 모임 목록을 조회할 수 있다.")
         void getMeetingList() {
             // given
             String category = "한식";
@@ -597,6 +597,7 @@ class MeetingServiceTest {
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
             assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
+            assertThat(response.getContent().get(0).status()).isEqualTo(MeetingStatus.BEFORE);
         }
     }
 
