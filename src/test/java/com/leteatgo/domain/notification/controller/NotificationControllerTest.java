@@ -151,9 +151,10 @@ class NotificationControllerTest {
     @DisplayName("알림 보내기 (테스트용)")
     public void sendTestNotification() throws Exception {
         // given
+        NotificationType type = NotificationType.CANCEL;
         // when
         // then
-        mockMvc.perform(post("/api/notification/send-test")
+        mockMvc.perform(post("/api/notification/send-test/{type}", type)
                         .cookie(new Cookie("access_token", "token"))
                         .with(csrf())
                 )
@@ -163,6 +164,10 @@ class NotificationControllerTest {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("notification")
                                 .summary("알림 보내기 (테스트용)")
+                                .pathParameters(
+                                        parameterWithName("type")
+                                                .description("알림 타입(CANCEL, REMIND, COMPLETED)")
+                                )
                                 .build()
                         )
                 ));

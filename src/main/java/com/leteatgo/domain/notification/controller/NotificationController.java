@@ -64,15 +64,16 @@ public class NotificationController {
     }
 
     // 알림 보내기 (테스트용)
-    @PostMapping("/send-test")
+    @PostMapping("/send-test/{type}")
     @RoleUser
     public ResponseEntity<Void> sendTestNotification(
-            @AuthenticationPrincipal UserDetails userDetails
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable NotificationType type
     ) {
         NotificationEvent event = NotificationEvent.builder()
                 .userId(userDetails.getUsername())
                 .message("테스트 알림입니다.")
-                .type(NotificationType.REMIND)
+                .type(type)
                 .relatedUrl("/test")
                 .build();
         notificationService.sendNotification(event);
