@@ -496,6 +496,7 @@ class MeetingControllerTest {
                     1,
                     LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
                     "모임 설명",
+                    "취소 사유",
                     null,
                     GenderPreference.ANY,
                     AgePreference.ANY

@@ -475,6 +475,7 @@ class MeetingServiceTest {
                     1,
                     LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
                     "모임 설명",
+                    "취소 사유",
                     null,
                     GenderPreference.ANY,
                     AgePreference.ANY
@@ -1061,7 +1062,7 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
-        
+
         MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(host)
