@@ -4,6 +4,7 @@ import com.leteatgo.domain.auth.exception.TokenException;
 import com.leteatgo.domain.chat.exception.ChatException;
 import com.leteatgo.global.exception.ErrorCode;
 import java.nio.charset.StandardCharsets;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageDeliveryException;
@@ -13,6 +14,7 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.StompSubProtocolErrorHandler;
 
+@Slf4j
 @Component
 public class StompErrorHandler extends StompSubProtocolErrorHandler {
 
@@ -41,6 +43,7 @@ public class StompErrorHandler extends StompSubProtocolErrorHandler {
     }
 
     private Message<byte[]> handleException(Throwable ex) {
+        log.error("stomp protocol exception is occurred. ", ex);
         return errorMessage(ex.getMessage(), HttpStatus.BAD_REQUEST.name());
     }
 
@@ -52,12 +55,12 @@ public class StompErrorHandler extends StompSubProtocolErrorHandler {
         return errorMessage(errorCode.getErrorMessage(), errorCode.name());
     }
 
-    private Message<byte[]> errorMessage(String errorMessage, String errorCode) {
+    private Message<byte[]> errorMessage(String errorMessage, String errorCodeName) {
         StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.ERROR);
-        accessor.setMessage(errorCode);
+        accessor.setMessage(errorCodeName);
         accessor.setLeaveMutable(true);
 
-        String response = String.format("[%s] %s", errorCode, errorMessage);
+        String response = String.format("[%s] %s", errorCodeName, errorMessage);
         return MessageBuilder.createMessage(errorMessage != null ?
                         response.getBytes(StandardCharsets.UTF_8) : EMPTY_PAYLOAD,
                 accessor.getMessageHeaders());

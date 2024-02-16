@@ -63,9 +63,6 @@ dependencies {
     // for stomp broker relay
     implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
 
-    // for websocket security
-//    implementation 'org.springframework.security:spring-security-messaging'
-
     // rabbitmq
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
