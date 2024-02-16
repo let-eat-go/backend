@@ -37,6 +37,7 @@ public class QuerydslUtil {
                 meeting.currentParticipants,
                 meeting.startDateTime,
                 meeting.description,
+                meeting.cancelReason,
                 meeting.meetingOptions.status,
                 meeting.meetingOptions.genderPreference,
                 meeting.meetingOptions.agePreference
