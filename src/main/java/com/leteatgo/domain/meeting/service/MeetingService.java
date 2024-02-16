@@ -21,6 +21,7 @@ import static com.leteatgo.global.exception.ErrorCode.PARTICIPANT_NOT_ENOUGH;
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.chat.event.dto.CreateChatRoomEvent;
+import com.leteatgo.domain.meeting.dto.request.MeetingCancelRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
@@ -131,13 +132,13 @@ public class MeetingService {
 
     /* [모임 취소] 주최자는 모임을 취소할 수 있음 (1시간 전까지만 취소 가능) */
     @Transactional
-    public void cancelMeeting(Long memberId, Long meetingId) {
+    public void cancelMeeting(Long memberId, MeetingCancelRequest request, Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
         checkHost(memberId, meeting);
         checkCancel(meeting);
 
-        meeting.cancel();
+        meeting.cancel(request.reason());
         meetingRepository.save(meeting);
         chatRoomEventPublisher.publishCloseChatRoom(new CloseChatRoomEvent(meeting.getId()));
     }

@@ -1,5 +1,6 @@
 package com.leteatgo.domain.meeting.controller;
 
+import com.leteatgo.domain.meeting.dto.request.MeetingCancelRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.response.MeetingCreateResponse;
@@ -67,9 +68,10 @@ public class MeetingController {
     @RoleUser
     public ResponseEntity<Void> cancelMeeting(
             @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody MeetingCancelRequest request,
             @PathVariable Long meetingId
     ) {
-        meetingService.cancelMeeting(Long.parseLong(userDetails.getUsername()), meetingId);
+        meetingService.cancelMeeting(Long.parseLong(userDetails.getUsername()), request, meetingId);
         return ResponseEntity.ok().build();
     }
 
