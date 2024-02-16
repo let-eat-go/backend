@@ -26,6 +26,7 @@ import com.epages.restdocs.apispec.ResourceDocumentation;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leteatgo.domain.meeting.dto.request.MeetingCancelRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingOptionsRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
@@ -300,15 +301,23 @@ class MeetingControllerTest {
     @DisplayName("모임 취소")
     class CancelMeeting {
 
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
+        String requestBody = objectMapper.writeValueAsString(request);
+
+        CancelMeeting() throws JsonProcessingException {
+        }
+
         @Test
         @DisplayName("[성공] 모임 취소")
         void cancelMeeting() throws Exception {
             // given
-            doNothing().when(meetingService).cancelMeeting(1L, 1L);
+            doNothing().when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isOk())
@@ -331,11 +340,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenNotHost() throws Exception {
             // given
             doThrow(new MeetingException(NOT_MEETING_HOST))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -358,11 +369,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenMeetingNotFound() throws Exception {
             // given
             doThrow(new MeetingException(NOT_FOUND_MEETING))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -385,11 +398,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenMeetingAlreadyCanceled() throws Exception {
             // given
             doThrow(new MeetingException(ALREADY_CANCELED_MEETING))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -412,11 +427,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenMeetingAlreadyCompleted() throws Exception {
             // given
             doThrow(new MeetingException(ALREADY_COMPLETED_MEETING))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -439,11 +456,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenNotBeforeOneHour() throws Exception {
             // given
             doThrow(new MeetingException(CANNOT_CANCEL_MEETING))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())

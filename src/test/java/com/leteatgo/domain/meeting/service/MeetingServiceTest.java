@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.chat.event.dto.CreateChatRoomEvent;
+import com.leteatgo.domain.meeting.dto.request.MeetingCancelRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingOptionsRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
@@ -339,6 +340,8 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(mockMember)
                 .name("모임 제목")
@@ -362,7 +365,7 @@ class MeetingServiceTest {
                     Optional.of(existingMeeting));
 
             // when
-            meetingService.cancelMeeting(mockMember.getId(), existingMeeting.getId());
+            meetingService.cancelMeeting(mockMember.getId(), request, existingMeeting.getId());
 
             // then
             verify(meetingRepository, times(1)).save(existingMeeting);
@@ -385,7 +388,7 @@ class MeetingServiceTest {
 
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(NOT_FOUND_MEETING.getErrorMessage());
@@ -402,7 +405,7 @@ class MeetingServiceTest {
 
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(notHost.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(notHost.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(NOT_MEETING_HOST.getErrorMessage());
@@ -412,13 +415,13 @@ class MeetingServiceTest {
         @DisplayName("[실패] 이미 취소된 모임은 취소할 수 없다.")
         void cancelCanceledMeeting() {
             // given
-            existingMeeting.cancel();
+            existingMeeting.cancel(request.reason());
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
                     Optional.of(existingMeeting));
 
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(ALREADY_CANCELED_MEETING.getErrorMessage());
@@ -434,7 +437,7 @@ class MeetingServiceTest {
 
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(ALREADY_COMPLETED_MEETING.getErrorMessage());
@@ -449,7 +452,7 @@ class MeetingServiceTest {
                     Optional.of(existingMeeting));
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(CANNOT_CANCEL_MEETING.getErrorMessage());
@@ -708,6 +711,8 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(host)
                 .name("모임 제목")
@@ -769,7 +774,7 @@ class MeetingServiceTest {
         @DisplayName("[실패] 이미 취소된 모임에 참가 신청하면 예외가 발생한다.")
         void joinCanceledMeeting() {
             // given
-            existingMeeting.cancel();
+            existingMeeting.cancel(request.reason());
             given(memberRepository.findById(host.getId())).willReturn(
                     Optional.of(host));
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
@@ -868,6 +873,8 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(host)
                 .name("모임 제목")
@@ -988,7 +995,7 @@ class MeetingServiceTest {
         void cancelJoinCanceledMeeting() {
             // given
             existingMeeting.addMeetingParticipant(mockmember1);
-            existingMeeting.cancel();
+            existingMeeting.cancel(request.reason());
             given(memberRepository.findById(mockmember1.getId())).willReturn(
                     Optional.of(mockmember1));
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
@@ -1054,6 +1061,8 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+        
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(host)
                 .name("모임 제목")
@@ -1134,7 +1143,7 @@ class MeetingServiceTest {
         @DisplayName("[실패] 이미 취소된 모임은 참가 확정할 수 없다.")
         void confirmCanceledMeeting() {
             // given
-            existingMeeting.cancel();
+            existingMeeting.cancel(request.reason());
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
                     Optional.of(existingMeeting));
             existingMeeting.addMeetingParticipant(host);
