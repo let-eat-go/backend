@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
 public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
 
     private final static Integer CHUNK_SIZE = 100;
+    private final static String DEFAULT_MEETING_CANCEL_REASON = "모임 참여자 수가 부족하여 모임이 취소되었습니다.";
 
     private final MeetingRepository meetingRepository;
     private final ChatRoomEventPublisher chatRoomEventPublisher;
@@ -86,7 +87,7 @@ public class UpdateMeetingsStatusConfig extends DefaultBatchConfiguration {
     public ItemProcessor<Meeting, Meeting> processor() {
         return meeting -> {
             if (meeting.getCurrentParticipants() < meeting.getMinParticipants()) {
-                meeting.cancel();
+                meeting.cancel(DEFAULT_MEETING_CANCEL_REASON);
                 chatRoomEventPublisher.publishCloseChatRoom(
                         new CloseChatRoomEvent(meeting.getId()));
                 publishNotificationForCancelMeeting(meeting);
