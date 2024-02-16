@@ -26,6 +26,7 @@ public record MeetingDetailResponse(
             Integer currentParticipants,
             LocalDateTime startDateTime,
             String description,
+            String cancelReason,
             MeetingStatus status,
             GenderPreference genderPreference,
             AgePreference agePreference
