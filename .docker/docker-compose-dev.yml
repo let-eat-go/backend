@@ -37,6 +37,7 @@ services:
 
   leteatgo-rabbitmq:
     image: ${DOCKER_REPO}/leteatgo-rabbitmq-dev:latest
+    container_name: leteatgo-rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
