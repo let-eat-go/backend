@@ -98,5 +98,8 @@ jobs:
             git pull origin dev
             cd ~/backend/.docker
             echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+            docker pull kingseungil/leteatgo-nginx-dev:latest
+            docker pull kingseungil/leteatgo-backend-dev:latest
+            docker pull kingseungil/leteatgo-rabbitmq-dev:latest
             docker-compose -f docker-compose-dev.yml up -d --build
             docker image prune -f --filter "until=24h"
