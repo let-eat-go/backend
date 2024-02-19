@@ -1,6 +1,6 @@
 package com.leteatgo.domain.chat.controller;
 
-import com.leteatgo.domain.chat.dto.response.ChatMessageResponse;
+import com.leteatgo.domain.chat.dto.response.ChatRoomMessagesResponse;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
 import com.leteatgo.domain.chat.service.ChatRoomService;
 import com.leteatgo.global.dto.CustomPageRequest;
@@ -32,7 +32,7 @@ public class ChatRoomController {
      */
     @RoleUser
     @GetMapping("/{roomId}/messages")
-    public ResponseEntity<SliceResponse<ChatMessageResponse>> roomMessages(
+    public ResponseEntity<SliceResponse<ChatRoomMessagesResponse>> roomMessages(
             @PathVariable(value = "roomId") Long roomId,
             @Valid CustomPageRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {

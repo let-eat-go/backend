@@ -12,12 +12,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.leteatgo.domain.chat.dto.response.ChatMessageResponse;
-import com.leteatgo.domain.chat.dto.response.ChatMessageResponse.Sender;
+import com.leteatgo.domain.chat.dto.response.ChatRoomMessagesResponse;
+import com.leteatgo.domain.chat.dto.response.ChatRoomMessagesResponse.MeetingInfo;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse.Chat;
 import com.leteatgo.domain.chat.service.ChatRoomService;
+import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.member.entity.Member;
+import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
 import com.leteatgo.global.type.RestaurantCategory;
@@ -78,8 +80,15 @@ class ChatRoomControllerTest {
 
         ReflectionTestUtils.setField(member, "id", 1L);
 
-        List<ChatMessageResponse> contents = List.of(ChatMessageResponse.builder()
-                .sender(Sender.fromEntity(member))
+        Meeting meeting = Meeting.builder()
+                .name("meeting name")
+                .region(new Region("강남구"))
+                .startDateTime(LocalDateTime.now())
+                .build();
+
+        List<ChatRoomMessagesResponse> contents = List.of(ChatRoomMessagesResponse.builder()
+                .meetingInfo(MeetingInfo.fromEntity(meeting))
+                .sender(ChatRoomMessagesResponse.Sender.fromEntity(member))
                 .content("message 1")
                 .isRead(true)
                 .createdAt(LocalDateTime.now())

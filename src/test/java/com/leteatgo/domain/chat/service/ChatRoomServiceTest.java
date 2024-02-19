@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.leteatgo.domain.chat.dto.response.ChatMessageResponse;
+import com.leteatgo.domain.chat.dto.response.ChatRoomMessagesResponse;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse.Chat;
 import com.leteatgo.domain.chat.entity.ChatMessage;
@@ -31,9 +31,11 @@ import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
+import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.security.CustomUserDetailService;
 import com.leteatgo.global.type.RestaurantCategory;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -181,7 +183,11 @@ class ChatRoomServiceTest {
                 .profileImage("profile")
                 .build();
 
-        Meeting meeting = Meeting.builder().build();
+        Meeting meeting = Meeting.builder()
+                .name("meeting name")
+                .region(new Region("강남구"))
+                .startDateTime(LocalDateTime.now())
+                .build();
 
         ChatRoom chatRoom = new ChatRoom(OPEN, meeting);
 
@@ -212,13 +218,13 @@ class ChatRoomServiceTest {
                     .willReturn(new SliceImpl<>(contents, pageable, true));
 
             // when
-            Slice<ChatMessageResponse> chatMessageResponses =
+            Slice<ChatRoomMessagesResponse> chatRoomMessagesResponses =
                     chatRoomService.roomMessages(roomId, customPageRequest, authId);
 
             // then
-            assertEquals(2, chatMessageResponses.getContent().size());
-            assertTrue(chatMessageResponses.getContent().get(0).isRead());
-            assertTrue(chatMessageResponses.getContent().get(1).isRead());
+            assertEquals(2, chatRoomMessagesResponses.getContent().size());
+            assertTrue(chatRoomMessagesResponses.getContent().get(0).isRead());
+            assertTrue(chatRoomMessagesResponses.getContent().get(1).isRead());
         }
 
         @Test

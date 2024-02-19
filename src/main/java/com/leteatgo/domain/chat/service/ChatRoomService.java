@@ -6,7 +6,7 @@ import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 
-import com.leteatgo.domain.chat.dto.response.ChatMessageResponse;
+import com.leteatgo.domain.chat.dto.response.ChatRoomMessagesResponse;
 import com.leteatgo.domain.chat.dto.response.MyChatRoomResponse;
 import com.leteatgo.domain.chat.entity.ChatRoom;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
@@ -56,7 +56,7 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public Slice<ChatMessageResponse> roomMessages(Long roomId, CustomPageRequest request,
+    public Slice<ChatRoomMessagesResponse> roomMessages(Long roomId, CustomPageRequest request,
             String authId) {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomFetch(roomId)
                 .orElseThrow(() -> new ChatException(NOT_FOUND_CHATROOM));
@@ -68,7 +68,7 @@ public class ChatRoomService {
                     if (!chatMessage.isRead()) { // 읽음 처리
                         chatMessage.setRead();
                     }
-                    return ChatMessageResponse.fromEntity(chatMessage);
+                    return ChatRoomMessagesResponse.fromEntity(chatMessage, chatRoom);
                 });
     }
 

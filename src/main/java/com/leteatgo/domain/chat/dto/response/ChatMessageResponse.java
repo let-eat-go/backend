@@ -7,8 +7,8 @@ import lombok.Builder;
 
 @Builder
 public record ChatMessageResponse(
-        Long chatId,
         Sender sender,
+        Long chatId,
         String content,
         boolean isRead,
         LocalDateTime createdAt
@@ -16,8 +16,8 @@ public record ChatMessageResponse(
 
     public static ChatMessageResponse fromEntity(ChatMessage chatMessage) {
         return ChatMessageResponse.builder()
+                .sender(ChatMessageResponse.Sender.fromEntity(chatMessage.getSender()))
                 .chatId(chatMessage.getId())
-                .sender(Sender.fromEntity(chatMessage.getSender()))
                 .content(chatMessage.getContent())
                 .isRead(chatMessage.isRead())
                 .createdAt(chatMessage.getCreatedAt())
@@ -32,7 +32,7 @@ public record ChatMessageResponse(
     ) {
 
         public static Sender fromEntity(Member member) {
-            return Sender.builder()
+            return ChatMessageResponse.Sender.builder()
                     .senderId(member.getId())
                     .nickname(member.getNickname())
                     .profile(member.getProfileImage())
