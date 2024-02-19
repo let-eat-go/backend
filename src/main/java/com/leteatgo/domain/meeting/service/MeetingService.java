@@ -21,6 +21,7 @@ import static com.leteatgo.global.exception.ErrorCode.PARTICIPANT_NOT_ENOUGH;
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.chat.event.dto.CreateChatRoomEvent;
+import com.leteatgo.domain.meeting.dto.request.MeetingCancelRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
 import com.leteatgo.domain.meeting.dto.request.TastyRestaurantRequest;
@@ -42,6 +43,7 @@ import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.lock.annotation.DistributedLock;
+import com.leteatgo.global.type.RestaurantCategory;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -130,13 +132,13 @@ public class MeetingService {
 
     /* [모임 취소] 주최자는 모임을 취소할 수 있음 (1시간 전까지만 취소 가능) */
     @Transactional
-    public void cancelMeeting(Long memberId, Long meetingId) {
+    public void cancelMeeting(Long memberId, MeetingCancelRequest request, Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
         checkHost(memberId, meeting);
         checkCancel(meeting);
 
-        meeting.cancel();
+        meeting.cancel(request.reason());
         meetingRepository.save(meeting);
         chatRoomEventPublisher.publishCloseChatRoom(new CloseChatRoomEvent(meeting.getId()));
     }
@@ -175,18 +177,17 @@ public class MeetingService {
 
     /* [모임 목록 조회] 기본 10개씩 페이징 처리, 카테고리, 지역에 따라 조회 */
     public Slice<MeetingListResponse> getMeetingList(
-            String category, String region, CustomPageRequest request
+            RestaurantCategory category, String region, CustomPageRequest request
     ) {
         return meetingRepository.findMeetingList(
                 category, region, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
     }
 
     /* [모임 검색] 지역, 카테고리, 식당 이름으로 검색 */
-    public Slice<MeetingListResponse> searchMeetings(
-            String type, String term, CustomPageRequest request
+    public Slice<MeetingListResponse> searchMeetings(String term, CustomPageRequest request
     ) {
         return meetingRepository.searchMeetings(
-                type, term, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
+                term, PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE));
     }
 
     /* [모임 참여] 동시성 제어를 위해 분산 락을 사용하여 동시에 참여할 수 없도록 함 */

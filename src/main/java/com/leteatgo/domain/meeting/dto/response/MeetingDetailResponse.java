@@ -19,12 +19,14 @@ public record MeetingDetailResponse(
     public record MeetingResponse(
             Long id,
             String name,
+            String region,
             RestaurantCategory category,
             Integer minParticipants,
             Integer maxParticipants,
             Integer currentParticipants,
             LocalDateTime startDateTime,
             String description,
+            String cancelReason,
             MeetingStatus status,
             GenderPreference genderPreference,
             AgePreference agePreference

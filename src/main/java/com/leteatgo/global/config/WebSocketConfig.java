@@ -11,7 +11,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-//@EnableWebSocketSecurity
 @EnableWebSocketMessageBroker
 @Configuration
 @RequiredArgsConstructor
@@ -41,12 +40,4 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(stompChannelInterceptor);
     }
-
-//    @Bean
-//    public AuthorizationManager<Message<?>> authorizationManager(
-//            MessageMatcherDelegatingAuthorizationManager.Builder messages) {
-//        messages.simpDestMatchers("/topic/**").hasRole("USER")
-//                .anyMessage().authenticated();
-//        return messages.build();
-//    }
 }

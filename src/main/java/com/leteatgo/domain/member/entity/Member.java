@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 public class Member extends BaseEntity {
 
     public static final String DEFAULT_INTRODUCE = "자기소개를 작성해주세요";
-    public static final String DEFAULT_PROFILE_IMAGE = "default_profile_image.png";
     public static final Double DEFAULT_MANNER_TEMPERATURE = 36.5;
     public static final String DEFAULT_PASSWORD = "1!qweqwe";
     public static final String DEFAULT_PHONE_NUMBER = "01112345678";
@@ -46,7 +45,7 @@ public class Member extends BaseEntity {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "profile_image", nullable = false)
+    @Column(name = "profile_image")
     private String profileImage;
 
     @Column(name = "profile_filename")
@@ -77,7 +76,7 @@ public class Member extends BaseEntity {
         this.nickname = nickname;
         this.password = password == null ? DEFAULT_PASSWORD : password;
         this.phoneNumber = phoneNumber == null ? DEFAULT_PHONE_NUMBER : phoneNumber;
-        this.profileImage = profileImage == null ? DEFAULT_PROFILE_IMAGE : profileImage;
+        this.profileImage = profileImage;
         this.introduce = introduce == null ? DEFAULT_INTRODUCE : introduce;
         this.loginType = loginType;
         this.role = role;

@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import com.leteatgo.domain.chat.event.ChatRoomEventPublisher;
 import com.leteatgo.domain.chat.event.dto.CloseChatRoomEvent;
 import com.leteatgo.domain.chat.event.dto.CreateChatRoomEvent;
+import com.leteatgo.domain.meeting.dto.request.MeetingCancelRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingOptionsRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
@@ -339,6 +340,8 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(mockMember)
                 .name("모임 제목")
@@ -362,7 +365,7 @@ class MeetingServiceTest {
                     Optional.of(existingMeeting));
 
             // when
-            meetingService.cancelMeeting(mockMember.getId(), existingMeeting.getId());
+            meetingService.cancelMeeting(mockMember.getId(), request, existingMeeting.getId());
 
             // then
             verify(meetingRepository, times(1)).save(existingMeeting);
@@ -385,7 +388,7 @@ class MeetingServiceTest {
 
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(NOT_FOUND_MEETING.getErrorMessage());
@@ -402,7 +405,7 @@ class MeetingServiceTest {
 
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(notHost.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(notHost.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(NOT_MEETING_HOST.getErrorMessage());
@@ -412,13 +415,13 @@ class MeetingServiceTest {
         @DisplayName("[실패] 이미 취소된 모임은 취소할 수 없다.")
         void cancelCanceledMeeting() {
             // given
-            existingMeeting.cancel();
+            existingMeeting.cancel(request.reason());
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
                     Optional.of(existingMeeting));
 
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(ALREADY_CANCELED_MEETING.getErrorMessage());
@@ -434,7 +437,7 @@ class MeetingServiceTest {
 
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(ALREADY_COMPLETED_MEETING.getErrorMessage());
@@ -449,7 +452,7 @@ class MeetingServiceTest {
                     Optional.of(existingMeeting));
             // when
             // then
-            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(),
+            assertThatThrownBy(() -> meetingService.cancelMeeting(mockMember.getId(), request,
                     existingMeeting.getId()))
                     .isInstanceOf(MeetingException.class)
                     .hasMessageContaining(CANNOT_CANCEL_MEETING.getErrorMessage());
@@ -465,12 +468,14 @@ class MeetingServiceTest {
             return new MeetingDetailResponse.MeetingResponse(
                     1L,
                     "모임 제목",
-                    null,
+                    "강남구",
+                    RestaurantCategory.KOREAN_CUISINE,
                     2,
                     4,
                     1,
                     LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
                     "모임 설명",
+                    "취소 사유",
                     null,
                     GenderPreference.ANY,
                     AgePreference.ANY
@@ -551,6 +556,7 @@ class MeetingServiceTest {
             return new MeetingListResponse(
                     1L,
                     "모임 제목",
+                    "강남구",
                     RestaurantCategory.KOREAN_CUISINE,
                     2,
                     4,
@@ -580,10 +586,10 @@ class MeetingServiceTest {
                 PageRequest.of(0, 10)).getSlice();
 
         @Test
-        @DisplayName("[성공] 모임 목록을 조회할 수 있다.")
+        @DisplayName("[성공] 모임 상태가 BEFORE인 모임 목록을 조회할 수 있다.")
         void getMeetingList() {
             // given
-            String category = "한식";
+            RestaurantCategory category = RestaurantCategory.KOREAN_CUISINE;
             String regionName = "강남구";
             given(meetingRepository.findMeetingList(category, regionName,
                     PageRequest.of(customPageRequest.page(), CustomPageRequest.PAGE_SIZE)))
@@ -597,6 +603,7 @@ class MeetingServiceTest {
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
             assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
+            assertThat(response.getContent().get(0).status()).isEqualTo(MeetingStatus.BEFORE);
         }
     }
 
@@ -608,6 +615,7 @@ class MeetingServiceTest {
             return new MeetingListResponse(
                     1L,
                     "모임 제목",
+                    "강남구",
                     RestaurantCategory.KOREAN_CUISINE,
                     2,
                     4,
@@ -636,57 +644,18 @@ class MeetingServiceTest {
         Slice<MeetingListResponse> response = new SliceUtil<>(meetingListResponses,
                 PageRequest.of(0, 10)).getSlice();
 
-        @Test
-        @DisplayName("[성공] 지역별 모임을 검색할 수 있다.")
-        void searchMeetings() {
-            // given
-            String type = "region";
-            String term = "강남구";
-            given(meetingRepository.searchMeetings(type, term,
-                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
-                    .willReturn(response);
-
-            // when
-            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
-                    pageRequest);
-
-            // then
-            assertThat(response.getContent().size()).isEqualTo(1);
-            assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
-        }
-
-        @Test
-        @DisplayName("[성공] 카테고리별 모임을 검색할 수 있다.")
-        void searchMeetingsWithCategory() {
-            // given
-            String type = "category";
-            String term = "한식";
-            given(meetingRepository.searchMeetings(type, term,
-                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
-                    .willReturn(response);
-
-            // when
-            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
-                    pageRequest);
-
-            // then
-            assertThat(response.getContent().size()).isEqualTo(1);
-            assertThat(response.getContent().get(0)).isEqualTo(meetingListResponse());
-        }
 
         @Test
         @DisplayName("[성공] 식당 이름으로 모임을 검색할 수 있다.")
         void searchMeetingsWithRestaurantName() {
             // given
-            String type = "restaurantName";
             String term = "식당 이름";
-            given(meetingRepository.searchMeetings(type, term,
-                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
+            given(meetingRepository.searchMeetings(
+                    term, PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
                     .willReturn(response);
 
             // when
-            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
-                    pageRequest);
+            Slice<MeetingListResponse> response = meetingService.searchMeetings(term, pageRequest);
 
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
@@ -697,15 +666,13 @@ class MeetingServiceTest {
         @DisplayName("[성공] 모임 이름으로 모임을 검색할 수 있다.")
         void searchMeetingsWithMeetingName() {
             // given
-            String type = "meetingName";
             String term = "모임 제목";
-            given(meetingRepository.searchMeetings(type, term,
-                    PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
+            given(meetingRepository.searchMeetings(
+                    term, PageRequest.of(pageRequest.page(), CustomPageRequest.PAGE_SIZE)))
                     .willReturn(response);
 
             // when
-            Slice<MeetingListResponse> response = meetingService.searchMeetings(type, term,
-                    pageRequest);
+            Slice<MeetingListResponse> response = meetingService.searchMeetings(term, pageRequest);
 
             // then
             assertThat(response.getContent().size()).isEqualTo(1);
@@ -745,6 +712,8 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(host)
                 .name("모임 제목")
@@ -806,7 +775,7 @@ class MeetingServiceTest {
         @DisplayName("[실패] 이미 취소된 모임에 참가 신청하면 예외가 발생한다.")
         void joinCanceledMeeting() {
             // given
-            existingMeeting.cancel();
+            existingMeeting.cancel(request.reason());
             given(memberRepository.findById(host.getId())).willReturn(
                     Optional.of(host));
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
@@ -905,6 +874,8 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(host)
                 .name("모임 제목")
@@ -1025,7 +996,7 @@ class MeetingServiceTest {
         void cancelJoinCanceledMeeting() {
             // given
             existingMeeting.addMeetingParticipant(mockmember1);
-            existingMeeting.cancel();
+            existingMeeting.cancel(request.reason());
             given(memberRepository.findById(mockmember1.getId())).willReturn(
                     Optional.of(mockmember1));
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
@@ -1091,6 +1062,8 @@ class MeetingServiceTest {
         MeetingOptions options = MeetingOptionsRequest.toEntiy(
                 new MeetingOptionsRequest(GenderPreference.ANY, AgePreference.ANY,
                         MeetingPurpose.DRINKING, AlcoholPreference.ANY));
+
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
         Meeting existingMeeting = Meeting.builder()
                 .host(host)
                 .name("모임 제목")
@@ -1171,7 +1144,7 @@ class MeetingServiceTest {
         @DisplayName("[실패] 이미 취소된 모임은 참가 확정할 수 없다.")
         void confirmCanceledMeeting() {
             // given
-            existingMeeting.cancel();
+            existingMeeting.cancel(request.reason());
             given(meetingRepository.findById(existingMeeting.getId())).willReturn(
                     Optional.of(existingMeeting));
             existingMeeting.addMeetingParticipant(host);

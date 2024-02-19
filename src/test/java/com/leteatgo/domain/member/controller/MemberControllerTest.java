@@ -322,6 +322,7 @@ class MemberControllerTest {
         MyMeetingsResponse response = MyMeetingsResponse.builder()
                 .meetingId(1L)
                 .meetingName("모여라 참깨")
+                .region("강남구")
                 .category(ASIAN_CUISINE)
                 .maxParticipants(3)
                 .restaurant(Restaurant.builder()
@@ -376,10 +377,10 @@ class MemberControllerTest {
                             .with(csrf()))
                     .andExpect(status().isBadRequest())
                     .andDo(print())
-                    .andDo(document("내 모임 목록 조회",
+                    .andDo(document("내 모임 목록 조회 실패 - 잘못된 조회 타입",
                             resource(ResourceSnippetParameters.builder()
                                     .tag(TAG)
-                                    .summary("내 모임 목록 조회 실패")
+                                    .summary("내 모임 목록 조회")
                                     .build())));
         }
     }

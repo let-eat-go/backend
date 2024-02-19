@@ -8,6 +8,7 @@ import lombok.Builder;
 public record MyMeetingsResponse(
         Long meetingId,
         String meetingName,
+        String region,
         RestaurantCategory category,
         LocalDateTime startDateTime,
         Integer maxParticipants,

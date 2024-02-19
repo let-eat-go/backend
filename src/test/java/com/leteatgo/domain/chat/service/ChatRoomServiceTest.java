@@ -187,13 +187,18 @@ class ChatRoomServiceTest {
 
         Pageable pageable = PageRequest.of(0, CustomPageRequest.PAGE_SIZE);
         ChatMessage chatMessage = new ChatMessage("message");
-        List<ChatMessage> contents = List.of(chatMessage);
+        ChatMessage chatMessage2 = new ChatMessage("message");
+        List<ChatMessage> contents = List.of(chatMessage, chatMessage2);
 
         @BeforeEach
         void setup() {
             ReflectionTestUtils.setField(member, "id", Long.parseLong(authId));
-            chatMessage.setSender(member);
             meeting.addMeetingParticipant(member);
+
+            chatMessage.setSender(member);
+
+            chatMessage2.setRead();
+            chatMessage2.setSender(member);
         }
 
         @Test
@@ -211,8 +216,9 @@ class ChatRoomServiceTest {
                     chatRoomService.roomMessages(roomId, customPageRequest, authId);
 
             // then
-            assertEquals(1, chatMessageResponses.getContent().size());
+            assertEquals(2, chatMessageResponses.getContent().size());
             assertTrue(chatMessageResponses.getContent().get(0).isRead());
+            assertTrue(chatMessageResponses.getContent().get(1).isRead());
         }
 
         @Test

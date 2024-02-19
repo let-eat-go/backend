@@ -36,7 +36,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(indexes = {
-        @Index(name = "idx_meeting_createdAt", columnList = "created_at")
+        @Index(name = "idx_meeting_createdAt", columnList = "created_at DESC"),
 })
 public class Meeting extends BaseEntity {
 
@@ -85,6 +85,9 @@ public class Meeting extends BaseEntity {
     @Column(name = "description", nullable = false)
     private String description;
 
+    @Column(name = "cancel_reason")
+    private String cancelReason;
+
     @Embedded
     private MeetingOptions meetingOptions;
 
@@ -130,8 +133,9 @@ public class Meeting extends BaseEntity {
         }
     }
 
-    public void cancel() {
+    public void cancel(String reason) {
         this.meetingOptions.cancel();
+        this.cancelReason = reason;
     }
 
     public void inProgress() {

@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -32,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+@Order(Ordered.HIGHEST_PRECEDENCE + 99) // 가장 높은 우선순위 + 99
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -41,12 +44,6 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     private final TokenService tokenService;
     private final ChatRoomRepository chatRoomRepository;
 
-    /**
-     * todo
-     * 클라이언트에서 websocket 연결 시 http 프로토콜에 cookie를 보낼 수 있으면 tokenFilter에서 인증 처리 (WebsocketSecurity 사용 가능, 이게 best일 듯하다.)
-     * header로 보낸다면 handshakeInterceptor에서 토큰 파싱 후 여기로 전달 (WebsocketSecurity 사용 불가 -> filter에서 처리한다면 사용 가능)
-     * 아래는 Stomp 프로토콜 헤더에 토큰을 담아 전달했을 시 인증 처리
-     **/
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor =
@@ -69,6 +66,7 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 
                 setAuthentication(accessToken, accessor);
             }
+
             log.info("[WS] connection successful");
         } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) { // 채팅방 구독 권한 확인
             Long memberId = getMemberId(accessor.getUser());

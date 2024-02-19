@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public record MeetingListResponse(
         Long meetingId,
         String meetingName,
+        String region,
         RestaurantCategory category,
         Integer minParticipants,
         Integer maxParticipants,

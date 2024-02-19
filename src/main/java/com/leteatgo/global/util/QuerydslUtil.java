@@ -30,12 +30,14 @@ public class QuerydslUtil {
         return Projections.constructor(MeetingResponse.class,
                 meeting.id,
                 meeting.name,
+                meeting.region.name,
                 meeting.restaurantCategory,
                 meeting.minParticipants,
                 meeting.maxParticipants,
                 meeting.currentParticipants,
                 meeting.startDateTime,
                 meeting.description,
+                meeting.cancelReason,
                 meeting.meetingOptions.status,
                 meeting.meetingOptions.genderPreference,
                 meeting.meetingOptions.agePreference
@@ -75,6 +77,7 @@ public class QuerydslUtil {
         return Projections.constructor(MeetingListResponse.class,
                 meeting.id,
                 meeting.name,
+                meeting.region.name,
                 meeting.restaurantCategory,
                 meeting.minParticipants,
                 meeting.maxParticipants,
@@ -86,5 +89,5 @@ public class QuerydslUtil {
                 restaurantProjection()
         );
     }
-    
+
 }

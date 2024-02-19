@@ -18,7 +18,6 @@ import com.leteatgo.domain.meeting.dto.response.MeetingListResponse;
 import com.leteatgo.domain.meeting.entity.Meeting;
 import com.leteatgo.domain.meeting.repository.CustomMeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
-import com.leteatgo.domain.meeting.type.SearchType;
 import com.leteatgo.global.type.RestaurantCategory;
 import com.leteatgo.global.util.SliceUtil;
 import com.querydsl.core.BooleanBuilder;
@@ -94,13 +93,14 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
 
     @Override
     public Slice<MeetingListResponse> findMeetingList(
-            String category, String regionName, Pageable pageable
+            RestaurantCategory category, String regionName, Pageable pageable
     ) {
 
         BooleanBuilder condition = new BooleanBuilder();
+        condition.and(meeting.meetingOptions.status.eq(MeetingStatus.BEFORE));
 
         if (category != null) {
-            condition.and(meeting.restaurantCategory.eq(RestaurantCategory.from(category)));
+            condition.and(meeting.restaurantCategory.eq(category));
         }
 
         if (regionName != null) {
@@ -127,24 +127,11 @@ public class CustomMeetingRepositoryImpl implements CustomMeetingRepository {
     }
 
     @Override
-    public Slice<MeetingListResponse> searchMeetings(
-            String type, String term, Pageable pageable) {
+    public Slice<MeetingListResponse> searchMeetings(String term, Pageable pageable) {
 
-        SearchType searchType = SearchType.getSearchTypeIgnoringCase(type);
         BooleanBuilder condition = new BooleanBuilder();
-        condition.and(
-                switch (searchType) {
-                    case CATEGORY -> meeting.restaurantCategory.eq(RestaurantCategory.from(term));
-                    case REGION -> meeting.region.id.eq(
-                            JPAExpressions
-                                    .select(region.id)
-                                    .from(region)
-                                    .where(region.name.eq(term))
-                    );
-                    case MEETINGNAME -> meeting.name.containsIgnoreCase(term); // LIKE %term%
-                    case RESTAURANTNAME ->
-                            tastyRestaurant.name.containsIgnoreCase(term); // LIKE %term%
-                });
+        condition.and(meeting.name.containsIgnoreCase(term) // LIKE %term%
+                .or(tastyRestaurant.name.containsIgnoreCase(term))); // LIKE %term%
 
         List<MeetingListResponse> meetingSearchResponses = queryFactory
                 .select(meetingListProjection())

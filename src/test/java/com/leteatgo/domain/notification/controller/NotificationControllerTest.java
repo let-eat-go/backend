@@ -7,13 +7,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.leteatgo.domain.meeting.controller.MeetingController;
 import com.leteatgo.domain.notification.dto.NotificationDto;
 import com.leteatgo.domain.notification.service.NotificationService;
 import com.leteatgo.domain.notification.type.NotificationType;
@@ -146,4 +146,31 @@ class NotificationControllerTest {
                         )
                 ));
     }
+
+    @Test
+    @DisplayName("알림 보내기 (테스트용)")
+    public void sendTestNotification() throws Exception {
+        // given
+        NotificationType type = NotificationType.CANCEL;
+        // when
+        // then
+        mockMvc.perform(post("/api/notification/send-test/{type}", type)
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf())
+                )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("알림 보내기 (테스트용)",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("notification")
+                                .summary("알림 보내기 (테스트용)")
+                                .pathParameters(
+                                        parameterWithName("type")
+                                                .description("알림 타입(CANCEL, REMIND, COMPLETED)")
+                                )
+                                .build()
+                        )
+                ));
+    }
+
 }

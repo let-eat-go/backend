@@ -26,6 +26,7 @@ import com.epages.restdocs.apispec.ResourceDocumentation;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leteatgo.domain.meeting.dto.request.MeetingCancelRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingCreateRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingOptionsRequest;
 import com.leteatgo.domain.meeting.dto.request.MeetingUpdateRequest;
@@ -300,15 +301,23 @@ class MeetingControllerTest {
     @DisplayName("모임 취소")
     class CancelMeeting {
 
+        MeetingCancelRequest request = new MeetingCancelRequest("취소 사유");
+        String requestBody = objectMapper.writeValueAsString(request);
+
+        CancelMeeting() throws JsonProcessingException {
+        }
+
         @Test
         @DisplayName("[성공] 모임 취소")
         void cancelMeeting() throws Exception {
             // given
-            doNothing().when(meetingService).cancelMeeting(1L, 1L);
+            doNothing().when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isOk())
@@ -331,11 +340,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenNotHost() throws Exception {
             // given
             doThrow(new MeetingException(NOT_MEETING_HOST))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -358,11 +369,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenMeetingNotFound() throws Exception {
             // given
             doThrow(new MeetingException(NOT_FOUND_MEETING))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -385,11 +398,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenMeetingAlreadyCanceled() throws Exception {
             // given
             doThrow(new MeetingException(ALREADY_CANCELED_MEETING))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -412,11 +427,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenMeetingAlreadyCompleted() throws Exception {
             // given
             doThrow(new MeetingException(ALREADY_COMPLETED_MEETING))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -439,11 +456,13 @@ class MeetingControllerTest {
         void cancelMeetingFailWhenNotBeforeOneHour() throws Exception {
             // given
             doThrow(new MeetingException(CANNOT_CANCEL_MEETING))
-                    .when(meetingService).cancelMeeting(1L, 1L);
+                    .when(meetingService).cancelMeeting(1L, request, 1L);
             // when
             // then
             mockMvc.perform(delete("/api/meetings/{meetingId}/cancel", 1L)
                             .cookie(new Cookie("access_token", "token"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody)
                             .with(csrf())
                     )
                     .andExpect(status().isBadRequest())
@@ -470,12 +489,14 @@ class MeetingControllerTest {
             return new MeetingDetailResponse.MeetingResponse(
                     1L,
                     "모임 제목",
+                    "강남구",
                     null,
                     2,
                     4,
                     1,
                     LocalDate.of(2024, 1, 31).atTime(LocalTime.of(19, 0)),
                     "모임 설명",
+                    "취소 사유",
                     null,
                     GenderPreference.ANY,
                     AgePreference.ANY
@@ -574,6 +595,7 @@ class MeetingControllerTest {
             return new MeetingListResponse(
                     1L,
                     "모임 제목",
+                    "강남구",
                     RestaurantCategory.ASIAN_CUISINE,
                     2,
                     4,
@@ -607,14 +629,14 @@ class MeetingControllerTest {
         @DisplayName("[성공] 모임 목록 조회")
         void getMeetingList() throws Exception {
             // given
-            String category = "한식";
+            RestaurantCategory category = RestaurantCategory.ASIAN_CUISINE;
             String region = "강남구";
             given(meetingService.getMeetingList(category, region, pageRequest))
                     .willReturn(response);
             // when
             // then
             mockMvc.perform(get("/api/meetings/list")
-                            .param("category", category)
+                            .param("category", category.name())
                             .param("region", region)
                             .param("page", "1")
                     )
@@ -647,6 +669,7 @@ class MeetingControllerTest {
             return new MeetingListResponse(
                     1L,
                     "모임 제목",
+                    "강남구",
                     RestaurantCategory.ASIAN_CUISINE,
                     2,
                     4,
@@ -679,14 +702,12 @@ class MeetingControllerTest {
         @DisplayName("[성공] 모임 검색")
         void searchMeetings() throws Exception {
             // given
-            String type = "category";
             String term = "아시아음식";
-            given(meetingService.searchMeetings(type, term, pageRequest))
+            given(meetingService.searchMeetings(term, pageRequest))
                     .willReturn(response);
             // when
             // then
             mockMvc.perform(get("/api/meetings/search")
-                            .param("type", type)
                             .param("term", term)
                             .param("page", "1"))
                     .andExpect(status().isOk())
@@ -696,9 +717,6 @@ class MeetingControllerTest {
                                             .tag("meeting")
                                             .summary("모임 검색")
                                             .queryParameters(
-                                                    parameterWithName("type")
-                                                            .description(
-                                                                    "검색 타입(category, region, restaurantName, meetingName)"),
                                                     parameterWithName("term")
                                                             .description("검색어"),
                                                     parameterWithName("page")

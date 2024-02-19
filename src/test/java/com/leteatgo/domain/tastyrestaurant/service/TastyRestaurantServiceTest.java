@@ -1,5 +1,6 @@
 package com.leteatgo.domain.tastyrestaurant.service;
 
+import static com.leteatgo.global.exception.ErrorCode.INTERNAL_ERROR;
 import static com.leteatgo.global.type.RestaurantCategory.KOREAN_CUISINE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,10 +17,11 @@ import com.leteatgo.domain.tastyrestaurant.dto.response.VisitedRestaurantRespons
 import com.leteatgo.domain.tastyrestaurant.entity.TastyRestaurant;
 import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
-import com.leteatgo.global.external.searchplace.client.RestaurantSearcher;
+import com.leteatgo.global.external.searchplace.RestaurantSearcher;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse.Document;
 import com.leteatgo.global.external.searchplace.client.kakao.dto.KakaoRestaurantsResponse.Meta;
+import com.leteatgo.global.external.exception.ApiException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -39,7 +41,7 @@ import org.springframework.data.domain.SliceImpl;
 class TastyRestaurantServiceTest {
 
     @Mock
-    RestaurantSearcher searchRestaurantClient;
+    RestaurantSearcher restaurantSearcher;
 
     @Mock
     TastyRestaurantRepository tastyRestaurantRepository;
@@ -72,6 +74,7 @@ class TastyRestaurantServiceTest {
 
         SearchRestaurantsRequest request = SearchRestaurantsRequest.builder()
                 .keyword(keyword)
+                .page(1)
                 .latitude(127.06283)
                 .longitude(37.51432)
                 .build();
@@ -84,7 +87,7 @@ class TastyRestaurantServiceTest {
                     .keyword(keyword)
                     .build();
 
-            given(searchRestaurantClient.searchRestaurants(keyword, 1,
+            given(restaurantSearcher.searchRestaurants(keyword, 1,
                     null, null, null, null))
                     .willReturn(new KakaoRestaurantsResponse(documents, meta));
 
@@ -103,7 +106,7 @@ class TastyRestaurantServiceTest {
         @DisplayName("성공 - 위치 기반 검색")
         void searchRestaurantsWithDistance() {
             // given
-            given(searchRestaurantClient.searchRestaurants(keyword, 1,
+            given(restaurantSearcher.searchRestaurants(keyword, 1,
                     37.51432, 127.06283, null, null))
                     .willReturn(new KakaoRestaurantsResponse(documents, meta));
 
@@ -119,9 +122,10 @@ class TastyRestaurantServiceTest {
         }
 
         @Test
-        @DisplayName("fallback 메서드")
-        void searchRestaurants_fallback() {
+        @DisplayName("서킷 오픈 fallback 메서드")
+        void searchRestaurants_fallback_circuit_open() {
             // given
+            assert request.page() != null;
             Pageable pageable = PageRequest.of(request.page() - 1,
                     CustomPageRequest.PAGE_SIZE);
 
@@ -146,6 +150,38 @@ class TastyRestaurantServiceTest {
 
             SearchRestaurantsResponse response = tastyRestaurantService.searchRestaurantsFallback(
                     request, callNotPermittedException);
+
+            // then
+            verify(tastyRestaurantRepository, times(1))
+                    .searchRestaurants(request, pageable);
+            assertEquals(1, response.pagination().currentPage());
+        }
+
+        @Test
+        @DisplayName("500 에러 fallback 메서드")
+        void searchRestaurants_fallback_500_error() {
+            // given
+            assert request.page() != null;
+            Pageable pageable = PageRequest.of(request.page() - 1,
+                    CustomPageRequest.PAGE_SIZE);
+
+            List<TastyRestaurant> contents = List.of(TastyRestaurant.builder()
+                    .name("삼환소한마리")
+                    .category(KOREAN_CUISINE)
+                    .phoneNumber("02-545-2429")
+                    .roadAddress("도로명")
+                    .landAddress("지번")
+                    .latitude(127.06283102249932)
+                    .longitude(37.514322572335935)
+                    .restaurantUrl("http://place.map.kakao.com/8137464")
+                    .build());
+
+            given(tastyRestaurantRepository.searchRestaurants(request, pageable))
+                    .willReturn(new SliceImpl<>(contents, pageable, false));
+
+            // when
+            SearchRestaurantsResponse response = tastyRestaurantService.searchRestaurantsFallback(
+                    request, new ApiException(INTERNAL_ERROR));
 
             // then
             verify(tastyRestaurantRepository, times(1))
