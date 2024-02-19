@@ -149,6 +149,22 @@ class MemberServiceTest {
             // then
             assertEquals("new nick", member.getNickname());
             assertEquals("new introduce", member.getIntroduce());
+            assertEquals("filename", member.getProfileFilename());
+        }
+
+        @Test
+        @DisplayName("성공 - 프로필 이미지가 없는 경우")
+        void updateInfo_empty_profile() {
+            // given
+            given(memberRepository.findById(memberId))
+                    .willReturn(Optional.of(member));
+
+            // when
+            memberService.updateInfo(request, null, memberId);
+
+            // then
+            assertEquals("new nick", member.getNickname());
+            assertEquals("new introduce", member.getIntroduce());
         }
 
         @Test
