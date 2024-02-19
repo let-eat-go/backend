@@ -80,6 +80,7 @@ class MemberControllerTest {
         String authId = "1";
 
         MemberProfileResponse memberProfileResponse = MemberProfileResponse.builder()
+                .memberId(1L)
                 .nickname("nick")
                 .profile("profile url")
                 .introduce("introduce")
@@ -389,8 +390,9 @@ class MemberControllerTest {
     @DisplayName("타 회원 조회")
     void memberProfile() throws Exception {
         // given
-        Long memberId = 1L;
+        Long memberId = 2L;
         MemberProfileResponse memberProfileResponse = MemberProfileResponse.builder()
+                .memberId(memberId)
                 .nickname("nick")
                 .profile("profile url")
                 .introduce("introduce")

@@ -5,6 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record MemberProfileResponse(
+        Long memberId,
         String nickname,
         String profile,
         String introduce,
@@ -13,6 +14,7 @@ public record MemberProfileResponse(
 
     public static MemberProfileResponse fromEntity(Member member) {
         return MemberProfileResponse.builder()
+                .memberId(member.getId())
                 .nickname(member.getNickname())
                 .profile(member.getProfileImage())
                 .introduce(member.getIntroduce())
