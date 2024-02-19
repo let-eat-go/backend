@@ -8,28 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:latest
-        ports:
-          - 3306:3306
-      
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
-
-      rabbitmq:
-        image: rabbitmq:management-alpine
-        ports:
-          - 5672:5672
-          - 15672:15672
-
-      h2:
-        image: oscarfonts/h2:latest
-        ports:
-          - 1521:1521
-          - 81:81
 
     steps:
       - name: Checkout code
