@@ -111,9 +111,9 @@ jobs:
       - name: Deploy to GCP
         uses: appleboy/ssh-action@master
         with:
-          username: ${{ secrets.GCP_USERNAME }}
-          host: ${{ secrets.GCP_HOST }}
-          key: ${{ secrets.GCP_SSH_KEY }}
+          username: ${{ secrets.GCP_TEST_USERNAME }}
+          host: ${{ secrets.GCP_TEST_HOST }}
+          key: ${{ secrets.GCP_TEST_SSH_KEY }}
           script: |
             cd ~/backend
             git checkout dev
