@@ -17,13 +17,13 @@ spring:
     open-in-view: false
     database: mysql
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
         show_sql: true
         default_batch_fetch_size: 500
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
 
   data:
     redis:
@@ -35,4 +35,7 @@ spring:
     port: 5672
     username: guest
     password: guest
-    
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
