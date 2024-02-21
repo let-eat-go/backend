@@ -17,15 +17,11 @@ import com.leteatgo.domain.member.dto.response.MyMeetingsResponse.Restaurant;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.type.SearchType;
 import com.leteatgo.global.util.SliceUtil;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.DatePath;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -38,9 +34,6 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
 
     @Override
     public Slice<MyChatRoomResponse> findAllMyChatRooms(Member member, Pageable pageable) {
-        DatePath<LocalDateTime> createdAt =
-                Expressions.datePath(LocalDateTime.class, "createdAt");
-
         QChatMessage cm = new QChatMessage("cm");
 
         JPQLQuery<Long> maxId = JPAExpressions.select(cm.id.max())
@@ -55,28 +48,19 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                         meeting.region.name,
                         Projections.constructor(Chat.class,
                                 chatRoom.id,
-                                ExpressionUtils.as(
-                                        JPAExpressions.select(cm.content)
-                                                .from(cm)
-                                                .where(cm.id.eq(maxId)), "content"),
-                                ExpressionUtils.as(
-                                        JPAExpressions.select(cm.isRead)
-                                                .from(cm)
-                                                .where(cm.id.eq(maxId)), "read"),
-                                ExpressionUtils.as(
-                                        JPAExpressions.select(cm.createdAt)
-                                                .from(cm)
-                                                .where(cm.id.eq(maxId)), "createdAt")
+                                chatMessage.content,
+                                chatMessage.isRead,
+                                chatMessage.createdAt
                         )
                 ))
                 .from(meetingParticipant)
                 .join(meetingParticipant.meeting, meeting)
                 .join(meeting.chatRoom, chatRoom)
-                .leftJoin(chatRoom.chatMessages, chatMessage)
+                .leftJoin(chatRoom.chatMessages, chatMessage).on(chatMessage.id.eq(maxId))
                 .where(meetingParticipant.member.eq(member),
                         chatRoom.status.eq(RoomStatus.OPEN))
                 .groupBy(meeting.id)
-                .orderBy(createdAt.desc())
+                .orderBy(chatMessage.createdAt.desc(), meeting.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
