@@ -11,14 +11,19 @@ import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.review.dto.request.ReviewRequest;
+import com.leteatgo.domain.review.dto.response.ReviewParticipantResponse;
+import com.leteatgo.domain.review.dto.response.ReviewParticipantResponse.ParticipantResponse;
 import com.leteatgo.domain.review.exception.ReviewException;
 import com.leteatgo.domain.review.repository.ReviewRepository;
 import com.leteatgo.global.exception.ErrorCode;
 import com.leteatgo.global.lock.annotation.DistributedLock;
 import com.leteatgo.global.security.CustomUserDetailService;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -55,5 +60,29 @@ public class ReviewService {
         if (meeting.getMeetingOptions().getStatus() != MeetingStatus.COMPLETED) {
             throw new ReviewException(NOT_COMPLETED_MEETING);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewParticipantResponse getReviewParticipant(Long reviewerId, Long meetingId) {
+        Meeting meeting = meetingRepository.findMeetingFetch(meetingId)
+                .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+
+        Set<Long> reviewedMemberIds = reviewRepository.findReviewedMemberIds(reviewerId, meetingId);
+
+        List<ParticipantResponse> participants = meeting.getMeetingParticipants().stream()
+                .filter(participant -> !participant.getMember().getId().equals(reviewerId))
+                .map(participant -> {
+                    Member member = participant.getMember();
+                    boolean isReviewed = reviewedMemberIds.contains(member.getId());
+                    return new ReviewParticipantResponse.ParticipantResponse(
+                            member.getId(),
+                            member.getNickname(),
+                            member.getProfileImage(),
+                            isReviewed
+                    );
+                })
+                .toList();
+
+        return new ReviewParticipantResponse(participants);
     }
 }
