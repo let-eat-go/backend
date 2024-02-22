@@ -1,6 +1,7 @@
 package com.leteatgo.domain.review.service;
 
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_REVIEWED;
+import static com.leteatgo.global.exception.ErrorCode.CANNOT_REVIEW_SELF;
 import static com.leteatgo.global.exception.ErrorCode.NOT_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
@@ -156,6 +157,29 @@ class ReviewServiceTest {
             assertThatThrownBy(() -> reviewService.reviewParticipant(request, reviewerId))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(NOT_FOUND_MEMBER.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("실패 - 자기 자신을 평가하려고 하면 예외가 발생한다.")
+        void reviewParticipant_cannot_review_self() {
+            // given
+            request = ReviewRequest.builder()
+                    .meetingId(meetingId)
+                    .revieweeId(reviewerId)
+                    .score(score)
+                    .build();
+
+            given(userDetailService.findByIdOrThrow(reviewerId))
+                    .willReturn(reviewer);
+
+            given(userDetailService.findByIdOrThrow(reviewerId))
+                    .willReturn(reviewer);
+
+            // when
+            // then
+            assertThatThrownBy(() -> reviewService.reviewParticipant(request, reviewerId))
+                    .isInstanceOf(ReviewException.class)
+                    .hasMessageContaining(CANNOT_REVIEW_SELF.getErrorMessage());
         }
 
         @Test

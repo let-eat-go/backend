@@ -74,6 +74,7 @@ public enum ErrorCode {
     NOT_MEETING_PARTICIPANT(BAD_REQUEST, "해당 모임의 참여자가 아닙니다."),
     NOT_COMPLETED_MEETING(BAD_REQUEST, "완료된 모임이 아닙니다."),
     ALREADY_REVIEWED(BAD_REQUEST, "해당 유저는 이미 리뷰를 작성했습니다."),
+    CANNOT_REVIEW_SELF(BAD_REQUEST, "자신을 평가할 수 없습니다."),
 
     // notification
     NOT_FOUND_NOTIFICATION(BAD_REQUEST, "존재하지 않는 알림입니다."),

@@ -1,6 +1,7 @@
 package com.leteatgo.domain.review.service;
 
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_REVIEWED;
+import static com.leteatgo.global.exception.ErrorCode.CANNOT_REVIEW_SELF;
 import static com.leteatgo.global.exception.ErrorCode.NOT_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_JOINED_MEETING;
@@ -34,10 +35,13 @@ public class ReviewService {
     private final CustomUserDetailService userDetailService;
     private final MeetingRepository meetingRepository;
 
+    /* [모임원 평가] 모임원은 자신을 제외한 다른 모임원을 평가할 수 있다. */
     @DistributedLock(key = "'reviewParticipant:' + #reviewerId")
     public void reviewParticipant(ReviewRequest request, Long reviewerId) {
         Member reviewer = userDetailService.findByIdOrThrow(reviewerId);
         Member reviewee = userDetailService.findByIdOrThrow(request.revieweeId());
+
+        cantReviewMyself(reviewer, reviewee);
 
         Meeting meeting = meetingRepository.findMeetingFetch(request.meetingId())
                 .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
@@ -49,6 +53,12 @@ public class ReviewService {
 
         reviewee.updateMannerTemperature(request.score());
         reviewRepository.save(request.toEntity(reviewer, reviewee, meeting));
+    }
+
+    private void cantReviewMyself(Member reviewer, Member reviewee) {
+        if (Objects.equals(reviewer.getId(), reviewee.getId())) {
+            throw new ReviewException(CANNOT_REVIEW_SELF);
+        }
     }
 
     private void checkParticipant(Meeting meeting, Long memberId, ErrorCode errorCode) {
@@ -71,6 +81,7 @@ public class ReviewService {
         }
     }
 
+    /* [평가할 모임원 조회] 자신을 제외한 모임원 목록 조회 */
     @Transactional(readOnly = true)
     public ReviewParticipantResponse getReviewParticipant(Long reviewerId, Long meetingId) {
         Meeting meeting = meetingRepository.findMeetingFetch(meetingId)
