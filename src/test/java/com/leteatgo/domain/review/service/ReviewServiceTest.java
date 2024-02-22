@@ -1,5 +1,6 @@
 package com.leteatgo.domain.review.service;
 
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_REVIEWED;
 import static com.leteatgo.global.exception.ErrorCode.NOT_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
@@ -241,6 +242,30 @@ class ReviewServiceTest {
             assertThatThrownBy(() -> reviewService.reviewParticipant(request, reviewerId))
                     .isInstanceOf(ReviewException.class)
                     .hasMessageContaining(NOT_COMPLETED_MEETING.getErrorMessage());
+        }
+
+        @Test
+        @DisplayName("실패 - 이미 평가한 모임원이면 예외가 발생한다.")
+        void reviewParticipant_already_reviewed() {
+            // given
+            given(userDetailService.findByIdOrThrow(reviewerId))
+                    .willReturn(reviewer);
+
+            given(userDetailService.findByIdOrThrow(revieweeId))
+                    .willReturn(reviewee);
+
+            given(meetingRepository.findMeetingFetch(meetingId))
+                    .willReturn(Optional.of(meeting));
+
+            given(reviewRepository.existsByReviewerIdAndRevieweeIdAndMeetingId(
+                    reviewerId, revieweeId, meeting.getId()))
+                    .willReturn(true);
+
+            // when
+            // then
+            assertThatThrownBy(() -> reviewService.reviewParticipant(request, reviewerId))
+                    .isInstanceOf(ReviewException.class)
+                    .hasMessageContaining(ALREADY_REVIEWED.getErrorMessage());
         }
     }
 

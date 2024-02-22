@@ -1,5 +1,6 @@
 package com.leteatgo.domain.review.service;
 
+import static com.leteatgo.global.exception.ErrorCode.ALREADY_REVIEWED;
 import static com.leteatgo.global.exception.ErrorCode.NOT_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.NOT_JOINED_MEETING;
@@ -43,6 +44,7 @@ public class ReviewService {
 
         checkParticipant(meeting, reviewer.getId(), NOT_JOINED_MEETING);
         checkParticipant(meeting, reviewee.getId(), NOT_MEETING_PARTICIPANT);
+        checkDuplicateReview(reviewer, reviewee, meeting);
         validateMeeting(meeting);
 
         reviewee.updateMannerTemperature(request.score());
@@ -53,6 +55,13 @@ public class ReviewService {
         if (meeting.getMeetingParticipants().stream().noneMatch(o ->
                 Objects.equals(o.getMember().getId(), memberId))) {
             throw new ReviewException(errorCode);
+        }
+    }
+
+    private void checkDuplicateReview(Member reviewer, Member reviewee, Meeting meeting) {
+        if (reviewRepository.existsByReviewerIdAndRevieweeIdAndMeetingId(
+                reviewer.getId(), reviewee.getId(), meeting.getId())) {
+            throw new ReviewException(ALREADY_REVIEWED);
         }
     }
 

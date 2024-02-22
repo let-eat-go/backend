@@ -65,7 +65,7 @@ public enum ErrorCode {
     NOT_JOINED_MEETING(BAD_REQUEST, "참가하지 않은 모임입니다."),
     HOST_CANNOT_LEAVE_MEETING(BAD_REQUEST, "주최자는 모임에서 나갈 수 없습니다."),
     PARTICIPANT_NOT_ENOUGH(BAD_REQUEST, "참가인원이 부족합니다."),
-    CAN_CONFIRM_MEETING_BEFORE_START_TIME(BAD_REQUEST, "모임 시작 전까지만 모임을 확인할 수 있습니다."),
+    CAN_CONFIRM_MEETING_BEFORE_START_TIME(BAD_REQUEST, "모임 시작 전까지만 모임을 확정할 수 있습니다."),
 
     // region
     NOT_FOUND_REGION(BAD_REQUEST, "존재하지 않는 지역입니다."),
@@ -73,6 +73,7 @@ public enum ErrorCode {
     // review
     NOT_MEETING_PARTICIPANT(BAD_REQUEST, "해당 모임의 참여자가 아닙니다."),
     NOT_COMPLETED_MEETING(BAD_REQUEST, "완료된 모임이 아닙니다."),
+    ALREADY_REVIEWED(BAD_REQUEST, "해당 유저는 이미 리뷰를 작성했습니다."),
 
     // notification
     NOT_FOUND_NOTIFICATION(BAD_REQUEST, "존재하지 않는 알림입니다."),
