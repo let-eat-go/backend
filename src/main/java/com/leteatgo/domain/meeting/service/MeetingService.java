@@ -44,7 +44,9 @@ import com.leteatgo.domain.tastyrestaurant.repository.TastyRestaurantRepository;
 import com.leteatgo.global.dto.CustomPageRequest;
 import com.leteatgo.global.lock.annotation.DistributedLock;
 import com.leteatgo.global.type.RestaurantCategory;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -114,7 +116,12 @@ public class MeetingService {
                 .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
         checkHost(memberId, meeting);
 
-        meeting.update(LocalDateTime.of(request.startDate(), request.startTime()));
+        LocalDate newStartDate = Objects.nonNull(request.startDate()) ? request.startDate()
+                : meeting.getStartDateTime().toLocalDate();
+        LocalTime newStartTime = Objects.nonNull(request.startTime()) ? request.startTime()
+                : meeting.getStartDateTime().toLocalTime();
+
+        meeting.update(LocalDateTime.of(newStartDate, newStartTime));
 
         if (Objects.nonNull(request.restaurant())) {
             TastyRestaurant tastyRestaurant = findOrCreateTastyRestaurant(request.restaurant());
