@@ -39,3 +39,6 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+
+front:
+  url: http://localhost:3000 # TODO: 배포된 URL로 변경

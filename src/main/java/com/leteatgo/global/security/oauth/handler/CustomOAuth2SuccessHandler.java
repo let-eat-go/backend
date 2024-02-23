@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTokenRepository redisTokenRepository;
 
-    private static final String URI = "/api/auth/oauth/success";
+    @Value("${front.url}")
+    private String frontUrl;
 
     @Override
     @Transactional
@@ -40,8 +42,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         redisTokenRepository.save(token);
         CookieUtil.addCookie(response, COOKIE_NAME, accessToken, COOKIE_MAX_AGE);
 
-        response.sendRedirect(URI);
-
-        // TODO: 서버 내부에서 리다이렉트 후 프론트에 응답 성공 메시지를 보내주기? 프론트 연동 시 수정
+        response.sendRedirect(frontUrl);
     }
 }
