@@ -42,6 +42,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         redisTokenRepository.save(token);
         CookieUtil.addCookie(response, COOKIE_NAME, accessToken, COOKIE_MAX_AGE);
 
-        response.sendRedirect(frontUrl);
+        response.sendRedirect(frontUrl + "/auth/success?token=" + accessToken);
     }
 }
