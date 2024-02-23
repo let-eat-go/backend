@@ -12,8 +12,8 @@ import static org.mockito.Mockito.doNothing;
 import com.leteatgo.domain.meeting.repository.MeetingParticipantRepository;
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
 import com.leteatgo.domain.member.dto.response.MemberProfileResponse;
-import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
-import com.leteatgo.domain.member.dto.response.MyMeetingsResponse.Restaurant;
+import com.leteatgo.domain.member.dto.response.MemberMeetingsResponse;
+import com.leteatgo.domain.member.dto.response.MemberMeetingsResponse.Restaurant;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
 import com.leteatgo.domain.member.repository.MemberRepository;
@@ -64,12 +64,12 @@ class MemberServiceTest {
             .build();
 
     @Nested
-    @DisplayName("내 정보 조회 메서드")
-    class MyInformationMethod {
+    @DisplayName("회원 정보 조회 메서드")
+    class MemberProfileMethod {
 
         @Test
         @DisplayName("성공")
-        void myInformation() {
+        void getProfile() {
             // given
             given(memberRepository.findById(memberId))
                     .willReturn(Optional.of(member));
@@ -83,7 +83,7 @@ class MemberServiceTest {
 
         @Test
         @DisplayName("실패 - 존재하지 않는 회원")
-        void myInformation_not_found_member() {
+        void getProfile_not_found_member() {
             // given
             given(memberRepository.findById(memberId))
                     .willReturn(Optional.empty());
@@ -98,7 +98,7 @@ class MemberServiceTest {
 
         @Test
         @DisplayName("실패 - 이미 삭제된 회원")
-        void myInformation_already_deleted() {
+        void getProfile_already_deleted() {
             // given
             member.setDeletedAt(LocalDateTime.now());
 
@@ -256,18 +256,19 @@ class MemberServiceTest {
     }
 
     @Nested
-    @DisplayName("내 모임 목록 조회 메서드")
-    class MyMeetingsMethod {
+    @DisplayName("회원 모임 목록 조회 메서드")
+    class MemberMeetingsMethod {
 
         SearchType type = SearchType.CREATED;
         CustomPageRequest request = new CustomPageRequest(1);
 
-        MyMeetingsResponse response = MyMeetingsResponse.builder()
+        MemberMeetingsResponse response = MemberMeetingsResponse.builder()
                 .meetingId(1L)
                 .meetingName("모여라 참깨")
                 .region("강남구")
                 .category(ASIAN_CUISINE)
                 .maxParticipants(3)
+                .isHost(true)
                 .restaurant(Restaurant.builder()
                         .id(1L)
                         .name("어머니대성집")
@@ -276,13 +277,13 @@ class MemberServiceTest {
                         .build())
                 .build();
 
-        List<MyMeetingsResponse> contents = List.of(response);
+        List<MemberMeetingsResponse> contents = List.of(response);
         Pageable pageable = PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE);
-        SliceImpl<MyMeetingsResponse> slice = new SliceImpl<>(contents, pageable, true);
+        SliceImpl<MemberMeetingsResponse> slice = new SliceImpl<>(contents, pageable, true);
 
         @Test
         @DisplayName("성공")
-        void myMeetings() {
+        void memberMeetings() {
             // given
             given(memberRepository.findById(memberId))
                     .willReturn(Optional.of(member));
@@ -291,8 +292,8 @@ class MemberServiceTest {
                     .willReturn(slice);
 
             // when
-            Slice<MyMeetingsResponse> responses =
-                    memberService.myMeetings(type, request, memberId);
+            Slice<MemberMeetingsResponse> responses =
+                    memberService.memberMeetings(type, request, memberId);
 
             // then
             assertEquals(1, responses.getContent().size());
@@ -301,7 +302,7 @@ class MemberServiceTest {
 
         @Test
         @DisplayName("실패 - 존재하지 않는 회원")
-        void myMeetings_not_found_member() {
+        void memberMeetings_not_found_member() {
             // given
             given(memberRepository.findById(memberId))
                     .willReturn(Optional.empty());
@@ -309,7 +310,7 @@ class MemberServiceTest {
             // when
             // then
             assertThatThrownBy(() ->
-                    memberService.myMeetings(type, request, memberId))
+                    memberService.memberMeetings(type, request, memberId))
                     .isInstanceOf(MemberException.class)
                     .hasMessageContaining(NOT_FOUND_MEMBER.getErrorMessage());
         }
