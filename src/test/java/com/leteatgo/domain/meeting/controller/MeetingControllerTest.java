@@ -499,7 +499,9 @@ class MeetingControllerTest {
                     "취소 사유",
                     null,
                     GenderPreference.ANY,
-                    AgePreference.ANY
+                    AgePreference.ANY,
+                    MeetingPurpose.DRINKING,
+                    AlcoholPreference.ANY
             );
         }
 
@@ -522,11 +524,14 @@ class MeetingControllerTest {
         MeetingDetailResponse.RestaurantResponse restaurantResponse() {
             return new MeetingDetailResponse.RestaurantResponse(
                     1L,
+                    123L,
                     "식당 이름",
                     "도로명 주소",
+                    "지번 주소",
                     "01012341234",
                     37.123456,
-                    127.123456
+                    127.123456,
+                    "식당 URL"
             );
         }
 
@@ -611,11 +616,14 @@ class MeetingControllerTest {
         MeetingDetailResponse.RestaurantResponse restaurantResponse() {
             return new MeetingDetailResponse.RestaurantResponse(
                     1L,
+                    123L,
                     "식당 이름",
                     "도로명 주소",
+                    "지번 주소",
                     "01012341234",
                     37.123456,
-                    127.123456
+                    127.123456,
+                    "식당 URL"
             );
         }
 
@@ -685,11 +693,14 @@ class MeetingControllerTest {
         MeetingDetailResponse.RestaurantResponse restaurantResponse() {
             return new MeetingDetailResponse.RestaurantResponse(
                     1L,
+                    123L,
                     "식당 이름",
                     "도로명 주소",
+                    "지번 주소",
                     "01012341234",
                     37.123456,
-                    127.123456
+                    127.123456,
+                    "식당 URL"
             );
         }
 

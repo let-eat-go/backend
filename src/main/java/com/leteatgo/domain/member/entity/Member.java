@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
         name = "member",
         uniqueConstraints = {
                 @UniqueConstraint(name = "UK_email", columnNames = {"email"}),
-                @UniqueConstraint(name = "UK_phone_number", columnNames = {"phone_number"})
         }
 )
 public class Member extends BaseEntity {
@@ -26,7 +25,7 @@ public class Member extends BaseEntity {
     public static final String DEFAULT_INTRODUCE = "자기소개를 작성해주세요";
     public static final Double DEFAULT_MANNER_TEMPERATURE = 36.5;
     public static final String DEFAULT_PASSWORD = "1!qweqwe";
-    public static final String DEFAULT_PHONE_NUMBER = "01112345678";
+    public static final String DEFAULT_PHONE_NUMBER = "소셜로그인 사용자";
 
     @Id
     @Column(name = "id")

@@ -2,8 +2,11 @@ package com.leteatgo.domain.review.controller;
 
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -12,9 +15,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.review.dto.request.ReviewRequest;
+import com.leteatgo.domain.review.dto.response.ReviewParticipantResponse;
 import com.leteatgo.domain.review.service.ReviewService;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
 import jakarta.servlet.http.Cookie;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -172,5 +177,40 @@ class ReviewControllerTest {
                                     .build())
                     ));
         }
+    }
+
+    @Test
+    @DisplayName("평가할 모임원 조회")
+    void getReviewParticipant() throws Exception {
+        // given
+        ReviewParticipantResponse.ParticipantResponse participant1 = new ReviewParticipantResponse.ParticipantResponse(
+                1L, "nickname1", "profileImageUrl1", true);
+        ReviewParticipantResponse.ParticipantResponse participant2 = new ReviewParticipantResponse.ParticipantResponse(
+                2L, "nickname2", "profileImageUrl2", false);
+        List<ReviewParticipantResponse.ParticipantResponse> participants = List.of(participant1,
+                participant2);
+        ReviewParticipantResponse response = new ReviewParticipantResponse(participants);
+
+        long meetingId = 1L;
+        given(reviewService.getReviewParticipant(1L, meetingId))
+                .willReturn(response);
+
+        // when
+        // then
+        mockMvc.perform(get(URI + "/" + "{meetingId}", meetingId)
+                        .cookie(new Cookie("access_token", "token"))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("평가할 모임원 조회",
+                        resource(ResourceSnippetParameters.builder()
+                                .tag(TAG)
+                                .summary("평가할 모임원 조회")
+                                .pathParameters(
+                                        parameterWithName("meetingId")
+                                                .description("모임 ID")
+                                )
+                                .build())
+                ));
     }
 }
