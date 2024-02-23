@@ -40,7 +40,9 @@ public class QuerydslUtil {
                 meeting.cancelReason,
                 meeting.meetingOptions.status,
                 meeting.meetingOptions.genderPreference,
-                meeting.meetingOptions.agePreference
+                meeting.meetingOptions.agePreference,
+                meeting.meetingOptions.purpose,
+                meeting.meetingOptions.alcoholPreference
         );
     }
 
@@ -61,11 +63,14 @@ public class QuerydslUtil {
     public static ConstructorExpression<RestaurantResponse> restaurantProjection() {
         return Projections.constructor(RestaurantResponse.class,
                 tastyRestaurant.id,
+                tastyRestaurant.apiId,
                 tastyRestaurant.name,
                 tastyRestaurant.roadAddress,
+                tastyRestaurant.landAddress,
                 tastyRestaurant.phoneNumber,
                 tastyRestaurant.latitude,
-                tastyRestaurant.longitude
+                tastyRestaurant.longitude,
+                tastyRestaurant.restaurantUrl
         );
     }
 
