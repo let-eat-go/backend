@@ -53,4 +53,4 @@ spring:
               - profile
 
 front:
-  url: http://localhost:3000 # TODO: 배포된 URL로 변경
+  url: https://frontend-git-main-let-eat-go.vercel.app
