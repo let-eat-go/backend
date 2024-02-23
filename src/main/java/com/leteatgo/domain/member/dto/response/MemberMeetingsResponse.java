@@ -5,13 +5,14 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 @Builder
-public record MyMeetingsResponse(
+public record MemberMeetingsResponse(
         Long meetingId,
         String meetingName,
         String region,
         RestaurantCategory category,
         LocalDateTime startDateTime,
         Integer maxParticipants,
+        boolean isHost,
         Restaurant restaurant
 ) {
 

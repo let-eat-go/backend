@@ -2,7 +2,7 @@ package com.leteatgo.domain.member.controller;
 
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
 import com.leteatgo.domain.member.dto.response.MemberProfileResponse;
-import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
+import com.leteatgo.domain.member.dto.response.MemberMeetingsResponse;
 import com.leteatgo.domain.member.service.MemberService;
 import com.leteatgo.domain.member.type.SearchType;
 import com.leteatgo.global.dto.CustomPageRequest;
@@ -90,12 +90,12 @@ public class MemberController {
      */
     @RoleUser
     @GetMapping("/meetings/me")
-    public ResponseEntity<SliceResponse<MyMeetingsResponse>> myMeetings(
+    public ResponseEntity<SliceResponse<MemberMeetingsResponse>> myMeetings(
             @RequestParam SearchType type,
             @Valid CustomPageRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(new SliceResponse<>(
-                memberService.myMeetings(type, request,
+                memberService.memberMeetings(type, request,
                         Long.parseLong(userDetails.getUsername()))));
     }
 
@@ -110,5 +110,23 @@ public class MemberController {
     public ResponseEntity<MemberProfileResponse> memberProfile(
             @PathVariable Long memberId) {
         return ResponseEntity.ok(memberService.getProfile(memberId));
+    }
+
+    /**
+     * 타 회원 모임 목록 조회
+     *
+     * @param memberId 타 회원 id
+     * @param type     조회 타입(모임 예정, 모임 완료, 내가 생성한 모임)
+     * @param request  요청 페이지
+     * @return 모임 목록
+     */
+    @RoleUser
+    @GetMapping("/{memberId}/meetings")
+    public ResponseEntity<SliceResponse<MemberMeetingsResponse>> memberMeetings(
+            @PathVariable Long memberId,
+            @RequestParam SearchType type,
+            @Valid CustomPageRequest request) {
+        return ResponseEntity.ok(new SliceResponse<>(
+                memberService.memberMeetings(type, request, memberId)));
     }
 }

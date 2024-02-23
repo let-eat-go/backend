@@ -12,8 +12,8 @@ import com.leteatgo.domain.chat.entity.QChatMessage;
 import com.leteatgo.domain.chat.type.RoomStatus;
 import com.leteatgo.domain.meeting.repository.CustomMeetingParticipantRepository;
 import com.leteatgo.domain.meeting.type.MeetingStatus;
-import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
-import com.leteatgo.domain.member.dto.response.MyMeetingsResponse.Restaurant;
+import com.leteatgo.domain.member.dto.response.MemberMeetingsResponse;
+import com.leteatgo.domain.member.dto.response.MemberMeetingsResponse.Restaurant;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.type.SearchType;
 import com.leteatgo.global.util.SliceUtil;
@@ -69,16 +69,17 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
     }
 
     @Override
-    public Slice<MyMeetingsResponse> findAllMyMeetings(Member member, SearchType searchType,
+    public Slice<MemberMeetingsResponse> findAllMyMeetings(Member member, SearchType searchType,
             Pageable pageable) {
-        List<MyMeetingsResponse> contents = queryFactory.select(
-                        Projections.constructor(MyMeetingsResponse.class,
+        List<MemberMeetingsResponse> contents = queryFactory.select(
+                        Projections.constructor(MemberMeetingsResponse.class,
                                 meeting.id,
                                 meeting.name,
                                 meeting.region.name,
                                 meeting.restaurantCategory,
                                 meeting.startDateTime,
                                 meeting.maxParticipants,
+                                meeting.host.eq(member), // isHost
                                 Projections.constructor(Restaurant.class,
                                         tastyRestaurant.id,
                                         tastyRestaurant.name,

@@ -24,4 +24,4 @@ Content-Type: multipart/form-data
 DELETE {{host}}/api/members
 
 ### my meetings
-GET {{host}}/api/members/meetings/me?type=created&page=1
+GET {{host}}/api/members/meetings/me?type=SCHEDULED&page=1

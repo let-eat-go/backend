@@ -19,8 +19,8 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.member.dto.request.UpdateInfoRequest;
 import com.leteatgo.domain.member.dto.response.MemberProfileResponse;
-import com.leteatgo.domain.member.dto.response.MyMeetingsResponse;
-import com.leteatgo.domain.member.dto.response.MyMeetingsResponse.Restaurant;
+import com.leteatgo.domain.member.dto.response.MemberMeetingsResponse;
+import com.leteatgo.domain.member.dto.response.MemberMeetingsResponse.Restaurant;
 import com.leteatgo.domain.member.service.MemberService;
 import com.leteatgo.domain.member.type.SearchType;
 import com.leteatgo.global.dto.CustomPageRequest;
@@ -320,12 +320,13 @@ class MemberControllerTest {
         SearchType type = SearchType.CREATED;
         CustomPageRequest request = new CustomPageRequest(1);
 
-        MyMeetingsResponse response = MyMeetingsResponse.builder()
+        MemberMeetingsResponse response = MemberMeetingsResponse.builder()
                 .meetingId(1L)
                 .meetingName("모여라 참깨")
                 .region("강남구")
                 .category(ASIAN_CUISINE)
                 .maxParticipants(3)
+                .isHost(true)
                 .restaurant(Restaurant.builder()
                         .id(1L)
                         .name("어머니대성집")
@@ -334,15 +335,15 @@ class MemberControllerTest {
                         .build())
                 .build();
 
-        List<MyMeetingsResponse> contents = List.of(response);
-        SliceImpl<MyMeetingsResponse> slice = new SliceImpl<>(contents,
+        List<MemberMeetingsResponse> contents = List.of(response);
+        SliceImpl<MemberMeetingsResponse> slice = new SliceImpl<>(contents,
                 PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE), true);
 
         @Test
         @DisplayName("성공")
         void myMeetings() throws Exception {
             // given
-            given(memberService.myMeetings(type, request, Long.parseLong(authId)))
+            given(memberService.memberMeetings(type, request, Long.parseLong(authId)))
                     .willReturn(slice);
 
             // when
@@ -366,7 +367,7 @@ class MemberControllerTest {
         void myMeetings_() throws Exception {
             // given
             String invalidType = "before";
-            given(memberService.myMeetings(any(), any(), any()))
+            given(memberService.memberMeetings(any(), any(), any()))
                     .willReturn(slice);
 
             // when
@@ -414,5 +415,80 @@ class MemberControllerTest {
                                 .tag(TAG)
                                 .summary("타 회원 조회")
                                 .build())));
+    }
+
+    @Nested
+    @DisplayName("타 회원 모임 목록 조회")
+    class MemberMeetingsMethod {
+
+        Long memberId = 2L;
+        SearchType type = SearchType.SCHEDULED;
+        CustomPageRequest request = new CustomPageRequest(1);
+
+        MemberMeetingsResponse response = MemberMeetingsResponse.builder()
+                .meetingId(1L)
+                .meetingName("모여라 참깨")
+                .region("강남구")
+                .category(ASIAN_CUISINE)
+                .maxParticipants(3)
+                .isHost(false)
+                .restaurant(Restaurant.builder()
+                        .id(1L)
+                        .name("어머니대성집")
+                        .address("서울 동대문구 왕산로11길 4")
+                        .phoneNumber("02-123-1234")
+                        .build())
+                .build();
+
+        List<MemberMeetingsResponse> contents = List.of(response);
+        SliceImpl<MemberMeetingsResponse> slice = new SliceImpl<>(contents,
+                PageRequest.of(request.page(), CustomPageRequest.PAGE_SIZE), true);
+
+        @Test
+        @DisplayName("성공")
+        void myMeetings() throws Exception {
+            // given
+            given(memberService.memberMeetings(type, request, memberId))
+                    .willReturn(slice);
+
+            // when
+            // then
+            mockMvc.perform(get(URI + "/{memberId}/meetings", memberId)
+                            .param("type", type.name())
+                            .param("page", request.page().toString())
+                            .cookie(new Cookie("access_token", "token"))
+                            .with(csrf()))
+                    .andExpect(status().isOk())
+                    .andDo(print())
+                    .andDo(document("타 회원 모임 목록 조회",
+                            resource(ResourceSnippetParameters.builder()
+                                    .tag(TAG)
+                                    .summary("타 회원 모임 목록 조회")
+                                    .build())));
+        }
+
+        @Test
+        @DisplayName("실패 - 잘못된 조회 타입")
+        void myMeetings_() throws Exception {
+            // given
+            String invalidType = "before";
+            given(memberService.memberMeetings(any(), any(), any()))
+                    .willReturn(slice);
+
+            // when
+            // then
+            mockMvc.perform(get(URI + "/meetings/me")
+                            .param("type", invalidType)
+                            .param("page", request.page().toString())
+                            .cookie(new Cookie("access_token", "token"))
+                            .with(csrf()))
+                    .andExpect(status().isBadRequest())
+                    .andDo(print())
+                    .andDo(document("타 회원 모임 목록 조회 실패 - 잘못된 조회 타입",
+                            resource(ResourceSnippetParameters.builder()
+                                    .tag(TAG)
+                                    .summary("타 회원 모임 목록 조회")
+                                    .build())));
+        }
     }
 }
