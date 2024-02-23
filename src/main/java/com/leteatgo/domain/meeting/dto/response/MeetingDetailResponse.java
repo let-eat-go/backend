@@ -58,6 +58,7 @@ public record MeetingDetailResponse(
             Long id,
             Long apiId,
             String name,
+            RestaurantCategory category,
             String roadAddress,
             String landAddress,
             String phoneNumber,

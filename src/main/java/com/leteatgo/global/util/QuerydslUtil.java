@@ -65,6 +65,7 @@ public class QuerydslUtil {
                 tastyRestaurant.id,
                 tastyRestaurant.apiId,
                 tastyRestaurant.name,
+                tastyRestaurant.category,
                 tastyRestaurant.roadAddress,
                 tastyRestaurant.landAddress,
                 tastyRestaurant.phoneNumber,
