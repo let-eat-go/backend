@@ -93,7 +93,7 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                         filterMeetingType(searchType, member))
                 .orderBy(meeting.id.desc())
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
         return new SliceUtil<>(contents, pageable).getSlice();
