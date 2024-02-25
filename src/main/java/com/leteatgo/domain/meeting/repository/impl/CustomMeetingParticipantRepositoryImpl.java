@@ -60,7 +60,7 @@ public class CustomMeetingParticipantRepositoryImpl implements CustomMeetingPart
                 .where(meetingParticipant.member.eq(member),
                         chatRoom.status.eq(RoomStatus.OPEN))
                 .groupBy(meeting.id)
-                .orderBy(chatMessage.createdAt.desc(), meeting.id.desc())
+                .orderBy(chatMessage.createdAt.desc(), meeting.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();

@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = {
+        @Index(name = "idx_chatroom_status", columnList = "status"),
+})
 public class ChatRoom extends BaseEntity {
 
     @Id
