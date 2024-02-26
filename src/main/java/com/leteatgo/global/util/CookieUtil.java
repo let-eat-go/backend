@@ -39,19 +39,14 @@ public class CookieUtil {
 
     public static void deleteCookie(HttpServletRequest request, HttpServletResponse response,
             String name) {
-        Cookie[] cookies = request.getCookies();
-
-        if (cookies != null) {
-            Arrays.stream(cookies)
-                    .filter(cookie -> cookie.getName().equals(name))
-                    .findFirst()
-                    .ifPresent(cookie -> {
-                        cookie.setValue("");
-                        cookie.setPath("/");
-                        cookie.setMaxAge(0);
-                        response.addCookie(cookie);
-                    });
-        }
+        ResponseCookie cookie = ResponseCookie.from(name, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
     }
 
 }
