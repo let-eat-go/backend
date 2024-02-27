@@ -16,7 +16,10 @@ import lombok.NoArgsConstructor;
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_tasty_restaurant_api_id", columnNames = {"api_id"})
         },
-        indexes = @Index(name = "idx_tasty_restaurant_api_id", columnList = "api_id")
+        indexes = {
+                @Index(name = "idx_tasty_restaurant_api_id", columnList = "api_id"),
+                @Index(name = "idx_tasty_restaurant_number_of_uses", columnList = "number_of_uses DESC"),
+        }
 )
 public class TastyRestaurant extends BaseEntity {
 
