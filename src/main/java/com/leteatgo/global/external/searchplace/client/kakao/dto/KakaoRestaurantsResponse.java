@@ -22,7 +22,7 @@ public record KakaoRestaurantsResponse(List<Document> documents,
 
     @Override
     public RestaurantMeta getMeta() {
-        return new RestaurantMeta(!meta.hasNext(), meta.totalCount());
+        return new RestaurantMeta(!meta.isEnd(), meta.totalCount());
     }
 
     @Builder
@@ -56,7 +56,7 @@ public record KakaoRestaurantsResponse(List<Document> documents,
     ) {
     }
 
-    public record Meta(@JsonProperty("is_end") Boolean hasNext,
+    public record Meta(@JsonProperty("is_end") Boolean isEnd,
                        @JsonProperty("total_count") Integer totalCount) {
     }
 }
