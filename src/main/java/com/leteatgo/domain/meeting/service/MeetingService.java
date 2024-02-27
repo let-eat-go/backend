@@ -69,7 +69,6 @@ public class MeetingService {
     private final MeetingParticipantRepository meetingParticipantRepository;
     private final ChatRoomEventPublisher chatRoomEventPublisher;
 
-    private static final double CANCEL_MEETING = 3.0;
 
     /**
      * [모임 생성] 모임 생성 시 모임 장소(식당)을 선택할 수도 있고, 선택하지 않고 생성할 수도 있음
@@ -292,7 +291,7 @@ public class MeetingService {
         // 모임 시작 1시간 이내에 취소하면 매너온도 감소
         if (nowDateTime.isAfter(startDateTime.minusHours(1))
                 && nowDateTime.isBefore(startDateTime)) {
-            member.decreaseMannerTemperature(CANCEL_MEETING);
+            member.decreaseMannerTemperature();
             memberRepository.save(member);
         }
     }
