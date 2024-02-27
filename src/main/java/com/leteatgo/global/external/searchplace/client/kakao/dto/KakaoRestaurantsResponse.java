@@ -22,7 +22,7 @@ public record KakaoRestaurantsResponse(List<Document> documents,
 
     @Override
     public RestaurantMeta getMeta() {
-        return new RestaurantMeta(meta.hasNext(), meta.totalCount());
+        return new RestaurantMeta(!meta.hasNext(), meta.totalCount());
     }
 
     @Builder
