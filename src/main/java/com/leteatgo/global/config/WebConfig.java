@@ -1,6 +1,7 @@
 package com.leteatgo.global.config;
 
 import com.leteatgo.global.converter.SearchTypeConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -12,13 +13,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("${front.url}")
+    private String frontUrl;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("*")
+                .allowedOrigins(frontUrl, "http://127.0.0.1:3000", "http://localhost:3000")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .exposedHeaders("Location")
+                .exposedHeaders("*")
                 .allowCredentials(true); // 쿠키 허용
     }
 
