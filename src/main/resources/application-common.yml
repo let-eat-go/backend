@@ -37,8 +37,8 @@ spring:
     multipart:
       file-size-threshold: 2MB
       location: /tmp/s3
-      max-file-size: 2MB
-      max-request-size: 2MB
+      max-file-size: 64MB
+      max-request-size: 64MB
 
 aws:
   s3:
