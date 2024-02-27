@@ -6,6 +6,7 @@ import static com.leteatgo.global.exception.ErrorCode.ALREADY_CLOSED_CHATROOM;
 import static com.leteatgo.global.exception.ErrorCode.EXPIRED_TOKEN;
 import static com.leteatgo.global.exception.ErrorCode.ILLEGAL_DESTINATION;
 import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
+import static com.leteatgo.global.exception.ErrorCode.NOT_FOUND_MEMBER;
 import static com.leteatgo.global.exception.ErrorCode.NOT_JOINED_CHATROOM;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -16,6 +17,7 @@ import com.leteatgo.domain.chat.entity.ChatRoom;
 import com.leteatgo.domain.chat.exception.ChatException;
 import com.leteatgo.domain.chat.repository.ChatRoomRepository;
 import com.leteatgo.domain.chat.type.RoomStatus;
+import com.leteatgo.domain.member.repository.MemberRepository;
 import com.leteatgo.global.security.jwt.JwtTokenProvider;
 import java.security.Principal;
 import java.util.Map;
@@ -43,6 +45,7 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     private final JwtTokenProvider tokenProvider;
     private final TokenService tokenService;
     private final ChatRoomRepository chatRoomRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -118,7 +121,14 @@ public class StompChannelInterceptor implements ChannelInterceptor {
         if (ObjectUtils.isEmpty(user)) {
             throw new ChatException(ACCESS_DENIED);
         }
-        return Long.parseLong(user.getName());
+
+        Long memberId = Long.parseLong(user.getName());
+
+        if (!memberRepository.existsById(memberId)) {
+            throw new ChatException(NOT_FOUND_MEMBER);
+        }
+
+        return memberId;
     }
 
     private Long parseRoomId(String destination) {
