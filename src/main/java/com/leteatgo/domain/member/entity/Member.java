@@ -3,14 +3,23 @@ package com.leteatgo.domain.member.entity;
 import com.leteatgo.domain.member.type.LoginType;
 import com.leteatgo.domain.member.type.MemberRole;
 import com.leteatgo.global.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
-import java.time.LocalDateTime;
-
+@SQLRestriction("deleted_at is null")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -81,8 +90,8 @@ public class Member extends BaseEntity {
         this.role = role;
     }
 
-    public void decreaseMannerTemperature() {
-        this.mannerTemperature -= 3.0; // 3.0은 임시로 설정한 값입니다.
+    public void decreaseMannerTemperature(double mannerTemperature) {
+        this.mannerTemperature -= mannerTemperature;
     }
 
     public void addProfile(String url, String filename) {
