@@ -1,9 +1,11 @@
 package com.leteatgo.domain.notification.controller;
 
+import static com.leteatgo.global.exception.ErrorCode.NEED_LOGIN;
 import static org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE;
 
 import com.leteatgo.domain.notification.dto.NotificationDto;
 import com.leteatgo.domain.notification.event.NotificationEvent;
+import com.leteatgo.domain.notification.exception.NotificationException;
 import com.leteatgo.domain.notification.service.NotificationService;
 import com.leteatgo.domain.notification.type.NotificationType;
 import com.leteatgo.global.dto.CustomPageRequest;
@@ -11,6 +13,7 @@ import com.leteatgo.global.dto.SliceResponse;
 import com.leteatgo.global.security.annotation.RoleUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,10 +35,12 @@ public class NotificationController {
 
     // 알림 구독
     @GetMapping(value = "/subscribe", produces = TEXT_EVENT_STREAM_VALUE)
-    @RoleUser
     public ResponseEntity<SseEmitter> subscribe(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
+        if (ObjectUtils.isEmpty(userDetails)) {
+            throw new NotificationException(NEED_LOGIN);
+        }
         return ResponseEntity.ok(notificationService.subscribe(userDetails.getUsername()));
     }
 
