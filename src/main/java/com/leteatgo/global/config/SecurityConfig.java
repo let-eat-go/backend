@@ -58,7 +58,8 @@ public class SecurityConfig {
                                 "/api/regions/**",
                                 "/api/meetings/detail/**",
                                 "/api/meetings/list",
-                                "/api/meetings/search"
+                                "/api/meetings/search",
+                                "/api/notification/subscribe"
                         )
 
                         .permitAll()

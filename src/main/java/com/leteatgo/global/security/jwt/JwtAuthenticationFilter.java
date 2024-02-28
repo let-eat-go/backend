@@ -48,7 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/meetings/list", // 모임 목록 조회
             "/api/meetings/search", // 모임 검색
             "/ws", // websocket connection,
-            "/"
+            "/",
+            "/api/notification/subscribe"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
