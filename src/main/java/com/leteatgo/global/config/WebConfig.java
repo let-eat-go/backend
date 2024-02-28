@@ -22,7 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(frontUrl, "http://127.0.0.1:3000", "http://localhost:3000")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .exposedHeaders("*")
+                .exposedHeaders("Location")
                 .allowCredentials(true); // 쿠키 허용
     }
 
