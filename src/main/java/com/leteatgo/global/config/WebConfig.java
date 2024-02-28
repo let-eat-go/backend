@@ -16,10 +16,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${front.url}")
     private String frontUrl;
 
+    @Value("${backend.url}")
+    private String backendUrl;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(frontUrl, "http://127.0.0.1:3000", "http://localhost:3000")
+                .allowedOrigins(frontUrl, backendUrl, "http://127.0.0.1:3000",
+                        "http://localhost:3000")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("Location")

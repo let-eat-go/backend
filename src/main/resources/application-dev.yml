@@ -54,3 +54,5 @@ spring:
 
 front:
   url: http://localhost:3000
+backend:
+  url: https://backend.leteatgo.site

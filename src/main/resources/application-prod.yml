@@ -54,3 +54,5 @@ spring:
 
 front:
   url: https://frontend-mauve-chi.vercel.app
+backend:
+  url: https://backend-prod.leteatgo.site
