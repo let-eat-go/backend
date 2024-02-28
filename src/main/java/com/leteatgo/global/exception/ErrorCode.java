@@ -78,7 +78,8 @@ public enum ErrorCode {
 
     // notification
     NOT_FOUND_NOTIFICATION(BAD_REQUEST, "존재하지 않는 알림입니다."),
-    CANNOT_READ_NOTIFICATION(BAD_REQUEST, "해당 알림을 읽을 수 없습니다.");
+    CANNOT_READ_NOTIFICATION(BAD_REQUEST, "해당 알림을 읽을 수 없습니다."),
+    NEED_LOGIN(UNAUTHORIZED, "SSE 연결을 위해서는 로그인이 필요합니다.");
 
     private final HttpStatus httpStatus;
     private final String errorMessage;

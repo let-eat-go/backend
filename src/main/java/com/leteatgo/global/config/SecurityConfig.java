@@ -3,6 +3,7 @@ package com.leteatgo.global.config;
 import com.leteatgo.global.security.handler.CustomAccessDeniedHandler;
 import com.leteatgo.global.security.handler.CustomAuthenticationEntryPoint;
 import com.leteatgo.global.security.jwt.JwtAuthenticationFilter;
+import com.leteatgo.global.security.jwt.JwtFailureFilter;
 import com.leteatgo.global.security.oauth.handler.CustomOAuth2FailureHandler;
 import com.leteatgo.global.security.oauth.handler.CustomOAuth2SuccessHandler;
 import com.leteatgo.global.security.oauth.service.CustomOAuth2UserService;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtFailureFilter jwtFailureFilter;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
@@ -81,6 +83,7 @@ public class SecurityConfig {
 
                 .addFilterBefore(jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFailureFilter, JwtAuthenticationFilter.class)
 
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(customAuthenticationEntryPoint)

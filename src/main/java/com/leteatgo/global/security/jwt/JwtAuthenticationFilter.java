@@ -48,13 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/meetings/list", // 모임 목록 조회
             "/api/meetings/search", // 모임 검색
             "/ws", // websocket connection,
-            "/",
-            "/api/notification/subscribe"
+            "/"
     };
 
     private final JwtTokenProvider jwtTokenProvider;
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
 
     @Override
@@ -67,14 +65,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        try {
-            String accessToken = resolveToken(request);
-            validateAndReissueToken(accessToken, response);
-            filterChain.doFilter(request, response);
-        } catch (Exception e) {
-            log.error("Exception is occurred. ", e);
-            handleException(e, response);
-        }
+        String accessToken = resolveToken(request);
+        validateAndReissueToken(accessToken, response);
+        filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
@@ -100,22 +93,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private void handleException(Exception e, HttpServletResponse response) throws IOException {
-        if (e instanceof TokenException) {
-            sendErrorResponse(((TokenException) e).getErrorCode(), response);
-        } else {
-            log.error("doFilterInternal : ", e);
-            sendErrorResponse(INTERNAL_ERROR, response);
-        }
-    }
-
-
-    private void sendErrorResponse(ErrorCode errorCode, HttpServletResponse response)
-            throws IOException {
-        ErrorResponse errorResponse = new ErrorResponse(errorCode, errorCode.getErrorMessage());
-        response.setStatus(errorCode.getHttpStatus().value());
-        response.setContentType("application/json;charset=utf-8");
-        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-    }
-
+//    private void handleException(Exception e, HttpServletResponse response) throws IOException {
+//        if (e instanceof TokenException) {
+//            sendErrorResponse(((TokenException) e).getErrorCode(), response);
+//        } else {
+//            log.error("doFilterInternal : ", e);
+//            sendErrorResponse(INTERNAL_ERROR, response);
+//        }
 }
