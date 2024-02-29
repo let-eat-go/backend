@@ -126,7 +126,6 @@ CREATE TABLE `chat_room`
     `meeting_id` bigint                NOT NULL,
     PRIMARY KEY (`id`),
     KEY `Fk_chatroom_meeting` (`meeting_id`),
-    KEY `idx_chatroom_status` (`status`),
     CONSTRAINT `Fk_chatroom_meeting` FOREIGN KEY (`meeting_id`) REFERENCES `meeting` (`id`)
 );
 

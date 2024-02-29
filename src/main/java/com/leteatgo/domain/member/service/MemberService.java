@@ -48,10 +48,15 @@ public class MemberService {
         member.updateInfo(request.nickname(), request.introduce());
 
         if (!ObjectUtils.isEmpty(profile)) {
-            // 기존 프로필 삭제
-            storageService.deleteFile(member.getProfileFilename());
+            String profileFilename = member.getProfileFilename();
+
             FileDto fileDto = storageService.uploadFile(profile);
             member.addProfile(fileDto.getUrl(), fileDto.getFilename());
+
+            // 기존 프로필 삭제
+            if (!ObjectUtils.isEmpty(profileFilename)) {
+                storageService.deleteFile(profileFilename);
+            }
         }
     }
 

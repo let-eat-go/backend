@@ -3,6 +3,7 @@ package com.leteatgo.domain.meeting.service;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.CANCELED;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.COMPLETED;
 import static com.leteatgo.domain.meeting.type.MeetingStatus.IN_PROGRESS;
+import static com.leteatgo.global.constants.Notification.MEETING_CANCEL;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_CANCELED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_COMPLETED_MEETING;
 import static com.leteatgo.global.exception.ErrorCode.ALREADY_FULL_PARTICIPANT;
@@ -36,6 +37,9 @@ import com.leteatgo.domain.meeting.repository.MeetingRepository;
 import com.leteatgo.domain.member.entity.Member;
 import com.leteatgo.domain.member.exception.MemberException;
 import com.leteatgo.domain.member.repository.MemberRepository;
+import com.leteatgo.domain.notification.event.NotificationEvent;
+import com.leteatgo.domain.notification.event.NotificationEventPublisher;
+import com.leteatgo.domain.notification.type.NotificationType;
 import com.leteatgo.domain.region.entity.Region;
 import com.leteatgo.domain.region.exception.RegionException;
 import com.leteatgo.domain.region.repository.RegionRepository;
@@ -47,6 +51,7 @@ import com.leteatgo.global.type.RestaurantCategory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +73,7 @@ public class MeetingService {
     private final TastyRestaurantRepository tastyRestaurantRepository;
     private final MeetingParticipantRepository meetingParticipantRepository;
     private final ChatRoomEventPublisher chatRoomEventPublisher;
+    private final NotificationEventPublisher notificationEventPublisher;
 
     private static final double CANCEL_MEETING = 3.0;
 
@@ -149,6 +155,7 @@ public class MeetingService {
         meeting.cancel(request.reason());
         meetingRepository.save(meeting);
         chatRoomEventPublisher.publishCloseChatRoom(new CloseChatRoomEvent(meeting.getId()));
+        publishNotificationForCancelMeeting(meeting);
     }
 
     private void checkCancel(Meeting meeting) {
@@ -174,6 +181,22 @@ public class MeetingService {
         if (nowDateTime.isBefore(startDateTime)
                 && nowDateTime.isAfter(startDateTime.minusHours(1))) {
             throw new MeetingException(CANNOT_CANCEL_MEETING);
+        }
+    }
+
+    private void publishNotificationForCancelMeeting(Meeting meeting) {
+        List<MeetingParticipant> participants = meeting.getMeetingParticipants();
+
+        for (MeetingParticipant participant : participants) {
+            String message = String.format(MEETING_CANCEL, meeting.getName());
+            NotificationEvent event = NotificationEvent.builder()
+                    .userId(participant.getMember().getId().toString())
+                    .message(message)
+                    .type(NotificationType.CANCEL)
+                    .relatedUrl("/" + meeting.getId())
+                    .build();
+            notificationEventPublisher.publishEvent(event);
+            log.info("NotificationEvent published: {}", event);
         }
     }
 
