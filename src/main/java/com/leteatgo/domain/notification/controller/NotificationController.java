@@ -4,6 +4,7 @@ import static com.leteatgo.global.exception.ErrorCode.NEED_LOGIN;
 import static org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE;
 
 import com.leteatgo.domain.notification.dto.NotificationDto;
+import com.leteatgo.domain.notification.dto.request.TestNotificationRequest;
 import com.leteatgo.domain.notification.event.NotificationEvent;
 import com.leteatgo.domain.notification.exception.NotificationException;
 import com.leteatgo.domain.notification.service.NotificationService;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -69,17 +71,17 @@ public class NotificationController {
     }
 
     // 알림 보내기 (테스트용)
-    @PostMapping("/send-test/{type}")
+    @PostMapping("/send-test")
     @RoleUser
     public ResponseEntity<Void> sendTestNotification(
             @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable NotificationType type
+            @RequestBody TestNotificationRequest request
     ) {
         NotificationEvent event = NotificationEvent.builder()
                 .userId(userDetails.getUsername())
-                .message("테스트 알림입니다.")
-                .type(type)
-                .relatedUrl("/test")
+                .message(request.message())
+                .type(request.type())
+                .relatedUrl(request.relatedUrl())
                 .build();
         notificationService.sendNotification(event);
         return ResponseEntity.ok().build();

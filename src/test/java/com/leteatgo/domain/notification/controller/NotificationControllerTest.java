@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leteatgo.domain.notification.dto.NotificationDto;
+import com.leteatgo.domain.notification.dto.request.TestNotificationRequest;
 import com.leteatgo.domain.notification.service.NotificationService;
 import com.leteatgo.domain.notification.type.NotificationType;
 import com.leteatgo.global.dto.CustomPageRequest;
@@ -151,10 +152,14 @@ class NotificationControllerTest {
     @DisplayName("알림 보내기 (테스트용)")
     public void sendTestNotification() throws Exception {
         // given
-        NotificationType type = NotificationType.CANCEL;
+        TestNotificationRequest request = new TestNotificationRequest(
+                "알림 메시지", NotificationType.CANCEL, "https://www.naver.com"
+        );
         // when
         // then
-        mockMvc.perform(post("/api/notification/send-test/{type}", type)
+        mockMvc.perform(post("/api/notification/send-test")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request))
                         .cookie(new Cookie("access_token", "token"))
                         .with(csrf())
                 )
@@ -164,10 +169,6 @@ class NotificationControllerTest {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("notification")
                                 .summary("알림 보내기 (테스트용)")
-                                .pathParameters(
-                                        parameterWithName("type")
-                                                .description("알림 타입(CANCEL, REMIND, COMPLETED)")
-                                )
                                 .build()
                         )
                 ));
