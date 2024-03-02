@@ -19,7 +19,7 @@
 
 ## 시연 영상
 
-[![시연 영상](https://img.youtube.com/vi/3zv3z3z3z3z/0.jpg)](https://www.youtube.com/watch?v=x8_Y1Pa9x8o)
+[![시연 영상](static/youtube_logo.png)](https://www.youtube.com/watch?v=x8_Y1Pa9x8o)
 
 ## Project
 
